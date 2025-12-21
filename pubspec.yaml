@@ -29,6 +29,12 @@ dependencies:
     path: packages/infra/auth-biz
   auth_ui:
     path: packages/infra-ui/auth-ui
+  drift: ^2.30.0
+  drift_flutter: ^0.2.8
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  sqlite3_flutter_libs: ^0.5.41
+  crypto: ^3.0.7
 
 
 dev_dependencies:
@@ -43,6 +49,7 @@ dev_dependencies:
   json_serializable: ^6.11.2
   mockito: ^5.6.1
   http_mock_adapter: ^0.6.1
+  drift_dev: ^2.30.0
 
 workspace:
   - packages/core
