@@ -22,7 +22,24 @@ linter:
   # producing the lint.
   rules:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    prefer_relative_imports: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+analyzer:
+  errors:
+    invalid_annotation_target: ignore
+    invalid_export_of_internal_element: ignore
+  # 启用 custom_lint 插件
+#  plugins:
+#    - custom_lint
+
+# 这里可以配置具体的 lint 规则
+#custom_lint:
+#  rules:
+#    # 强烈推荐开启的规则
+#    - provider_dependencies: true
+#    - avoid_public_notifier_properties: true
+#    - avoid_manual_providers_as_generated_provider_dependency: true
