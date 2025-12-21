@@ -1,0 +1,27 @@
+name: platform_biz
+description: "平台集成实现"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core:
+    path: ../../core
+  auth_biz:
+    path: ../auth-biz
+
+dev_dependencies:
+  build_runner: any
+  # riverpod
+  riverpod_generator: any
+  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+
+
+
