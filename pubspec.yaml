@@ -25,6 +25,8 @@ dependencies:
 
   core:
     path: packages/core
+  auth_biz:
+    path: packages/infra/auth-biz
 
 
 dev_dependencies:
@@ -43,6 +45,7 @@ dev_dependencies:
 workspace:
   - packages/core
   - packages/infra-ui/common-ui
+  - packages/infra/auth-biz
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428
