@@ -1,8 +1,8 @@
 import 'package:core/di.dart';
 
 import '../data/interfaces/auth_session_storage.dart';
-import '../domain/remote_server.dart';
 import '../data/local/local_storage_providers.dart';
+import '../domain/user_identity.dart';
 
 part 'auth_state_notifier.g.dart';
 

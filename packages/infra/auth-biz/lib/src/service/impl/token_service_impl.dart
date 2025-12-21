@@ -8,7 +8,7 @@ import '../../data/interfaces/auth_response.dart';
 import '../../data/interfaces/auth_session_storage.dart';
 import '../../domain/auth_exceptions.dart';
 import '../../domain/connection_availability.dart';
-import '../../domain/remote_server.dart';
+import '../../domain/user_identity.dart';
 import '../../state/connection_availabilty_notifier.dart';
 import '../token_service.dart';
 

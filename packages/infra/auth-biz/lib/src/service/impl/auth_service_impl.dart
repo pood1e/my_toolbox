@@ -5,7 +5,7 @@ import '../../data/interfaces/auth_remote_api.dart';
 import '../../data/interfaces/auth_response.dart';
 import '../../data/interfaces/auth_session_storage.dart';
 import '../../domain/auth_exceptions.dart';
-import '../../domain/remote_server.dart';
+import '../../domain/user_identity.dart';
 import '../auth_aop.dart';
 import '../auth_service.dart';
 
@@ -71,7 +71,7 @@ class AuthServiceImpl implements AuthService {
     if (server == null || refreshToken == null || userId == null) {
       return;
     }
-    final ctx = AuthContext(userId: userId, server: server);
+    final ctx = UserIdentity(userId: userId, server: server);
     await Future.wait(_beforeLogouts.map((hook) => hook(ctx)));
     try {
       await _api.logout(server: server, refreshToken: refreshToken);
@@ -109,7 +109,7 @@ class AuthServiceImpl implements AuthService {
   }
 
   Future<void> _aroundLogin(RemoteServer server, AuthResponse response) async {
-    final ctx = AuthContext(userId: response.userId, server: server);
+    final ctx = UserIdentity(userId: response.userId, server: server);
     for (final hook in _beforeLogins) {
       if (!await hook(ctx)) throw Exception('Login aborted');
     }

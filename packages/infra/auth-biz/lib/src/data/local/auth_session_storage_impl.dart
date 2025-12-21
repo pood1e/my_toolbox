@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../data/interfaces/auth_response.dart';
-import '../../domain/remote_server.dart';
+import '../../domain/user_identity.dart';
 import '../interfaces/auth_session_storage.dart';
 
 class AuthSessionStorageImpl implements AuthSessionStorage {

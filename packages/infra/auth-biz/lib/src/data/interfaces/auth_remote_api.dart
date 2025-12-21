@@ -1,4 +1,4 @@
-import '../../domain/remote_server.dart';
+import '../../domain/user_identity.dart';
 import 'auth_response.dart';
 
 /// 鉴权api

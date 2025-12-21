@@ -1,6 +1,6 @@
 export 'src/domain/auth_exceptions.dart';
 export 'src/domain/connection_availability.dart';
-export 'src/domain/remote_server.dart';
+export 'src/domain/user_identity.dart';
 export 'src/network/authenciated_dio_provider.dart'
     show authenticatedDioProvider;
 export 'src/providers.dart'

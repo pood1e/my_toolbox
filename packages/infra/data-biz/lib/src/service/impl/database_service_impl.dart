@@ -51,13 +51,12 @@ class DatabaseServiceImpl implements DatabaseService {
   @override
   Future<void> migrateFromGuest(
     String db,
-    String userId,
-    RemoteServer server,
+    UserIdentity userId,
     DatabaseMigration migration, [
     bool deleteGuest = true,
   ]) async {
     final srcPath = _pathService.guestRoot;
-    final dstPath = _pathService.getUserRoot(userId, server);
+    final dstPath = _pathService.getUserRoot(userId);
     final srcFile = _DatabaseHelper.dbFile(db, srcPath);
     // 原始数据库不存在, 认为迁移成功
     if (!(await _DatabaseHelper.checkFileExist(srcFile))) {
@@ -95,15 +94,8 @@ class DatabaseServiceImpl implements DatabaseService {
   }
 
   @override
-  QueryExecutor openUserDatabase(
-    String db,
-    String userId,
-    RemoteServer server,
-  ) {
-    return _DatabaseHelper.openConnection(
-      db,
-      _pathService.getUserRoot(userId, server),
-    );
+  QueryExecutor openUserDatabase(String db, UserIdentity userId) {
+    return _DatabaseHelper.openConnection(db, _pathService.getUserRoot(userId));
   }
 
   @override
@@ -111,6 +103,6 @@ class DatabaseServiceImpl implements DatabaseService {
       _DatabaseHelper.removeDirectory(_pathService.guestRoot);
 
   @override
-  Future<void> clearUser(String userId, RemoteServer server) =>
-      _DatabaseHelper.removeDirectory(_pathService.getUserRoot(userId, server));
+  Future<void> clearUser(UserIdentity userId) =>
+      _DatabaseHelper.removeDirectory(_pathService.getUserRoot(userId));
 }

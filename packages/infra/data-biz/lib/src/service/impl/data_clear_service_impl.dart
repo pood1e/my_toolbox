@@ -15,7 +15,7 @@ class DataClearServiceImpl implements DataClearService {
   }
 
   @override
-  Future<void> clearUser(String userId, RemoteServer server) async {
-    await _databaseService.clearUser(userId, server);
+  Future<void> clearUser(UserIdentity userId) async {
+    await _databaseService.clearUser(userId);
   }
 }

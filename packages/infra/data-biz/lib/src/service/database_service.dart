@@ -8,19 +8,18 @@ abstract class DatabaseMigration {
 abstract class DatabaseService {
   QueryExecutor openGlobalDatabase(String db);
 
-  QueryExecutor openUserDatabase(String db, String userId, RemoteServer server);
+  QueryExecutor openUserDatabase(String db, UserIdentity userId);
 
   QueryExecutor openGuestDatabase(String db);
 
   Future<void> migrateFromGuest(
     String db,
-    String userId,
-    RemoteServer server,
+    UserIdentity userId,
     DatabaseMigration migration, [
     bool deleteGuest = true,
   ]);
 
   Future<void> clearGuest();
 
-  Future<void> clearUser(String userId, RemoteServer server);
+  Future<void> clearUser(UserIdentity userId);
 }

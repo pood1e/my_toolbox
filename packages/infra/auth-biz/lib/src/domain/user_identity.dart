@@ -1,7 +1,27 @@
+import 'dart:convert';
+
+import 'package:core/crypto.dart';
 import 'package:core/object.dart';
 
-part 'remote_server.freezed.dart';
-part 'remote_server.g.dart';
+part 'user_identity.freezed.dart';
+part 'user_identity.g.dart';
+
+@freezed
+abstract class UserIdentity with _$UserIdentity {
+  const UserIdentity._();
+
+  const factory UserIdentity({
+    required String userId,
+    required RemoteServer server,
+  }) = _UserIdentity;
+
+  String get hash {
+    return md5
+        .convert(utf8.encode('${server.host}:${server.port}_$userId'))
+        .toString()
+        .substring(0, 16);
+  }
+}
 
 @freezed
 abstract class RemoteServer with _$RemoteServer {

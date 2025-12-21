@@ -1,7 +1,7 @@
 import 'package:core/object.dart';
 import 'package:dio/dio.dart';
 
-import '../../domain/remote_server.dart';
+import '../../domain/user_identity.dart';
 import '../interfaces/auth_remote_api.dart';
 import '../interfaces/auth_response.dart';
 
