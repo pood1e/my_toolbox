@@ -1,0 +1,14 @@
+name: common_ui
+description: "界面通用包"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core:
+    path: ../../core
+
+
