@@ -55,6 +55,7 @@ workspace:
   - packages/core
   - packages/infra-ui/common-ui
   - packages/infra/auth-biz
+  - packages/infra/data-biz
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428
