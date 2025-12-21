@@ -1,8 +1,10 @@
 import 'package:core/di.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'data_clear_service.dart';
 import 'data_path_service.dart';
 import 'database_service.dart';
+import 'impl/data_clear_service_impl.dart';
 import 'impl/data_path_service_impl.dart';
 import 'impl/database_service_impl.dart';
 
@@ -18,4 +20,10 @@ Future<DataPathService> dataPathService(Ref ref) async {
 Future<DatabaseService> databaseService(Ref ref) async {
   final pathService = await ref.read(dataPathServiceProvider.future);
   return DatabaseServiceImpl(pathService: pathService);
+}
+
+@Riverpod(keepAlive: true)
+Future<DataClearService> dataClearService(Ref ref) async {
+  final databaseService = await ref.read(databaseServiceProvider.future);
+  return DataClearServiceImpl(databaseService: databaseService);
 }
