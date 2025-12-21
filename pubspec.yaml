@@ -27,6 +27,8 @@ dependencies:
     path: packages/core
   auth_biz:
     path: packages/infra/auth-biz
+  auth_ui:
+    path: packages/infra-ui/auth-ui
 
 
 dev_dependencies:
