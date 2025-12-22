@@ -1,6 +1,6 @@
 import 'package:auth_biz/src/data/remote/auth_remote_api_impl.dart';
 import 'package:auth_biz/src/domain/user_identity.dart';
-import 'package:dio/dio.dart';
+import 'package:core/http.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 

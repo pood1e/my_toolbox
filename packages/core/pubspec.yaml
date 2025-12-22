@@ -24,6 +24,8 @@ dependencies:
   go_router: any
   # crypto
   crypto: any
+  # dio
+  dio: any
 
 dev_dependencies:
   build_runner: any

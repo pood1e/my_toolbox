@@ -11,7 +11,6 @@ dependencies:
   core:
     path: ../../core
   flutter_secure_storage: any
-  dio: any
 
 dev_dependencies:
   flutter_test:

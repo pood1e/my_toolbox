@@ -1,6 +1,6 @@
 import 'package:core/di.dart';
+import 'package:core/http.dart';
 import 'package:core/logger.dart';
-import 'package:dio/dio.dart';
 
 import '../domain/connection_availability.dart';
 import '../state/auth_state_notifier.dart';

@@ -1,5 +1,5 @@
+import 'package:core/http.dart';
 import 'package:core/object.dart';
-import 'package:dio/dio.dart';
 
 import '../../domain/user_identity.dart';
 import '../interfaces/auth_remote_api.dart';

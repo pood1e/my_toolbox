@@ -2,7 +2,7 @@
 import 'package:auth_biz/auth_biz.dart';
 import 'package:auth_biz/src/data/interfaces/auth_response.dart';
 import 'package:auth_biz/src/service/impl/auth_service_impl.dart';
-import 'package:dio/dio.dart';
+import 'package:core/http.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -43,7 +43,7 @@ void main() {
       afterLogins: afterLogins,
       beforeLogouts: beforeLogouts,
       afterLogouts: afterLogouts,
-      onAuthUpdate: onUpdate ?? (_, __) {},
+      onAuthUpdate: onUpdate ?? (_, _) {},
       onAuthClear: onClear ?? () {},
     );
   }

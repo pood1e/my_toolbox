@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:core/http.dart';
 import 'package:core/logger.dart';
-import 'package:dio/dio.dart';
 
 import '../../data/interfaces/auth_remote_api.dart';
 import '../../data/interfaces/auth_response.dart';

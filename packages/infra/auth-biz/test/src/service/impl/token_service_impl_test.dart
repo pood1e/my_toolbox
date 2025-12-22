@@ -2,7 +2,7 @@
 import 'package:auth_biz/auth_biz.dart';
 import 'package:auth_biz/src/data/interfaces/auth_response.dart';
 import 'package:auth_biz/src/service/impl/token_service_impl.dart';
-import 'package:dio/dio.dart';
+import 'package:core/http.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -145,7 +145,9 @@ void main() {
         DioException(
           requestOptions: RequestOptions(path: ''), // Dio 5+ 建议加上 path
           response: Response(
-              requestOptions: RequestOptions(path: ''), statusCode: 401),
+            requestOptions: RequestOptions(path: ''),
+            statusCode: 401,
+          ),
         ),
       );
 
