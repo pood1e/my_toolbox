@@ -61,7 +61,7 @@ Future<DataMigrationService> dataMigration(Ref ref) async {
 }
 
 @Riverpod(keepAlive: true)
-Future<GeneratedDatabase> currentDatabase(Ref ref) async {
+Future<GeneratedDatabase> currentUserDatabase(Ref ref) async {
   final scope = await ref.watch(currentUserDataScopeProvider.future);
   final factory = ref.watch(migrationDatabaseFactoryProvider);
   return factory(scope);
