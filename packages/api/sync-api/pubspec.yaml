@@ -1,0 +1,36 @@
+name: sync_api
+description: "同步-接口"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # drift
+  drift: any
+
+  core:
+    path: ../../core
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  # test
+  mockito: any
+  http_mock_adapter: any
+  # riverpod
+  riverpod_generator: any
+  #  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+  # db
+  drift_dev: any
+
+

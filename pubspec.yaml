@@ -57,6 +57,8 @@ workspace:
   - packages/infra-ui/common-ui
   - packages/infra/auth-biz
   - packages/infra/data-biz
+  - packages/infra/sync-biz
+  - packages/api/sync-api
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428

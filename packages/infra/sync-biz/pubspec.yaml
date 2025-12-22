@@ -1,0 +1,39 @@
+name: sync_biz
+description: "同步-实现"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  core:
+    path: ../../core
+  auth_biz:
+    path: ../auth-biz
+  data_biz:
+    path: ../data-biz
+  sync_api:
+    path: ../../api/sync-api
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  # test
+  mockito: any
+  http_mock_adapter: any
+  # riverpod
+  riverpod_generator: any
+  #  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+  # db
+  drift_dev: any
+
+
