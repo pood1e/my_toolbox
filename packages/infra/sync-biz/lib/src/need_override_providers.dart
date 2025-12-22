@@ -1,5 +1,4 @@
 import 'package:core/di.dart';
-import 'package:core/object.dart';
 import 'package:sync_api/sync_api.dart';
 
 part 'need_override_providers.g.dart';
@@ -8,4 +7,3 @@ part 'need_override_providers.g.dart';
 Future<List<SyncDelegate<dynamic>>> syncDelegates(Ref ref) {
   throw UnimplementedError('must override');
 }
-
