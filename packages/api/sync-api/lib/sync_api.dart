@@ -1,5 +1,7 @@
 export 'src/api/sync_envelopes.dart';
+export 'src/api/sync_object.dart';
 export 'src/api/sync_remote_api.dart';
+export 'src/database/drift_sync_helper.dart';
 export 'src/database/syncable_table.dart';
 export 'src/delegate/base_sync_delegate.dart';
 export 'src/delegate/sync_delegate.dart';
