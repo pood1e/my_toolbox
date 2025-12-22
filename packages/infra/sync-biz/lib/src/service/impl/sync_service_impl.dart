@@ -2,8 +2,9 @@ import 'package:core/logger.dart';
 import 'package:sync_api/sync_api.dart';
 
 import '../../domain/sync_exceptions.dart';
+import '../sync_all_service.dart';
 
-class SyncServiceImpl implements SyncService {
+class SyncServiceImpl implements SyncService, SyncAllService {
   final Map<String, SyncDelegate<dynamic>> _delegateMap;
   final Future<bool> Function() _canSync;
   final Future<int?> Function(String) _loadCursor;
@@ -74,5 +75,10 @@ class SyncServiceImpl implements SyncService {
     } finally {
       _syncingMap[resourceId] = false;
     }
+  }
+
+  @override
+  Future<void> syncAll() async {
+    await Future.wait(_delegateMap.keys.map(sync));
   }
 }

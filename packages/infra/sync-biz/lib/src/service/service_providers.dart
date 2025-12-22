@@ -8,6 +8,7 @@ import '../state/sync_states.dart';
 import 'impl/realtime_service_impl.dart';
 import 'impl/sync_service_impl.dart';
 import 'realtime_service.dart';
+import 'sync_all_service.dart';
 
 part 'service_providers.g.dart';
 
@@ -18,7 +19,7 @@ Future<Map<String, SyncDelegate<dynamic>>> syncDelegateMap(Ref ref) async {
 }
 
 @Riverpod(keepAlive: true)
-Future<SyncService> syncService(Ref ref) async {
+Future<SyncServiceImpl> _syncService(Ref ref) async {
   final delegateMap = await ref.read(syncDelegateMapProvider.future);
 
   return SyncServiceImpl(
@@ -40,6 +41,16 @@ Future<SyncService> syncService(Ref ref) async {
       return notifier.save(SyncCursor(cursor: cursor, lastSyncedAt: cursor));
     },
   );
+}
+
+@Riverpod(keepAlive: true)
+Future<SyncService> syncService(Ref ref) async {
+  return await ref.watch(_syncServiceProvider.future);
+}
+
+@Riverpod(keepAlive: true)
+Future<SyncAllService> syncAllService(Ref ref) async {
+  return await ref.watch(_syncServiceProvider.future);
 }
 
 @Riverpod(keepAlive: true)
