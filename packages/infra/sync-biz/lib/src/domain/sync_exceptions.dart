@@ -4,6 +4,10 @@ class SyncConcurrentException extends SyncException {}
 
 class SyncDelegateNotFoundException extends SyncException {}
 
-class SyncUnavailableException extends SyncException {}
+class SyncDisallowException extends SyncException {}
 
+class SyncFailedException extends SyncException {
+  final String message;
 
+  SyncFailedException({required this.message});
+}

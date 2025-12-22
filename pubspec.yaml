@@ -36,6 +36,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.41
   crypto: ^3.0.7
   mmkv: ^2.3.0
+  stomp_dart_client: ^3.0.1
 
 
 dev_dependencies:

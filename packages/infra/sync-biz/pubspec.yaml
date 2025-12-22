@@ -8,7 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
+  stomp_dart_client: any
   core:
     path: ../../core
   auth_biz:
