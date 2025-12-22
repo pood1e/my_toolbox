@@ -3,12 +3,7 @@ export 'src/domain/connection_availability.dart';
 export 'src/domain/user_identity.dart';
 export 'src/network/authenciated_dio_provider.dart'
     show authenticatedDioProvider;
-export 'src/providers.dart'
-    show
-        beforeLoginsProvider,
-        afterLoginsProvider,
-        beforeLogoutsProvider,
-        afterLogoutsProvider;
+export 'src/providers.dart';
 // aop settings
 export 'src/service/auth_aop.dart';
 // 登陆状态
