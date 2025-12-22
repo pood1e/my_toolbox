@@ -5,7 +5,7 @@ import '../data_path_service.dart';
 
 class DataPathServiceImpl implements DataPathService {
   static const _data = 'my-toolbox';
-  static const _gusetScope = 'guest';
+  static const _guestScope = 'guest';
 
   final String _root;
 
@@ -13,7 +13,7 @@ class DataPathServiceImpl implements DataPathService {
     : _root = join(storagePath, _data);
 
   @override
-  String get guestRoot => join(_root, _gusetScope);
+  String get guestRoot => join(_root, _guestScope);
 
   @override
   String get root => _root;
