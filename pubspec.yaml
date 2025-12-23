@@ -37,6 +37,7 @@ dependencies:
   crypto: ^3.0.7
   mmkv: ^2.3.0
   stomp_dart_client: ^3.0.1
+  uuid: ^4.5.2
 
 
 dev_dependencies:

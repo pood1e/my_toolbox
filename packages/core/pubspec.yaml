@@ -26,6 +26,8 @@ dependencies:
   crypto: any
   # dio
   dio: any
+  # uuid
+  uuid: any
 
 dev_dependencies:
   build_runner: any

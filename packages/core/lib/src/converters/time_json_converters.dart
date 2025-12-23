@@ -15,19 +15,16 @@ class DateJsonConverter implements JsonConverter<DateTime, String> {
   }
 }
 
-class DateTimeConverter implements JsonConverter<DateTime?, String?> {
+class DateTimeConverter implements JsonConverter<DateTime, String> {
   const DateTimeConverter();
 
   @override
-  DateTime? fromJson(String? str) {
-    if (str == null) {
-      return null;
-    }
+  DateTime fromJson(String str) {
     return DateTime.parse(str);
   }
 
   @override
-  String? toJson(DateTime? object) {
-    return object?.toUtc().toIso8601String();
+  String toJson(DateTime object) {
+    return object.toUtc().toIso8601String();
   }
 }
