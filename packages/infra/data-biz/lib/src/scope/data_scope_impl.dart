@@ -1,91 +1,69 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
-import 'package:mmkv/mmkv.dart';
+import 'package:core/logger.dart';
 
-import '../domain/kv_store.dart';
-import '../domain/mmkv_store.dart';
+import '../domain/data_source.dart';
 import 'data_scope.dart';
 
 class DataScopeImpl implements DataScope {
-  @override
-  final String id;
-  @override
-  final String rootPath;
+  final String _scopePath;
 
-  // [修改点 1]: 缓存所有活跃的 KV 实例
-  // Key: KV 的名称 (如 'settings'), Value: 实例
-  final Map<String, KVStore> _activeKvs = {};
+  final Map<String, _ActiveResource> _resources = {};
 
-  // DB 实例缓存
-  GeneratedDatabase? _db;
-
-  DataScopeImpl({required this.id, required this.rootPath});
+  DataScopeImpl({required String scopePath}) : _scopePath = scopePath;
 
   @override
-  KVStore getKv(String name) {
-    if (_activeKvs.containsKey(name)) {
-      return _activeKvs[name]!;
+  Future<T> get<T>(StorageDefinition<T> source) async {
+    final key = source.key;
+    if (_resources.containsKey(key)) {
+      return _resources[key]!.instance as T;
     }
-    final mmkv = MMKV(name, rootDir: rootPath);
-    final store = MMKVStore(mmkv);
-    _activeKvs[name] = store;
-    return store;
-  }
-
-  @override
-  T getDatabase<T extends GeneratedDatabase>(
-    T Function(QueryExecutor e) factory,
-  ) {
-    // 如果已经有缓存，直接返回
-    if (_db != null) {
-      if (_db is T) {
-        return _db as T;
-      } else {
-        throw StateError(
-          'Scope $id already holds a database of type ${_db.runtimeType}, but requested $T',
-        );
-      }
-    }
-
-    final executor = driftDatabase(
-      name: 'app',
-      native: DriftNativeOptions(
-        databasePath: () async => rootPath,
-        isolateDebugLog: true,
-      ),
-    );
-
-    // 通过工厂创建具体的 Database 类 (如 AppDatabase)
-    final instance = factory(executor);
-    _db = instance;
+    final instance = await source.create(_scopePath);
+    _resources[key] = _ActiveResource(source, instance);
     return instance;
   }
 
   @override
   Future<void> close() async {
-    // [修改点 3]: 遍历关闭所有 KV
-    // 并行关闭以提高效率
-    await Future.wait(_activeKvs.values.map((kv) => kv.close()));
-    _activeKvs.clear();
-
-    // 关闭数据库
-    if (_db != null) {
-      await _db!.close();
-      _db = null;
-    }
+    // 并行销毁所有资源
+    await Future.wait(
+      _resources.values.map((resource) async {
+        try {
+          await resource.definition.dispose(resource.instance);
+        } catch (e) {
+          logger.e('Error disposing resource ${resource.definition.key}: $e');
+        }
+      }),
+    );
+    _resources.clear();
   }
 
   @override
   Future<void> delete() async {
-    // 1. 关闭资源 (释放文件锁)
     await close();
+    final dir = Directory(_scopePath);
+    if (await dir.exists()) await dir.delete(recursive: true);
+  }
 
-    // 2. 物理删除
-    final dir = Directory(rootPath);
-    if (await dir.exists()) {
-      await dir.delete(recursive: true);
+  @override
+  Future<void> dispose(StorageDefinition<dynamic> source) async {
+    final key = source.key;
+
+    if (_resources.containsKey(key)) {
+      final resource = _resources[key]!;
+      try {
+        await source.dispose(resource.instance);
+      } catch (e) {
+        logger.e('Error disposing resource $key: $e');
+      }
+      _resources.remove(key);
     }
   }
+}
+
+class _ActiveResource {
+  final StorageDefinition definition;
+  final dynamic instance;
+
+  _ActiveResource(this.definition, this.instance);
 }

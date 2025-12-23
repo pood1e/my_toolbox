@@ -1,17 +1,9 @@
-import 'package:drift/drift.dart';
-
-import '../domain/kv_store.dart';
+import '../domain/data_source.dart';
 
 abstract class DataScope {
-  String get id;
+  Future<T> get<T>(StorageDefinition<T> source);
 
-  String get rootPath;
-
-  KVStore getKv(String name);
-
-  T getDatabase<T extends GeneratedDatabase>(
-    T Function(QueryExecutor e) factory,
-  );
+  Future<void> dispose(StorageDefinition<dynamic> source);
 
   Future<void> close();
 

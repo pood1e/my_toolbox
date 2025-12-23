@@ -1,21 +1,12 @@
 import 'package:core/di.dart';
 import 'package:core/object.dart';
 
-import 'domain/migrator.dart';
+import '../data_biz.dart';
+import 'domain/data_source.dart';
 
 part 'need_override_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-MigrationDbFactory migrationDatabaseFactory(Ref ref) {
-  throw NotOverrideError();
-}
-
-@Riverpod(keepAlive: true)
-List<FeatureDbMigrator> dbMigrationRegistry(Ref ref) {
-  return [];
-}
-
-@Riverpod(keepAlive: true)
-List<FeatureKvMigrator> kvMigrationRegistry(Ref ref) {
+List<Migratable<dynamic>> migrations(Ref ref) {
   return [];
 }
