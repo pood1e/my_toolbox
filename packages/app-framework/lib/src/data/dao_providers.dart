@@ -1,5 +1,5 @@
 import 'package:app_core/di.dart';
-import 'package:data_biz/data_biz.dart';
+import 'package:data_api/data_api.dart';
 
 import 'framework_database.dart';
 import 'launcher/launcher_dao.dart';
@@ -8,14 +8,11 @@ part 'dao_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 Future<FrameworkDatabase> frameworkDatabase(Ref ref) async {
-  final scope = await ref.watch(currentUserDataScopeProvider.future);
-  final definition = DriftStorageDefinition(
-    instance: 'framework',
-    factory: (e) => FrameworkDatabase(e),
+  return await ref.watch(
+    userDbStoreProvider(
+      DatabaseId('framework', (e) => FrameworkDatabase(e)),
+    ).future,
   );
-  final db = scope.get(definition);
-  ref.onDispose(() => scope.dispose(definition));
-  return db;
 }
 
 @Riverpod(keepAlive: true)

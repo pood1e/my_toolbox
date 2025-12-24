@@ -1,4 +1,4 @@
-import 'package:data_biz/data_biz.dart';
+import 'package:data_api/data_api.dart';
 
 import '../../domain/sync_settings.dart';
 import '../sync_settings_storage.dart';

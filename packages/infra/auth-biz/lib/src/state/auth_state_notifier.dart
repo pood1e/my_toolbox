@@ -1,8 +1,9 @@
 import 'package:app_core/di.dart';
+import 'package:auth_api/auth_api.dart';
 
 import '../data/interfaces/auth_session_storage.dart';
 import '../data/local/local_storage_providers.dart';
-import '../domain/user_identity.dart';
+import '../domain/connection_availability.dart';
 
 part 'auth_state_notifier.g.dart';
 
@@ -21,6 +22,20 @@ mixin _AsyncStorageMixin<T> on $AsyncNotifier<T?> {
 
   Future<void> clear() async {
     state = AsyncValue.data(null);
+  }
+}
+
+@Riverpod(keepAlive: true)
+class ConnectionAvailabiltyNotifier extends _$ConnectionAvailabiltyNotifier {
+  @override
+  ConnectionAvailability build() {
+    return ConnectionAvailability.verifying;
+  }
+
+  void save(ConnectionAvailability availability) {
+    if (availability != state) {
+      state = availability;
+    }
   }
 }
 

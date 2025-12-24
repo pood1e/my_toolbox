@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:app_core/logger.dart';
-
-import '../domain/storage_definition.dart';
-import 'data_scope.dart';
+import 'package:data_api/data_api.dart';
 
 class DataScopeImpl implements DataScope {
   final String _scopePath;
@@ -19,6 +17,8 @@ class DataScopeImpl implements DataScope {
       return _resources[key]!.instance as T;
     }
     final instance = await source.create(_scopePath);
+    logger.i('data resource $_scopePath:$key created.');
+
     _resources[key] = _ActiveResource(source, instance);
     return instance;
   }
@@ -30,6 +30,9 @@ class DataScopeImpl implements DataScope {
       _resources.values.map((resource) async {
         try {
           await resource.definition.dispose(resource.instance);
+          logger.i(
+            'data resource $_scopePath:${resource.definition.key} disposed.',
+          );
         } catch (e) {
           logger.e('Error disposing resource ${resource.definition.key}: $e');
         }
@@ -53,6 +56,7 @@ class DataScopeImpl implements DataScope {
       final resource = _resources[key]!;
       try {
         await source.dispose(resource.instance);
+        logger.i('data resource $_scopePath:$key disposed.');
       } catch (e) {
         logger.e('Error disposing resource $key: $e');
       }

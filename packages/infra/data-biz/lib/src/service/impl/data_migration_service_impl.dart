@@ -1,7 +1,7 @@
-import 'package:auth_biz/auth_biz.dart';
 import 'package:app_core/logger.dart';
+import 'package:auth_api/auth_api.dart';
+import 'package:data_api/data_api.dart';
 
-import '../../domain/storage_definition.dart';
 import '../../domain/scope_type.dart';
 import '../data_migration_service.dart';
 import '../data_scope_service.dart';

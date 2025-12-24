@@ -1,4 +1,4 @@
-import '../domain/user_identity.dart';
+import 'package:auth_api/auth_api.dart';
 
 typedef BeforeLogin = Future<bool> Function(UserIdentity);
 typedef AfterLogin = Future<void> Function(UserIdentity);

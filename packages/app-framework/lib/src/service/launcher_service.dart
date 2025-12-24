@@ -1,4 +1,4 @@
-import '../domain/app_definition.dart';
+import 'package:app_core/core.dart';
 
 abstract class LauncherService {
   Stream<List<AppDefinition>> watchApps();

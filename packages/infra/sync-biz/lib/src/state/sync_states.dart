@@ -1,4 +1,3 @@
-import 'package:auth_biz/auth_biz.dart';
 import 'package:app_core/di.dart';
 
 import '../data/sync_local_providers.dart';
@@ -15,6 +14,18 @@ class SyncingNotifier extends _$SyncingNotifier {
   void setSyncing(String resourceId, bool syncing) {
     state = {...state, resourceId: syncing};
   }
+}
+
+@riverpod
+bool resourceSyncing(Ref ref, String resourceId) {
+  final syncingMap = ref.read(syncingProvider);
+  return syncingMap[resourceId] ?? false;
+}
+
+@riverpod
+bool anySyncing(Ref ref) {
+  final syncingMap = ref.watch(syncingProvider);
+  return syncingMap.values.any((syncing) => syncing);
 }
 
 @Riverpod(keepAlive: true)
@@ -53,18 +64,4 @@ class SyncCursorNotifier extends _$SyncCursorNotifier {
     await storage.save(resourceId, cursor);
     state = AsyncValue.data(cursor);
   }
-}
-
-@riverpod
-Future<bool> autoSync(Ref ref) async {
-  final settings = await ref.watch(syncSettingsProvider.future);
-  if (!settings.enable || !settings.autoSync) {
-    return false;
-  }
-  // 在网络不可用和token有效时进行尝试
-  final ConnectionAvailability availability = ref.watch(
-    connectionAvailabiltyProvider,
-  );
-  return availability == ConnectionAvailability.active ||
-      availability == ConnectionAvailability.offline;
 }

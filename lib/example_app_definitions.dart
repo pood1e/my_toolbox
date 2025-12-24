@@ -1,4 +1,4 @@
-import 'package:app_framework/starter.dart';
+import 'package:app_core/core.dart';
 import 'package:flutter/material.dart';
 
 /// 示例 App 定义列表

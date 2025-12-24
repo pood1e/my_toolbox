@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:data_api/data_api.dart';
 import 'package:path/path.dart';
 
-import '../../scope/data_scope.dart';
 import '../../scope/data_scope_impl.dart';
 import '../data_scope_service.dart';
 
@@ -28,5 +28,12 @@ class DataScopeServiceImpl implements DataScopeService {
       await dir.create(recursive: true);
     }
     return _activeScopes.putIfAbsent(id, () => DataScopeImpl(scopePath: path));
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    final scope = await get(id);
+    await close(id);
+    await scope.delete();
   }
 }

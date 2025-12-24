@@ -1,11 +1,11 @@
 import 'package:app_core/http.dart';
 import 'package:app_core/logger.dart';
+import 'package:auth_api/auth_api.dart';
 
 import '../../data/interfaces/auth_remote_api.dart';
 import '../../data/interfaces/auth_response.dart';
 import '../../data/interfaces/auth_session_storage.dart';
 import '../../domain/auth_exceptions.dart';
-import '../../domain/user_identity.dart';
 import '../auth_aop.dart';
 import '../auth_service.dart';
 

@@ -1,37 +1,67 @@
-import 'package:app_core/di.dart';
+/// 提供给框架使用
+library;
 
-import 'domain/user_identity.dart';
-import 'service/auth_aop.dart';
+import 'package:app_core/core.dart';
+import 'package:app_core/di.dart';
+import 'package:app_core/route.dart';
+import 'package:flutter/material.dart';
+
+import '../auth_biz.dart';
+import 'service/service_provider.dart';
 import 'state/auth_state_notifier.dart';
 
 part 'providers.g.dart';
 
 @Riverpod(keepAlive: true)
-Future<UserIdentity?> currentUserIdentity(Ref ref) async {
-  final server = await ref.watch(remoteServerProvider.future);
-  final userId = await ref.watch(userIdProvider.future);
-  if (server == null || userId == null) {
+Future<String?> authenciatedAccessToken(Ref ref) async {
+  final availability = ref.watch(connectionAvailabiltyProvider);
+  if (availability != ConnectionAvailability.active) {
     return null;
   }
-  return UserIdentity(userId: userId, server: server);
+  return await ref.watch(accessTokenProvider.future);
 }
 
-@Riverpod(keepAlive: true)
-Future<List<BeforeLogin>> beforeLogins(Ref ref) async {
-  return [];
+@riverpod
+StartupAction checkTokenAction(Ref ref) {
+  return () async {
+    final tokenService = await ref.read(tokenServiceProvider.future);
+    await tokenService.checkTokenValidation();
+  };
 }
 
-@Riverpod(keepAlive: true)
-Future<List<AfterLogin>> afterLogins(Ref ref) async {
-  return [];
+@riverpod
+Future<void> Function() refreshAccessToken(Ref ref) {
+  return () async {
+    final tokenService = await ref.read(tokenServiceProvider.future);
+    await tokenService.refresh();
+  };
 }
 
-@Riverpod(keepAlive: true)
-Future<List<BeforeLogout>> beforeLogouts(Ref ref) async {
-  return [];
-}
-
-@Riverpod(keepAlive: true)
-Future<List<AfterLogout>> afterLogouts(Ref ref) async {
-  return [];
+@riverpod
+List<RouteBase> authRoutes(Ref ref) {
+  return [
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (ctx, _) => LoginPage(
+        onLoginSuccess: () {
+          if (ctx.canPop()) {
+            ctx.pop();
+          }
+        },
+        onGoToRegister: () {
+          ctx.push(AppRoutes.register);
+        },
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.register,
+      builder: (ctx, _) => RegisterPage(
+        onRegisterSuccess: () {
+          if (ctx.canPop()) {
+            Navigator.of(ctx).popUntil((route) => route.isFirst);
+          }
+        },
+      ),
+    ),
+  ];
 }

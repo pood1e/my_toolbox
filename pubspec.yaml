@@ -55,12 +55,15 @@ dev_dependencies:
 
 workspace:
   - packages/app-core
+  - packages/api/auth-api
+  - packages/api/data-api
+  - packages/api/sync-api
+  - packages/app-framework
   - packages/infra/common-ui
   - packages/infra/auth-biz
   - packages/infra/data-biz
   - packages/infra/sync-biz
-  - packages/api/sync-api
-  - packages/app-framework
+
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428

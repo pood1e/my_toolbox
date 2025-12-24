@@ -1,7 +1,7 @@
 import 'package:app_core/http.dart';
 import 'package:app_core/object.dart';
+import 'package:auth_api/auth_api.dart';
 
-import '../../domain/user_identity.dart';
 import '../interfaces/auth_remote_api.dart';
 import '../interfaces/auth_response.dart';
 

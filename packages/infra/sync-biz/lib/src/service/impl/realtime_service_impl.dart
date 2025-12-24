@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:auth_biz/auth_biz.dart';
 import 'package:app_core/logger.dart';
+import 'package:auth_api/auth_api.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:sync_api/sync_api.dart';
 
@@ -11,7 +11,7 @@ import '../realtime_service.dart';
 class RealtimeServiceImpl implements RealtimeService {
   final RemoteServer _server;
   final String _token;
-  final SyncService _syncService;
+  final SyncAction _syncAction;
 
   // 回调：仅通知外部去刷新 Token，Service 内部不再处理重连逻辑
   final Future<void> Function() _onAuthExpired;
@@ -21,11 +21,11 @@ class RealtimeServiceImpl implements RealtimeService {
   RealtimeServiceImpl({
     required RemoteServer server,
     required String token,
-    required SyncService syncService,
+    required SyncAction triggerSyncAction,
     required Future<void> Function() onAuthExpired,
   }) : _server = server,
        _token = token,
-       _syncService = syncService,
+       _syncAction = triggerSyncAction,
        _onAuthExpired = onAuthExpired;
 
   /// 启动连接
@@ -88,7 +88,7 @@ class RealtimeServiceImpl implements RealtimeService {
           try {
             final data = jsonDecode(frame.body!);
             if (data['type'] == 'sync_trigger' && data['resourceId'] != null) {
-              _syncService.sync(data['resourceId']);
+              _syncAction(data['resourceId']);
             }
           } catch (e) {
             logger.e('⚠️ JSON Parse Error: $e');

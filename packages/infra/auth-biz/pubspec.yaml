@@ -8,8 +8,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  json_annotation: any
+
   app_core:
     path: ../../app-core
+  auth_api:
+    path: ../../api/auth-api
   common_ui:
     path: ../common-ui
   flutter_secure_storage: any

@@ -14,7 +14,7 @@ dependencies:
 
   app_core:
     path: ../../app-core
-
+  json_annotation: any
 
 dev_dependencies:
   flutter_test:

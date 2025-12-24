@@ -8,8 +8,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  mmkv: any
+
+  json_annotation: any
   app_core:
     path: ../app-core
+  auth_api:
+    path: ../api/auth-api
+  data_api:
+    path: ../api/data-api
   auth_biz:
     path: ../infra/auth-biz
   data_biz:

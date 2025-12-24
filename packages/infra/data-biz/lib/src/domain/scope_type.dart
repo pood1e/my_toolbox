@@ -1,4 +1,4 @@
-import 'package:auth_biz/auth_biz.dart';
+import 'package:auth_api/auth_api.dart';
 
 sealed class Scope {
   String get id;

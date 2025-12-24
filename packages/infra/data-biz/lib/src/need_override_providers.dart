@@ -1,11 +1,10 @@
 import 'package:app_core/di.dart';
-
-import '../data_biz.dart';
-import 'domain/storage_definition.dart';
+import 'package:app_core/object.dart';
+import 'package:data_api/data_api.dart';
 
 part 'need_override_providers.g.dart';
 
-@Riverpod(keepAlive: true)
-List<Migratable<dynamic>> migrations(Ref ref) {
-  return [];
+@riverpod
+Future<List<Migratable<dynamic>>> migrations(Ref ref) {
+  throw NotOverrideError();
 }

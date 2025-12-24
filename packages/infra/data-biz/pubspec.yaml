@@ -10,7 +10,6 @@ dependencies:
     sdk: flutter
 
   # db
-  drift: any
   drift_flutter: any
   # path
   path: any
@@ -22,7 +21,10 @@ dependencies:
     path: ../../app-core
   auth_biz:
     path: ../auth-biz
-
+  auth_api:
+    path: ../../api/auth-api
+  data_api:
+    path: ../../api/data-api
 
 dev_dependencies:
   flutter_test:

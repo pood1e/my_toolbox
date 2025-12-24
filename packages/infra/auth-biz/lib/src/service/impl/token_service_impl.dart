@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:app_core/http.dart';
 import 'package:app_core/logger.dart';
+import 'package:auth_api/auth_api.dart';
 
 import '../../data/interfaces/auth_remote_api.dart';
 import '../../data/interfaces/auth_response.dart';
 import '../../data/interfaces/auth_session_storage.dart';
 import '../../domain/auth_exceptions.dart';
 import '../../domain/connection_availability.dart';
-import '../../domain/user_identity.dart';
-import '../../state/connection_availabilty_notifier.dart';
+import '../../state/auth_state_notifier.dart';
 import '../token_service.dart';
 
 class TokenServiceImpl implements TokenService {
@@ -31,6 +31,7 @@ class TokenServiceImpl implements TokenService {
 
   @override
   Future<void> checkTokenValidation() async {
+    logger.i('start checking token validation ...');
     final accessToken = await _storage.getAccessToken();
     final refreshToken = await _storage.getRefreshToken();
     final server = await _storage.getServer();

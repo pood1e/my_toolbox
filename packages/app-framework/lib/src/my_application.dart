@@ -2,8 +2,7 @@ import 'package:app_core/core.dart';
 import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 
-import 'need_override_providers.dart';
-import 'route/app_router.dart';
+import 'framework_providers.dart';
 
 class MyApplication extends ConsumerWidget {
   const MyApplication({super.key});

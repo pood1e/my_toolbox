@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/connection_availability.dart';
 import '../../service/service_provider.dart';
-import '../../state/connection_availabilty_notifier.dart';
+import '../../state/auth_state_notifier.dart';
 import 'connection_ui_model.dart';
 
 class GlobalConnectionBanner extends ConsumerStatefulWidget {

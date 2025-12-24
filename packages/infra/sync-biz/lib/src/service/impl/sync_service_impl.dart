@@ -3,6 +3,7 @@ import 'package:sync_api/sync_api.dart';
 
 import '../../domain/sync_exceptions.dart';
 import '../sync_all_service.dart';
+import '../sync_service.dart';
 
 typedef CursorLoader = Future<int?> Function(String);
 typedef CursorUpdater = Future<void> Function(String, int);

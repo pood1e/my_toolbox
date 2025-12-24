@@ -1,5 +1,6 @@
-import 'package:auth_biz/auth_biz.dart';
 import 'package:app_core/di.dart';
+import 'package:auth_api/auth_api.dart';
+import 'package:auth_biz/auth_biz.dart';
 import 'package:sync_api/sync_api.dart';
 
 import '../domain/sync_cursor.dart';
@@ -9,30 +10,16 @@ import 'impl/realtime_service_impl.dart';
 import 'impl/sync_service_impl.dart';
 import 'realtime_service.dart';
 import 'sync_all_service.dart';
+import 'sync_service.dart';
 
 part 'service_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-Future<Map<String, SyncDelegate<dynamic>>> syncDelegateMap(Ref ref) async {
-  final delegates = await ref.watch(syncDelegatesProvider.future);
-  return {for (var delegate in delegates) delegate.resourceId: delegate};
-}
-
-@riverpod
-bool resourceSyncing(Ref ref, String resourceId) {
-  final syncingMap = ref.read(syncingProvider);
-  return syncingMap[resourceId] ?? false;
-}
-
-@riverpod
-bool anySyncing(Ref ref) {
-  final syncingMap = ref.watch(syncingProvider);
-  return syncingMap.values.any((syncing) => syncing);
-}
-
-@Riverpod(keepAlive: true)
 Future<SyncServiceImpl> syncServiceImpl(Ref ref) async {
-  final delegateMap = await ref.read(syncDelegateMapProvider.future);
+  final delegates = await ref.watch(syncDelegatesProvider.future);
+  final delegateMap = {
+    for (var delegate in delegates) delegate.resourceId: delegate,
+  };
 
   return SyncServiceImpl(
     delegateMap: delegateMap,
@@ -68,34 +55,35 @@ Future<SyncAllService> syncAllService(Ref ref) async {
 }
 
 @Riverpod(keepAlive: true)
-Future<RealtimeService?> realtimeService(Ref ref) async {
-  // 1. [核心] 监听依赖变化
-  // 只要 server 或 auth 发生变化 (包括 Token 刷新)，
-  // Riverpod 会自动 Dispose 当前的 Service 实例，并重新执行这个函数创建新的。
-  final server = await ref.watch(remoteServerProvider.future);
-  final token = await ref.watch(accessTokenProvider.future);
-  final availability = ref.watch(connectionAvailabiltyProvider);
+Future<SyncService> syncService(Ref ref) async {
+  return await ref.watch(syncServiceImplProvider.future);
+}
 
-  if (server == null ||
-      token == null ||
-      availability != ConnectionAvailability.active) {
+@Riverpod(keepAlive: true)
+Future<RealtimeService?> realtimeService(Ref ref) async {
+  final userIdentity = await ref.watch(currentUserIdentityProvider.future);
+  if (userIdentity == null) {
+    return null;
+  }
+  final authenciatedToken = await ref.watch(
+    authenciatedAccessTokenProvider.future,
+  );
+  if (authenciatedToken == null) {
+    return null;
+  }
+  final availability = ref.watch(connectionAvailabiltyProvider);
+  if (availability != ConnectionAvailability.active) {
     return null;
   }
 
-  final syncService = await ref.watch(syncServiceProvider.future);
-
-  // 2. 创建 Service 实例
   final service = RealtimeServiceImpl(
-    server: server,
-    token: token,
-    syncService: syncService,
+    server: userIdentity.server,
+    token: authenciatedToken,
     onAuthExpired: () async {
-      // 3. 处理 401
-      // 当 Service 内部报 401 时，我们只需要调用 Auth 模块的刷新逻辑。
-      // 刷新成功后，authStateProvider 会更新 -> 触发上面的 ref.watch -> 自动重建 Service
-      final tokenService = await ref.read(tokenServiceProvider.future);
-      await tokenService.refresh();
+      final action = ref.read(refreshAccessTokenProvider);
+      await action();
     },
+    triggerSyncAction: ref.read(syncActionProvider),
   );
 
   // 4. 生命周期管理
@@ -106,6 +94,5 @@ Future<RealtimeService?> realtimeService(Ref ref) async {
   ref.onDispose(() {
     service.stop();
   });
-
   return service;
 }

@@ -1,0 +1,34 @@
+name: data_api
+description: "数据-接口"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  app_core:
+    path: ../../app-core
+  auth_api:
+    path: ../auth-api
+  json_annotation: any
+
+  # db
+  drift: any
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  # riverpod
+  riverpod_generator: any
+  #  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+
+

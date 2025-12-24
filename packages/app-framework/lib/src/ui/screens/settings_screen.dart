@@ -1,11 +1,8 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/route.dart';
+import 'package:auth_api/auth_api.dart';
 import 'package:auth_biz/auth_biz.dart';
 import 'package:flutter/material.dart';
-
-import '../pages/sync_settings_page.dart';
-
-// 引入子页面
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -44,9 +41,8 @@ class SettingsScreen extends ConsumerWidget {
                   title: const Text('同步设置'),
                   subtitle: const Text('管理自动同步、立即同步'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SyncSettingsPage()),
+                  onTap: () => context.push(
+                    '${AppRoutes.settings}/${AppRoutes.syncSettingsPart}',
                   ),
                 ),
               ],

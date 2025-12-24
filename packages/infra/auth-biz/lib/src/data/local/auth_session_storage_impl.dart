@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:auth_api/auth_api.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../data/interfaces/auth_response.dart';
-import '../../domain/user_identity.dart';
 import '../interfaces/auth_session_storage.dart';
 
 class AuthSessionStorageImpl implements AuthSessionStorage {

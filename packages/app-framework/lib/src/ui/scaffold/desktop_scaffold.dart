@@ -1,9 +1,8 @@
+import 'package:app_core/core.dart';
 import 'package:app_core/di.dart';
 import 'package:app_core/route.dart';
 import 'package:flutter/material.dart';
 
-import '../../domain/app_definition.dart';
-import '../../route/app_routes.dart';
 import '../../service/service_providers.dart';
 import '../../state/launcher_state.dart';
 
@@ -138,7 +137,7 @@ class _DesktopSidebar extends ConsumerWidget {
                               final service = await ref.read(
                                 launcherServiceProvider.future,
                               );
-                              await service.record(app.id);
+                              service.record(app.id);
                             },
                           ),
                         ),

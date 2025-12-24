@@ -1,39 +1,36 @@
-import 'package:sync_api/sync_api.dart';
+import 'package:app_core/core.dart';
 
 import '../../data/framework_database.dart';
 import '../../data/launcher/launcher_dao.dart';
-import '../../domain/app_definition.dart';
 import '../launcher_service.dart';
+
+typedef LauncherSyncAction = Future<void> Function();
 
 class LauncherServiceImpl implements LauncherService {
   final List<AppDefinition> _allApps;
-  final Future<LauncherDao> Function() _daoGetter;
-  final TriggerSyncAction _syncAction;
+  final LauncherDao _dao;
+  final LauncherSyncAction _syncAction;
 
   LauncherServiceImpl({
     required List<AppDefinition> allApps,
-    required Future<LauncherDao> Function() daoGetter,
-    required TriggerSyncAction syncAction,
+    required LauncherDao dao,
+    required LauncherSyncAction syncAction,
   }) : _allApps = allApps,
-       _daoGetter = daoGetter,
+       _dao = dao,
        _syncAction = syncAction;
 
   @override
   Future<void> record(String id) async {
-    final dao = await _daoGetter();
-    await dao.trackUsage(id);
+    await _dao.trackUsage(id);
     _syncAction();
   }
 
   @override
   Stream<List<AppDefinition>> watchApps() {
-    // 1. 将 Future<Dao> 转换为 Stream
-    return Stream.fromFuture(_daoGetter())
-        .asyncExpand((dao) => dao.watchAllUsage()) // 2. 切换到 DAO 的 Stream
-        .map((usageList) {
-          // 3. 数据合并与排序逻辑
-          return _mergeAndSortApps(_allApps, usageList);
-        });
+    return _dao.watchAllUsage().map((usageList) {
+      // 3. 数据合并与排序逻辑
+      return _mergeAndSortApps(_allApps, usageList);
+    });
   }
 
   @override
@@ -44,8 +41,7 @@ class LauncherServiceImpl implements LauncherService {
       // 注意：这里需要拿一次当前的数据库快照，否则只能返回默认排序
       // 为了性能和一致性，这里简单返回默认列表或快速获取一次 DB
       try {
-        final dao = await _daoGetter();
-        final usageList = await dao.watchAllUsage().first; // 取一次快照
+        final usageList = await _dao.watchAllUsage().first; // 取一次快照
         return _mergeAndSortApps(_allApps, usageList);
       } catch (e) {
         return _allApps; // 降级处理

@@ -1,4 +1,5 @@
-import '../../domain/user_identity.dart';
+import 'package:auth_api/auth_api.dart';
+
 import 'auth_response.dart';
 
 /// 鉴权api

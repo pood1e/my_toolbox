@@ -4,18 +4,13 @@ import '../launcher/launcher_dao.dart';
 import '../launcher/launcher_dto.dart';
 import '../launcher/launcher_mapper.dart';
 
-class LauncherSyncDelegate extends StandardSyncDelegate<LauncherSyncPayload> {
+class LauncherSyncDelegate extends SyncStandardDelegate<LauncherSyncPayload> {
   final Future<LauncherDao> Function() _daoGetter;
 
   LauncherSyncDelegate({
-    required super.dio,
+    required super.api,
     required Future<LauncherDao> Function() daoGetter,
-  }) : _daoGetter = daoGetter,
-       super(
-         apiPath: '/settings/launcher',
-         toJson: (t) => t.toJson(),
-         fromJson: LauncherSyncPayload.fromJson,
-       );
+  }) : _daoGetter = daoGetter;
 
   @override
   String get resourceId => 'launcher';
