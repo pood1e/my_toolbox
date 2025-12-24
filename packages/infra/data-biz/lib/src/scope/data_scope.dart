@@ -1,4 +1,4 @@
-import '../domain/data_source.dart';
+import '../domain/storage_definition.dart';
 
 abstract class DataScope {
   Future<T> get<T>(StorageDefinition<T> source);

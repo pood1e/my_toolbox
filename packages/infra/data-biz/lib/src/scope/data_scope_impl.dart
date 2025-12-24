@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:core/logger.dart';
 
-import '../domain/data_source.dart';
+import '../domain/storage_definition.dart';
 import 'data_scope.dart';
 
 class DataScopeImpl implements DataScope {

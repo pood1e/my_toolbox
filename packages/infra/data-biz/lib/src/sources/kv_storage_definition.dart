@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:mmkv/mmkv.dart';
 
-import '../domain/data_source.dart';
+import '../domain/storage_definition.dart';
 import '../domain/kv_store.dart';
 import '../domain/mmkv_store.dart';
 

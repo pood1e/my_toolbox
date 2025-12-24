@@ -6,7 +6,7 @@ import '../domain/kv_store.dart';
 import '../domain/scope_type.dart';
 import '../need_override_providers.dart';
 import '../scope/data_scope.dart';
-import '../sources/kv_data_source.dart';
+import '../sources/kv_storage_definition.dart';
 import 'data_migration_service.dart';
 import 'data_scope_service.dart';
 import 'impl/data_migration_service_impl.dart';

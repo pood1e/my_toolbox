@@ -15,9 +15,6 @@ dependencies:
   # path
   path: any
   path_provider: any
-  # sqflite_common_ffi
-  sqlite3_flutter_libs: any
-
   # kv
   mmkv: any
 

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../data_biz.dart';
-import '../domain/data_source.dart';
 
 typedef DatabaseFactory<T extends GeneratedDatabase> =
     T Function(QueryExecutor);
@@ -23,7 +22,7 @@ class DriftStorageDefinition<T extends GeneratedDatabase>
   Future<T> create(String path) async {
     final executor = driftDatabase(
       name: key,
-      native: DriftNativeOptions(databasePath: () async => path),
+      native: DriftNativeOptions(databaseDirectory: () async => path),
     );
 
     return _factory(executor);
