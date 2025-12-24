@@ -39,7 +39,7 @@ class SpringBootPrinter extends LogPrinter {
 
     // 正则提取 package:xxx/xxx.dart:line:column
     final match = RegExp(
-      r'(package:[\w\.\/]+\.dart:\d+:\d+)',
+      r'(package:[\w./]+\.dart:\d+:\d+)',
     ).firstMatch(targetLine);
     if (match != null) {
       return '[${match.group(1)}]'; // 加上括号，IDE 识别率最高
