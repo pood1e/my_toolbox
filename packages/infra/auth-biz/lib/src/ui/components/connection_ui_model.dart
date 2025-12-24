@@ -1,5 +1,6 @@
-import '../../../auth_biz.dart';
 import 'package:flutter/material.dart';
+
+import '../../domain/connection_availability.dart';
 
 extension ConnectionAvailabilityUI on ConnectionAvailability {
   /// 是否显示 Banner

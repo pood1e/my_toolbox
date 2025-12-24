@@ -1,4 +1,4 @@
-import '../../../auth_biz.dart';
+import '../../domain/auth_exceptions.dart';
 
 /// 统一错误处理工具
 String getAuthErrorMessage(Object error) {

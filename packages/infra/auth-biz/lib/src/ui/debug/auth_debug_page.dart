@@ -3,7 +3,8 @@ import 'package:common_ui/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../auth_biz.dart';
+import '../../service/service_provider.dart';
+import '../../state/auth_state_notifier.dart';
 
 class DebugPage extends ConsumerStatefulWidget {
   final VoidCallback onGoLogin;

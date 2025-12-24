@@ -1,9 +1,11 @@
-import '../../../auth_biz.dart';
-import 'package:common_ui/message.dart';
 import 'package:app_core/di.dart';
 import 'package:app_core/route.dart';
+import 'package:common_ui/message.dart';
 import 'package:flutter/material.dart';
 
+import '../../domain/connection_availability.dart';
+import '../../service/service_provider.dart';
+import '../../state/connection_availabilty_notifier.dart';
 import 'connection_ui_model.dart';
 
 class GlobalConnectionBanner extends ConsumerStatefulWidget {

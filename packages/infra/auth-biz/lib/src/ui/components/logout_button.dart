@@ -2,7 +2,7 @@ import 'package:app_core/di.dart';
 import 'package:common_ui/message.dart';
 import 'package:flutter/material.dart';
 
-import '../../../auth_biz.dart';
+import '../../service/service_provider.dart';
 
 class LogoutButton extends ConsumerWidget {
   final bool iconOnly;
