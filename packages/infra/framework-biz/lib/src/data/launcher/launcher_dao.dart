@@ -1,13 +1,15 @@
+import 'package:core/uuid.dart';
 import 'package:data_biz/data_biz.dart';
 import 'package:sync_api/sync_api.dart';
 
+import '../framework_database.dart';
 import 'app_usage_entity.dart';
-import 'app_usage_entity.drift.dart';
-import 'launcher_dao.drift.dart';
+
+part 'launcher_dao.g.dart';
 
 @DriftAccessor(tables: [AppUsageEntities])
-class LauncherDao extends DatabaseAccessor<GeneratedDatabase>
-    with $LauncherDaoMixin {
+class LauncherDao extends DatabaseAccessor<FrameworkDatabase>
+    with _$LauncherDaoMixin {
   LauncherDao(super.db);
 
   /// 监听所有使用记录 (按最后使用时间倒序)
@@ -25,6 +27,7 @@ class LauncherDao extends DatabaseAccessor<GeneratedDatabase>
     // 使用 Drift 的 Upsert 语法
     await into(appUsageEntities).insert(
       AppUsageEntitiesCompanion(
+        id: Value(Uuid().v4()),
         module: Value(moduleKey),
         lastUsedAt: Value(now),
         openCount: const Value(1), // 初始值
@@ -32,9 +35,10 @@ class LauncherDao extends DatabaseAccessor<GeneratedDatabase>
       onConflict: DoUpdate(
         (old) => AppUsageEntitiesCompanion.custom(
           lastUsedAt: Constant(now),
-          // openCount = old.openCount + 1
           openCount: old.openCount + Constant(1),
+          updatedAt: Constant(now),
         ),
+        target: [appUsageEntities.module],
       ),
     );
   }

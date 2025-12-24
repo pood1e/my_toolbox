@@ -1,8 +1,8 @@
 import 'package:sync_api/sync_api.dart';
 
-import 'launcher_dao.dart';
-import 'launcher_dto.dart';
-import 'launcher_mapper.dart';
+import '../launcher/launcher_dao.dart';
+import '../launcher/launcher_dto.dart';
+import '../launcher/launcher_mapper.dart';
 
 class LauncherSyncDelegate extends StandardSyncDelegate<LauncherSyncPayload> {
   final Future<LauncherDao> Function() _daoGetter;

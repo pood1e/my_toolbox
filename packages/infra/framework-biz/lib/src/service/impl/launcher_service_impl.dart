@@ -1,7 +1,7 @@
 import 'package:sync_api/sync_api.dart';
 
-import '../../data/app_usage_entity.drift.dart';
-import '../../data/launcher_dao.dart';
+import '../../data/framework_database.dart';
+import '../../data/launcher/launcher_dao.dart';
 import '../../domain/app_definition.dart';
 import '../launcher_service.dart';
 

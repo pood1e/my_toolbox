@@ -1,4 +1,4 @@
-import 'app_usage_entity.drift.dart';
+import '../framework_database.dart';
 import 'launcher_dto.dart';
 
 extension AppUsageDtoToEntity on AppUsageDto {
