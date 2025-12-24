@@ -32,10 +32,10 @@ dependencies:
   stomp_dart_client: ^3.0.1
   uuid: ^4.5.2
 
-  core:
-    path: packages/core
-  framework_biz:
-    path: packages/infra/framework-biz
+  app_core:
+    path: packages/app-core
+  app_framework:
+    path: packages/app-framework
 
 
 dev_dependencies:
@@ -54,14 +54,13 @@ dev_dependencies:
   melos: ^7.0.0
 
 workspace:
-  - packages/core
-  - packages/infra-ui/common-ui
+  - packages/app-core
+  - packages/infra/common-ui
   - packages/infra/auth-biz
   - packages/infra/data-biz
   - packages/infra/sync-biz
   - packages/api/sync-api
-  - packages/infra/framework-biz
-  - packages/infra-ui/auth-ui
+  - packages/app-framework
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428

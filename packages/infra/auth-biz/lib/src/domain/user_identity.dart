@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:core/crypto.dart';
-import 'package:core/object.dart';
+import 'package:app_core/crypto.dart';
+import 'package:app_core/object.dart';
 
 part 'user_identity.freezed.dart';
 part 'user_identity.g.dart';

@@ -1,5 +1,5 @@
 import 'package:auth_biz/auth_biz.dart';
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../domain/kv_store.dart';

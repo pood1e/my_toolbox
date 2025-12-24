@@ -1,10 +1,10 @@
-import 'package:core/object.dart';
+import 'package:app_core/object.dart';
 
 part 'sync_envelopes.freezed.dart';
 part 'sync_envelopes.g.dart';
 
 /// Push 请求信封
-/// 对应后端: SyncPushRequest<T>
+/// 对应后端: SyncPushRequest
 @Freezed(genericArgumentFactories: true)
 abstract class SyncPushRequest<T> with _$SyncPushRequest<T> {
   const SyncPushRequest._();
@@ -18,7 +18,7 @@ abstract class SyncPushRequest<T> with _$SyncPushRequest<T> {
 }
 
 /// Pull 响应信封
-/// 对应后端: SyncResponse<T>
+/// 对应后端: SyncResponse
 @Freezed(genericArgumentFactories: true)
 abstract class SyncPullResponse<T> with _$SyncPullResponse<T> {
   const SyncPullResponse._();

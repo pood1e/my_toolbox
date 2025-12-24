@@ -1,0 +1,36 @@
+name: app_core
+description: "核心工具包"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # i18n & date
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  # log
+  logger: any
+  # object define
+  freezed_annotation: any
+  json_annotation: any
+  # di & state
+  riverpod_annotation: any
+  flutter_riverpod: any
+  # route
+  go_router: any
+  # crypto
+  crypto: any
+  # dio
+  dio: any
+  # uuid
+  uuid: any
+
+dev_dependencies:
+  build_runner: any
+  # freezed
+  freezed: any
+  json_serializable: any

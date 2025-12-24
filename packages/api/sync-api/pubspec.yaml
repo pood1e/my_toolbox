@@ -12,8 +12,8 @@ dependencies:
   # drift
   drift: any
 
-  core:
-    path: ../../core
+  app_core:
+    path: ../../app-core
 
 
 dev_dependencies:

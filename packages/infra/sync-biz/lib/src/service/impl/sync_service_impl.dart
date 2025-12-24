@@ -1,4 +1,4 @@
-import 'package:core/logger.dart';
+import 'package:app_core/logger.dart';
 import 'package:sync_api/sync_api.dart';
 
 import '../../domain/sync_exceptions.dart';

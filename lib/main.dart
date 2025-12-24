@@ -1,12 +1,12 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
+import 'package:app_framework/starter.dart';
 import 'package:flutter/material.dart';
-import 'package:framework_biz/starter.dart';
 import 'package:mmkv/mmkv.dart';
 
 import 'example_app_definitions.dart';
 
 void main() {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding _ = WidgetsFlutterBinding.ensureInitialized();
   MMKV.initialize();
 
   final definition = OverrideDefinition();

@@ -1,4 +1,4 @@
-import 'package:core/object.dart';
+import 'package:app_core/object.dart';
 
 part 'sync_settings.freezed.dart';
 part 'sync_settings.g.dart';

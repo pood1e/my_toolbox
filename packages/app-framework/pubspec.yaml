@@ -1,0 +1,38 @@
+name: app_framework
+description: "平台集成实现"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  app_core:
+    path: ../app-core
+  auth_biz:
+    path: ../infra/auth-biz
+  data_biz:
+    path: ../infra/data-biz
+  sync_api:
+    path: ../api/sync-api
+  sync_biz:
+    path: ../infra/sync-biz
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  # test
+  mockito: any
+  http_mock_adapter: any
+  # riverpod
+  riverpod_generator: any
+  #  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+  # db
+  drift_dev: any
+

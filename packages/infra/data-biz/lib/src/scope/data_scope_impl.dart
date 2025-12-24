@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:core/logger.dart';
+import 'package:app_core/logger.dart';
 
 import '../domain/storage_definition.dart';
 import 'data_scope.dart';

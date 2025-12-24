@@ -1,5 +1,5 @@
-import 'package:core/http.dart';
-import 'package:core/object.dart';
+import 'package:app_core/http.dart';
+import 'package:app_core/object.dart';
 
 import 'sync_envelopes.dart';
 

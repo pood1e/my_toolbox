@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 
 import '../interfaces/auth_remote_api.dart';
 import 'auth_remote_api_impl.dart';

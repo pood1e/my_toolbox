@@ -1,4 +1,4 @@
-import 'package:core/object.dart';
+import 'package:app_core/object.dart';
 
 part 'sync_cursor.freezed.dart';
 part 'sync_cursor.g.dart';

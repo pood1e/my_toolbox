@@ -1,4 +1,4 @@
-import 'package:core/object.dart';
+import 'package:app_core/object.dart';
 
 part 'auth_response.freezed.dart';
 part 'auth_response.g.dart';

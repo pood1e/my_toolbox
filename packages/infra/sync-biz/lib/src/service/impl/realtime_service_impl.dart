@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:auth_biz/auth_biz.dart';
-import 'package:core/logger.dart';
+import 'package:app_core/logger.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:sync_api/sync_api.dart';
 

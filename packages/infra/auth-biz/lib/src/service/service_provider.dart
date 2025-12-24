@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 
 import '../data/local/local_storage_providers.dart';
 import '../data/remote/auth_remote_api_providers.dart';

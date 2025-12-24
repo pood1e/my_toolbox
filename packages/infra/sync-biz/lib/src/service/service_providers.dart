@@ -1,5 +1,5 @@
 import 'package:auth_biz/auth_biz.dart';
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 import 'package:sync_api/sync_api.dart';
 
 import '../domain/sync_cursor.dart';

@@ -1,5 +1,5 @@
 import 'package:auth_biz/auth_biz.dart';
-import 'package:core/logger.dart';
+import 'package:app_core/logger.dart';
 
 import '../../domain/storage_definition.dart';
 import '../../domain/scope_type.dart';

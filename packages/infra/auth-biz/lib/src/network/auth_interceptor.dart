@@ -1,5 +1,5 @@
 
-import 'package:core/http.dart';
+import 'package:app_core/http.dart';
 
 class AuthInterceptor extends QueuedInterceptor {
   final Future<String> Function() _accessGetter;

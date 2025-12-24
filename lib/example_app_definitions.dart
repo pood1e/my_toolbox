@@ -1,5 +1,5 @@
+import 'package:app_framework/starter.dart';
 import 'package:flutter/material.dart';
-import 'package:framework_biz/starter.dart';
 
 /// 示例 App 定义列表
 final List<AppDefinition> kExampleApps = [
@@ -32,11 +32,5 @@ final List<AppDefinition> kExampleApps = [
     name: '相册',
     icon: Icons.photo_library_outlined,
     route: '/apps/gallery',
-  ),
-  const AppDefinition(
-    id: 'settings_shortcut',
-    name: '系统设置',
-    icon: Icons.settings_outlined,
-    route: '/settings', // 直接跳转到现有的设置页
   ),
 ];

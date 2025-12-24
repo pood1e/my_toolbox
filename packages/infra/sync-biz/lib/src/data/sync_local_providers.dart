@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 import 'package:data_biz/data_biz.dart';
 
 import 'local/sync_cursor_storage_impl.dart';

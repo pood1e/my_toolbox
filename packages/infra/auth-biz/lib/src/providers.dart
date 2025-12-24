@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 
 import 'domain/user_identity.dart';
 import 'service/auth_aop.dart';

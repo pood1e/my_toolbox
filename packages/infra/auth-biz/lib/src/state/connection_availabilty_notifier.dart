@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 
 import '../domain/connection_availability.dart';
 

@@ -14,3 +14,6 @@ export 'src/state/auth_state_notifier.dart';
 // ws token = authAvailability + accessToken
 export 'src/state/connection_availabilty_notifier.dart'
     show connectionAvailabiltyProvider;
+export 'src/ui/components/logout_button.dart';
+export 'src/ui/screens/login_page.dart';
+export 'src/ui/screens/register_page.dart';

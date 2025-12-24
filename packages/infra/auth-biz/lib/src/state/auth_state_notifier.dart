@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 
 import '../data/interfaces/auth_session_storage.dart';
 import '../data/local/local_storage_providers.dart';

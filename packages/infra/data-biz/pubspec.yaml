@@ -18,8 +18,8 @@ dependencies:
   # kv
   mmkv: any
 
-  core:
-    path: ../../core
+  app_core:
+    path: ../../app-core
   auth_biz:
     path: ../auth-biz
 

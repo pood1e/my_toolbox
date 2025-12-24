@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 
 import '../data_biz.dart';
 import 'domain/storage_definition.dart';

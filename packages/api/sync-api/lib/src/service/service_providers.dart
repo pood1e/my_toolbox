@@ -1,5 +1,5 @@
-import 'package:core/di.dart';
-import 'package:core/object.dart';
+import 'package:app_core/di.dart';
+import 'package:app_core/object.dart';
 
 import 'sync_service.dart';
 

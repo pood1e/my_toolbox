@@ -1,4 +1,4 @@
-import 'package:core/di.dart';
+import 'package:app_core/di.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../interfaces/auth_session_storage.dart';

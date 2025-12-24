@@ -1,4 +1,4 @@
-import 'package:core/http.dart';
+import 'package:app_core/http.dart';
 
 import '../api/sync_envelopes.dart';
 import '../api/sync_remote_api.dart';

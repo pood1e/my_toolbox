@@ -8,8 +8,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  core:
-    path: ../../core
+  app_core:
+    path: ../../app-core
+  common_ui:
+    path: ../common-ui
   flutter_secure_storage: any
 
 dev_dependencies:
