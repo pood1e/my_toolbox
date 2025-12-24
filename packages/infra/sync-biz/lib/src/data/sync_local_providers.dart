@@ -10,12 +10,12 @@ part 'sync_local_providers.g.dart';
 
 @riverpod
 Future<SyncCursorStorage> syncCursorStorage(Ref ref) async {
-  final kv = await ref.watch(kvStorageProvider('sync').future);
+  final kv = await ref.watch(userKvStoreProvider('sync').future);
   return SyncCursorStorageImpl(store: kv);
 }
 
 @riverpod
 Future<SyncSettingsStorage> syncSettingsStorage(Ref ref) async {
-  final kv = await ref.watch(kvStorageProvider('sync').future);
+  final kv = await ref.watch(userKvStoreProvider('sync').future);
   return SyncSettingsStorageImpl(store: kv);
 }

@@ -8,6 +8,16 @@ import '../domain/sync_settings.dart';
 part 'sync_states.g.dart';
 
 @Riverpod(keepAlive: true)
+class SyncingNotifier extends _$SyncingNotifier {
+  @override
+  Map<String, bool> build() => {};
+
+  void setSyncing(String resourceId, bool syncing) {
+    state = {...state, resourceId: syncing};
+  }
+}
+
+@Riverpod(keepAlive: true)
 class SyncSettingsNotifier extends _$SyncSettingsNotifier {
   @override
   Future<SyncSettings> build() async {

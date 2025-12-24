@@ -18,13 +18,32 @@ Future<Map<String, SyncDelegate<dynamic>>> syncDelegateMap(Ref ref) async {
   return {for (var delegate in delegates) delegate.resourceId: delegate};
 }
 
+@riverpod
+bool resourceSyncing(Ref ref, String resourceId) {
+  final syncingMap = ref.read(syncingProvider);
+  return syncingMap[resourceId] ?? false;
+}
+
+@riverpod
+bool anySyncing(Ref ref) {
+  final syncingMap = ref.watch(syncingProvider);
+  return syncingMap.values.any((syncing) => syncing);
+}
+
 @Riverpod(keepAlive: true)
-Future<SyncServiceImpl> _syncService(Ref ref) async {
+Future<SyncServiceImpl> syncServiceImpl(Ref ref) async {
   final delegateMap = await ref.read(syncDelegateMapProvider.future);
 
   return SyncServiceImpl(
     delegateMap: delegateMap,
-    canSync: () async {
+    syncingGetter: (resourceId) {
+      return ref.read(resourceSyncingProvider(resourceId));
+    },
+    syncingSetter: (resourceId, syncing) {
+      final notifier = ref.read(syncingProvider.notifier);
+      notifier.setSyncing(resourceId, syncing);
+    },
+    syncChecker: () async {
       final userIdentity = await ref.read(currentUserIdentityProvider.future);
       if (userIdentity == null) {
         return false;
@@ -32,11 +51,11 @@ Future<SyncServiceImpl> _syncService(Ref ref) async {
       final settings = await ref.read(syncSettingsProvider.future);
       return settings.enable;
     },
-    loadCursor: (resourceId) async {
+    cursorLoader: (resourceId) async {
       final cursor = await ref.read(syncCursorProvider(resourceId).future);
       return cursor.cursor;
     },
-    saveCursor: (resourceId, cursor) async {
+    cursorUpdater: (resourceId, cursor) async {
       final notifier = ref.read(syncCursorProvider(resourceId).notifier);
       return notifier.save(SyncCursor(cursor: cursor, lastSyncedAt: cursor));
     },
@@ -44,13 +63,8 @@ Future<SyncServiceImpl> _syncService(Ref ref) async {
 }
 
 @Riverpod(keepAlive: true)
-Future<SyncService> syncService(Ref ref) async {
-  return await ref.watch(_syncServiceProvider.future);
-}
-
-@Riverpod(keepAlive: true)
 Future<SyncAllService> syncAllService(Ref ref) async {
-  return await ref.watch(_syncServiceProvider.future);
+  return await ref.watch(syncServiceImplProvider.future);
 }
 
 @Riverpod(keepAlive: true)
