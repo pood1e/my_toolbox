@@ -22,23 +22,24 @@ class SyncRemoteApi<T> {
   /// 推送变更
   Future<void> push(T t) async {
     final req = SyncPushRequest(payload: t);
-    await _dio.post('$_apiPath/push', data: req.toJson((t) => _toJson(t)));
+    final json = req.toJson((t) => _toJson(t));
+    await _dio.post('$_apiPath/push', data: json);
   }
 
   /// 拉取变更
-  Future<SyncPullResponse> pull(int? cursor) async {
+  Future<SyncPullResponse<T>> pull(int? cursor) async {
     final response = await _dio.get(
       '$_apiPath/pull',
       queryParameters: cursor != null ? {'cursor': cursor} : null,
     );
 
-    final data = R<SyncPullResponse>.fromJson(
+    final data = R<SyncPullResponse<T>>.fromJson(
       response.data,
-      (json) => SyncPullResponse.fromJson(
+      (json) => SyncPullResponse<T>.fromJson(
         json as Map<String, dynamic>,
         (tJson) => _fromJson(tJson as Map<String, dynamic>),
       ),
     );
-    return data.data!;
+    return data.data as SyncPullResponse<T>;
   }
 }

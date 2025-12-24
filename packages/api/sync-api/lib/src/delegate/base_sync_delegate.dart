@@ -17,7 +17,7 @@ abstract class BaseSyncDelegate<T> implements SyncDelegate<T> {
 
   @override
   Future<SyncPullResponse<T>> pull(int? cursor) async {
-    return (await _api.pull(cursor)) as SyncPullResponse<T>;
+    return await _api.pull(cursor);
   }
 }
 
