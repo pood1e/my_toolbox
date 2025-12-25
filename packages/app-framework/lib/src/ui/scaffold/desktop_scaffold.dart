@@ -46,7 +46,7 @@ class _DesktopSidebar extends ConsumerWidget {
     final isAppsLibrary = currentPath == AppRoutes.launcher;
 
     // 2. 获取新的数据流 (Stream)
-    final uiStateAsync = ref.watch(launcherEntryProvider);
+    final uiStateAsync = ref.watch(appEntrancesProvider);
 
     // 3. 数据扁平化处理
     // Sidebar 策略：优先显示 Recent，空间够再显示 Others

@@ -7,7 +7,7 @@ import '../service/service_providers.dart';
 part 'launcher_state.g.dart';
 
 @riverpod
-class LauncherEntryNotifier extends _$LauncherEntryNotifier {
+class AppEntrancesNotifier extends _$AppEntrancesNotifier {
   @override
   Stream<List<AppDefinition>> build() async* {
     yield ref.read(featureRegistryProvider).appDefinitions;

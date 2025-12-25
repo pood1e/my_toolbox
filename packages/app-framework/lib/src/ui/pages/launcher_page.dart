@@ -26,7 +26,7 @@ class _LauncherPageState extends ConsumerState<LauncherPage> {
   @override
   Widget build(BuildContext context) {
     // 1. 获取合并后的实时数据流
-    final stateAsync = ref.watch(launcherEntryProvider);
+    final stateAsync = ref.watch(appEntrancesProvider);
 
     return Scaffold(
       body: SafeArea(
