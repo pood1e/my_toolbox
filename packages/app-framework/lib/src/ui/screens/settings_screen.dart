@@ -1,8 +1,8 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/route.dart';
-import 'package:auth_api/auth_api.dart';
 import 'package:auth_biz/auth_biz.dart';
 import 'package:flutter/material.dart';
+import 'package:framework_api/framework_api.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});

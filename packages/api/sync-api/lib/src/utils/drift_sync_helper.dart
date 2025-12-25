@@ -1,4 +1,3 @@
-
 import 'package:drift/drift.dart';
 
 extension DriftSyncHelper on DatabaseConnectionUser {
@@ -14,19 +13,21 @@ extension DriftSyncHelper on DatabaseConnectionUser {
     required String newId,
     Expression<bool> Function(tbl)? businessKeyFilter,
   }) async {
-
     // 1. 双重检查 (仅当提供了业务查重条件时)
     if (businessKeyFilter != null) {
-      final conflictingRow = await (select(table)
-        ..where((t) => businessKeyFilter(t))
-      // 假设所有同步表的主键都叫 'id'
-        ..where((t) => (t as dynamic).id.isNotValue(newId)))
-          .getSingleOrNull();
+      final conflictingRow =
+          await (select(table)
+                ..where((t) => businessKeyFilter(t))
+                // 假设所有同步表的主键都叫 'id'
+                ..where((t) => (t as dynamic).id.isNotValue(newId)))
+              .getSingleOrNull();
 
       if (conflictingRow != null) {
         // 删除本地冲突的旧数据
         final dynamic oldId = (conflictingRow as dynamic).id;
-        await (delete(table)..where((t) => (t as dynamic).id.equals(oldId))).go();
+        await (delete(
+          table,
+        )..where((t) => (t as dynamic).id.equals(oldId))).go();
       }
     }
 

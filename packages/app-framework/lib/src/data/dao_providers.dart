@@ -1,5 +1,5 @@
 import 'package:app_core/di.dart';
-import 'package:data_api/data_api.dart';
+import 'package:framework_api/framework_api.dart';
 
 import 'framework_database.dart';
 import 'launcher/launcher_dao.dart';

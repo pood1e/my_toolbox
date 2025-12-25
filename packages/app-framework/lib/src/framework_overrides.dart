@@ -1,9 +1,7 @@
 import 'package:app_core/di.dart';
-import 'package:auth_api/auth_api.dart';
 import 'package:auth_biz/auth_biz.dart';
-import 'package:data_api/data_api.dart';
 import 'package:data_biz/data_biz.dart';
-import 'package:sync_api/sync_api.dart';
+import 'package:framework_api/framework_api.dart';
 import 'package:sync_biz/sync_biz.dart';
 
 import 'data/sync/sync_delegate_providers.dart';

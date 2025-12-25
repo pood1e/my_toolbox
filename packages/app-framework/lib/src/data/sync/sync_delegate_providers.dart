@@ -1,5 +1,5 @@
 import 'package:app_core/di.dart';
-import 'package:sync_api/sync_api.dart';
+import 'package:framework_api/framework_api.dart';
 
 import '../dao_providers.dart';
 import '../launcher/launcher_dto.dart';

@@ -1,5 +1,5 @@
-name: app_framework
-description: "平台集成实现"
+name: framework_api
+description: "平台集成接口"
 resolution: workspace
 
 environment:
@@ -9,19 +9,16 @@ dependencies:
   flutter:
     sdk: flutter
   mmkv: any
-  drift: any
 
   json_annotation: any
   app_core:
     path: ../app-core
-  framework_api:
-    path: ../framework-api
-  auth_biz:
-    path: ../infra/auth-biz
-  data_biz:
-    path: ../infra/data-biz
-  sync_biz:
-    path: ../infra/sync-biz
+  auth_api:
+    path: ../api/auth-api
+  data_api:
+    path: ../api/data-api
+  sync_api:
+    path: ../api/sync-api
 
 dev_dependencies:
   flutter_test:

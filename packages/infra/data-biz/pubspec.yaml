@@ -10,6 +10,7 @@ dependencies:
     sdk: flutter
 
   # db
+  drift: any
   drift_flutter: any
   # path
   path: any

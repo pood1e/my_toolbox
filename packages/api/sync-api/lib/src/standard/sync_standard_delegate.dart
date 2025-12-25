@@ -1,5 +1,5 @@
-import 'sync_api_dto.dart';
 import '../domain/sync_delegate.dart';
+import 'sync_api_dto.dart';
 import 'sync_standard_api.dart';
 
 /// 通用同步委托基类

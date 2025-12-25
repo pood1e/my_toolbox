@@ -1,5 +1,6 @@
 import 'package:app_core/di.dart';
 import 'package:data_api/data_api.dart';
+import 'package:drift/drift.dart';
 
 import 'domain/drift_storage_definition.dart';
 import 'domain/kv_storage_definition.dart';

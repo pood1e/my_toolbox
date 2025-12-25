@@ -1,5 +1,5 @@
 import 'package:app_core/di.dart';
-import 'package:data_api/data_api.dart';
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:mmkv/mmkv.dart';
 

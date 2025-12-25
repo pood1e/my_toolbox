@@ -1,4 +1,3 @@
-
 import 'package:app_core/http.dart';
 
 class AuthInterceptor extends QueuedInterceptor {

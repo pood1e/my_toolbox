@@ -36,7 +36,6 @@ class UnknownAuthException extends AuthException {
   }
 }
 
-
 class AuthInterceptorException extends AuthException {
   final String? message;
 

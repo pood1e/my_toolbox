@@ -1,4 +1,4 @@
-import 'package:data_api/data_api.dart';
+import 'package:drift/drift.dart';
 
 import 'launcher/app_usage_entity.dart';
 import 'launcher/launcher_dao.dart';

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:data_api/data_api.dart';
+import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 class DriftStorageDefinition<T extends GeneratedDatabase>

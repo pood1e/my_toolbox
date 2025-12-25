@@ -1,5 +1,5 @@
 import 'package:app_core/object.dart';
-import 'package:sync_api/sync_api.dart';
+import 'package:framework_api/framework_api.dart';
 
 part 'launcher_dto.freezed.dart';
 part 'launcher_dto.g.dart';

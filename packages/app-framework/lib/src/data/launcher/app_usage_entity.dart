@@ -1,5 +1,5 @@
-import 'package:data_api/data_api.dart';
-import 'package:sync_api/sync_api.dart';
+import 'package:drift/drift.dart';
+import 'package:framework_api/framework_api.dart';
 
 @DataClassName('AppUsageEntity')
 class AppUsageEntities extends Table with SyncTable {

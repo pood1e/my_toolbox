@@ -1,6 +1,6 @@
 import 'package:app_core/uuid.dart';
-import 'package:data_api/data_api.dart';
-import 'package:sync_api/sync_api.dart';
+import 'package:drift/drift.dart';
+import 'package:framework_api/framework_api.dart';
 
 import '../framework_database.dart';
 import 'app_usage_entity.dart';
