@@ -11,3 +11,5 @@ class SyncFailedException extends SyncException {
 
   SyncFailedException({required this.message});
 }
+
+class SyncUnavailableException extends SyncException {}

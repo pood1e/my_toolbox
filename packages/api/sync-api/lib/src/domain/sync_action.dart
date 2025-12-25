@@ -1,1 +1,2 @@
-typedef SyncAction = Future<void> Function(String);
+/// 返回结果代表是否同步成功
+typedef SyncAction = Future<bool> Function(String);

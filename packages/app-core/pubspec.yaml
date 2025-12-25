@@ -28,6 +28,8 @@ dependencies:
   dio: any
   # uuid
   uuid: any
+  # debounce
+  stream_transform: any
 
 dev_dependencies:
   build_runner: any

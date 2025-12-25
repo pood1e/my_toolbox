@@ -1,20 +1,39 @@
 import 'package:app_core/di.dart';
+import 'package:app_core/logger.dart';
 import 'package:app_core/object.dart';
 import 'package:auth_api/auth_api.dart';
-import 'package:auth_biz/auth_biz.dart';
 import 'package:sync_api/sync_api.dart';
 
 import 'api/sync_standard_api_impl.dart';
 import 'service/service_providers.dart';
-import 'state/sync_states.dart';
+import 'state/sync_settings_state.dart';
 
 class SyncApiOverride {
   SyncApiOverride._();
 
+  static Future<bool> autoSyncEnalbed(Ref ref) async {
+    final syncEnable = await ref.watch(syncEnabledProvider.future);
+    if (!syncEnable) {
+      return false;
+    }
+    final settings = await ref.watch(syncSettingsProvider.future);
+    return settings.enable && settings.autoSync;
+  }
+
   static SyncAction syncAction(Ref ref) {
     return (resourceId) async {
-      final syncService = await ref.read(syncServiceProvider.future);
-      await syncService.sync(resourceId);
+      final syncEnable = await ref.read(syncEnabledProvider.future);
+      if (!syncEnable) {
+        return false;
+      }
+      try {
+        final syncService = await ref.read(syncServiceProvider.future);
+        await syncService.sync(resourceId);
+        return true;
+      } catch (e, stack) {
+        logger.e('auto sync failed: $e', error: e, stackTrace: stack);
+        return false;
+      }
     };
   }
 
@@ -29,20 +48,5 @@ class SyncApiOverride {
       fromJson: arg.$2,
       toJson: arg.$3,
     );
-  }
-
-  static Future<bool> Function() autoSync(Ref ref) {
-    return () async {
-      final settings = await ref.watch(syncSettingsProvider.future);
-      if (!settings.enable || !settings.autoSync) {
-        return false;
-      }
-      // 在网络不可用和token有效时进行尝试
-      final ConnectionAvailability availability = ref.watch(
-        connectionAvailabiltyProvider,
-      );
-      return availability == ConnectionAvailability.active ||
-          availability == ConnectionAvailability.offline;
-    };
   }
 }

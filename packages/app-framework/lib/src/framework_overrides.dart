@@ -36,10 +36,10 @@ List<Override> frameworkOverrides = [
 
   // sync-biz
   syncDelegatesProvider.overrideWith((ref) async {
-    return [await ref.read(launcherSyncDelegateProvider.future)];
+    return [await ref.watch(launcherSyncDelegateProvider.future)];
   }),
   // sync-api
+  autoSyncEnabledProvider.overrideWith(SyncApiOverride.autoSyncEnalbed),
   syncActionProvider.overrideWith(SyncApiOverride.syncAction),
-  autoSyncProvider.overrideWith(SyncApiOverride.autoSync),
   syncStandardApiProvider.overrideWith(SyncApiOverride.syncStandardApi),
 ];

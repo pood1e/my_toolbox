@@ -21,7 +21,7 @@ Future<String?> authenciatedAccessToken(Ref ref) async {
   return await ref.watch(accessTokenProvider.future);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 StartupAction checkTokenAction(Ref ref) {
   return () async {
     final tokenService = await ref.read(tokenServiceProvider.future);
@@ -29,7 +29,7 @@ StartupAction checkTokenAction(Ref ref) {
   };
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<void> Function() refreshAccessToken(Ref ref) {
   return () async {
     final tokenService = await ref.read(tokenServiceProvider.future);

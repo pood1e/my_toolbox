@@ -7,12 +7,12 @@ import 'standard/sync_standard_api.dart';
 part 'providers.g.dart';
 
 @riverpod
-SyncAction syncAction(Ref ref) {
+Future<bool> autoSyncEnabled(Ref ref) {
   throw NotOverrideError();
 }
 
-@riverpod
-Future<bool> Function() autoSync(Ref ref) {
+@Riverpod(keepAlive: true)
+SyncAction syncAction(Ref ref) {
   throw NotOverrideError();
 }
 

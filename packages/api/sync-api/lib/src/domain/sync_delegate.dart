@@ -12,5 +12,7 @@ abstract class SyncDelegate<T> {
 
   Future<SyncPullResponse<T>> pull(int? cursor);
 
+  bool needMerge(T pulled, T pushed);
+
   Future<void> merge(T change);
 }

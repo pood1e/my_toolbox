@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:framework_api/framework_api.dart';
 
 import '../launcher/launcher_dao.dart';
@@ -5,12 +6,10 @@ import '../launcher/launcher_dto.dart';
 import '../launcher/launcher_mapper.dart';
 
 class LauncherSyncDelegate extends SyncStandardDelegate<LauncherSyncPayload> {
-  final Future<LauncherDao> Function() _daoGetter;
+  final LauncherDao _dao;
 
-  LauncherSyncDelegate({
-    required super.api,
-    required Future<LauncherDao> Function() daoGetter,
-  }) : _daoGetter = daoGetter;
+  LauncherSyncDelegate({required super.api, required LauncherDao dao})
+    : _dao = dao;
 
   @override
   String get resourceId => 'launcher';
@@ -20,8 +19,7 @@ class LauncherSyncDelegate extends SyncStandardDelegate<LauncherSyncPayload> {
 
   @override
   Future<LauncherSyncPayload?> load(int? cursor) async {
-    final dao = await _daoGetter();
-    final dirtyRows = await dao.getDirtyEntries(cursor);
+    final dirtyRows = await _dao.getDirtyEntries(cursor);
 
     if (dirtyRows.isEmpty) return null;
     return LauncherSyncPayload(
@@ -31,7 +29,11 @@ class LauncherSyncDelegate extends SyncStandardDelegate<LauncherSyncPayload> {
 
   @override
   Future<void> merge(LauncherSyncPayload changes) async {
-    final dao = await _daoGetter();
-    await dao.mergeEntries(changes.usages.map((d) => d.toEntity()).toList());
+    await _dao.mergeEntries(changes.usages.map((d) => d.toEntity()).toList());
+  }
+
+  @override
+  bool needMerge(LauncherSyncPayload pulled, LauncherSyncPayload pushed) {
+    return listEquals(pulled.usages, pushed.usages);
   }
 }

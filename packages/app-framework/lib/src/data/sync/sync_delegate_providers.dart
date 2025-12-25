@@ -9,17 +9,13 @@ part 'sync_delegate_providers.g.dart';
 
 @riverpod
 Future<LauncherSyncDelegate> launcherSyncDelegate(Ref ref) async {
-  final api = await ref.read(
+  final api = await ref.watch(
     syncStandardApiProvider(
       '/settings/launcher',
       LauncherSyncPayload.fromJson,
       (t) => t.toJson(),
     ).future,
   );
-  return LauncherSyncDelegate(
-    api: api,
-    daoGetter: () async {
-      return await ref.read(launcherDaoProvider.future);
-    },
-  );
+  final dao = await ref.read(launcherDaoProvider.future);
+  return LauncherSyncDelegate(api: api, dao: dao);
 }

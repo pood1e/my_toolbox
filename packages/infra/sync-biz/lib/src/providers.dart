@@ -7,7 +7,7 @@ import 'ui/pages/sync_settings_page.dart';
 
 part 'providers.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 StartupAction checkRealtimeSync(Ref ref) {
   return () async {
     await ref.read(realtimeServiceProvider.future);

@@ -4,25 +4,19 @@ import '../../data/framework_database.dart';
 import '../../data/launcher/launcher_dao.dart';
 import '../launcher_service.dart';
 
-typedef LauncherSyncAction = Future<void> Function();
-
 class LauncherServiceImpl implements LauncherService {
   final List<AppDefinition> _allApps;
   final LauncherDao _dao;
-  final LauncherSyncAction _syncAction;
 
   LauncherServiceImpl({
     required List<AppDefinition> allApps,
     required LauncherDao dao,
-    required LauncherSyncAction syncAction,
   }) : _allApps = allApps,
-       _dao = dao,
-       _syncAction = syncAction;
+       _dao = dao;
 
   @override
   Future<void> record(String id) async {
     await _dao.trackUsage(id);
-    _syncAction();
   }
 
   @override

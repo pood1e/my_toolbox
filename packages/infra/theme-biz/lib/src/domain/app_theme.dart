@@ -96,11 +96,11 @@ class AppTheme {
     // 2. 应用字体 (Typography)
     // 使用 GoogleFonts 统一应用到所有 TextStyles
     // Noto Sans 对多语言支持较好
-    // final textTheme = GoogleFonts.notoSansTextTheme(themeData.textTheme);
+    final textTheme = GoogleFonts.notoSansTextTheme(themeData.textTheme);
 
     // 3. 注入扩展 (Theme Extensions) & 返回最终 Theme
     return themeData.copyWith(
-      // textTheme: textTheme,
+      textTheme: textTheme,
 
       // 这里注入我们在 custom_colors.dart 定义的扩展
       extensions: [

@@ -1,5 +1,4 @@
 import 'package:app_core/di.dart';
-import 'package:framework_api/framework_api.dart';
 
 import '../data/dao_providers.dart';
 import '../feature_registry.dart';
@@ -14,14 +13,5 @@ Future<LauncherService> launcherService(Ref ref) async {
   return LauncherServiceImpl(
     allApps: apps,
     dao: await ref.watch(launcherDaoProvider.future),
-    syncAction: () async {
-      final autoSyncChecker = ref.read(autoSyncProvider);
-      if (!(await autoSyncChecker())) {
-        return;
-      }
-      final action = ref.read(syncActionProvider);
-      // 不等待
-      action('launcher');
-    },
   );
 }

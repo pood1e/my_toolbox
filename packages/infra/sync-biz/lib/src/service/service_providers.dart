@@ -3,9 +3,10 @@ import 'package:auth_api/auth_api.dart';
 import 'package:auth_biz/auth_biz.dart';
 import 'package:sync_api/sync_api.dart';
 
-import '../domain/sync_cursor.dart';
+import '../data/sync_local_providers.dart';
+import '../domain/sync_exceptions.dart';
 import '../need_override_providers.dart';
-import '../state/sync_states.dart';
+import '../state/sync_settings_state.dart';
 import 'impl/realtime_service_impl.dart';
 import 'impl/sync_service_impl.dart';
 import 'realtime_service.dart';
@@ -14,7 +15,7 @@ import 'sync_service.dart';
 
 part 'service_providers.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<SyncServiceImpl> syncServiceImpl(Ref ref) async {
   final delegates = await ref.watch(syncDelegatesProvider.future);
   final delegateMap = {
@@ -23,57 +24,53 @@ Future<SyncServiceImpl> syncServiceImpl(Ref ref) async {
 
   return SyncServiceImpl(
     delegateMap: delegateMap,
-    syncingGetter: (resourceId) {
-      return ref.read(resourceSyncingProvider(resourceId));
-    },
-    syncingSetter: (resourceId, syncing) {
-      final notifier = ref.read(syncingProvider.notifier);
-      notifier.setSyncing(resourceId, syncing);
-    },
-    syncChecker: () async {
-      final userIdentity = await ref.read(currentUserIdentityProvider.future);
-      if (userIdentity == null) {
-        return false;
-      }
-      final settings = await ref.read(syncSettingsProvider.future);
-      return settings.enable;
-    },
-    cursorLoader: (resourceId) async {
-      final cursor = await ref.read(syncCursorProvider(resourceId).future);
-      return cursor.cursor;
-    },
-    cursorUpdater: (resourceId, cursor) async {
-      final notifier = ref.read(syncCursorProvider(resourceId).notifier);
-      return notifier.save(SyncCursor(cursor: cursor, lastSyncedAt: cursor));
-    },
+    cursorStorage: await ref.watch(syncCursorStorageProvider.future),
   );
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<SyncAllService> syncAllService(Ref ref) async {
+  final syncEnabled = await ref.watch(syncEnabledProvider.future);
+  if (!syncEnabled) {
+    throw SyncDisallowException();
+  }
   return await ref.watch(syncServiceImplProvider.future);
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<SyncService> syncService(Ref ref) async {
+  final syncEnabled = await ref.watch(syncEnabledProvider.future);
+  if (!syncEnabled) {
+    throw SyncDisallowException();
+  }
   return await ref.watch(syncServiceImplProvider.future);
 }
 
-@Riverpod(keepAlive: true)
-Future<RealtimeService?> realtimeService(Ref ref) async {
+@riverpod
+Future<bool> anySyncing(Ref ref) async {
+  final service = await ref.read(syncServiceProvider.future);
+  return service.anySyncing;
+}
+
+@riverpod
+Future<RealtimeService> realtimeService(Ref ref) async {
   final userIdentity = await ref.watch(currentUserIdentityProvider.future);
   if (userIdentity == null) {
-    return null;
+    throw SyncDisallowException();
+  }
+  final realtimeEnabled = await ref.watch(realtimeSyncEnabledProvider.future);
+  if (!realtimeEnabled) {
+    throw SyncDisallowException();
   }
   final authenciatedToken = await ref.watch(
     authenciatedAccessTokenProvider.future,
   );
   if (authenciatedToken == null) {
-    return null;
+    throw SyncUnavailableException();
   }
   final availability = ref.watch(connectionAvailabiltyProvider);
   if (availability != ConnectionAvailability.active) {
-    return null;
+    throw SyncUnavailableException();
   }
 
   final service = RealtimeServiceImpl(
@@ -85,12 +82,7 @@ Future<RealtimeService?> realtimeService(Ref ref) async {
     },
     triggerSyncAction: ref.read(syncActionProvider),
   );
-
-  // 4. 生命周期管理
-  // 初始化时启动
   service.start();
-
-  // 销毁时停止 (包括 Token 变化导致的重建前夕)
   ref.onDispose(() {
     service.stop();
   });

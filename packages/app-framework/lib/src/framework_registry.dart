@@ -60,7 +60,10 @@ class FrameworkRegistry {
     ..._ref.read(authRoutesProvider),
   ];
 
-  List<StartupAction> get startups => [_ref.read(checkTokenActionProvider)];
+  List<StartupAction> get startups => [
+    _ref.read(checkTokenActionProvider),
+    _ref.read(checkRealtimeSyncProvider),
+  ];
 }
 
 @Riverpod(keepAlive: true)
