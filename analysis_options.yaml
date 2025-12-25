@@ -32,14 +32,14 @@ analyzer:
   errors:
     invalid_annotation_target: ignore
     invalid_export_of_internal_element: ignore
-  # 启用 custom_lint 插件
-#  plugins:
-#    - custom_lint
+  #   启用 custom_lint 插件
+  plugins:
+    - custom_lint
 
 # 这里可以配置具体的 lint 规则
-#custom_lint:
-#  rules:
-#    # 强烈推荐开启的规则
-#    - provider_dependencies: true
-#    - avoid_public_notifier_properties: true
-#    - avoid_manual_providers_as_generated_provider_dependency: true
+custom_lint:
+  rules:
+    # 强烈推荐开启的规则
+    - provider_dependencies: true
+    - avoid_public_notifier_properties: true
+    - avoid_manual_providers_as_generated_provider_dependency: true
