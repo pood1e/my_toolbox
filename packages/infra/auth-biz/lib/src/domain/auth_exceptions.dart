@@ -35,3 +35,15 @@ class UnknownAuthException extends AuthException {
     return message ?? 'UnknownAuthException';
   }
 }
+
+
+class AuthInterceptorException extends AuthException {
+  final String? message;
+
+  AuthInterceptorException({this.message});
+
+  @override
+  String toString() {
+    return message ?? 'AuthInterceptorException';
+  }
+}

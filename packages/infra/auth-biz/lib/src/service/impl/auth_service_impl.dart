@@ -111,7 +111,7 @@ class AuthServiceImpl implements AuthService {
   Future<void> _aroundLogin(RemoteServer server, AuthResponse response) async {
     final ctx = UserIdentity(userId: response.userId, server: server);
     for (final hook in _beforeLogins) {
-      if (!await hook(ctx)) throw Exception('Login aborted');
+      if (!await hook(ctx)) throw AuthInterceptorException();
     }
 
     await _storage.saveSession(authResponse: response, server: server);
