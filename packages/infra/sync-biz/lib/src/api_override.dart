@@ -41,7 +41,7 @@ class SyncApiOverride {
     Ref ref,
     (String, FromJson<T>, ToJson<T>) arg,
   ) async {
-    final dio = await ref.read(authenticatedDioProvider.future);
+    final dio = await ref.watch(authenticatedDioProvider.future);
     return SyncStandardApiImpl<T>(
       dio: dio,
       apiPath: arg.$1,

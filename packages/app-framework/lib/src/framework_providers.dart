@@ -6,7 +6,7 @@ import 'framework_registry.dart';
 
 part 'framework_providers.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<void> startup(Ref ref) async {
   final featureRegistry = ref.read(featureRegistryProvider);
   final frameworkRegistry = ref.read(frameworkRegistryProvider);
@@ -14,7 +14,7 @@ Future<void> startup(Ref ref) async {
   await Future.wait(actions.map((action) async => action()));
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 GoRouter appRouter(Ref ref) {
   final featureRegistry = ref.read(featureRegistryProvider);
   final frameworkRegistry = ref.read(frameworkRegistryProvider);

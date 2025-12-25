@@ -12,7 +12,7 @@ class FeatureRegistry {
   List<StartupAction> get startups => [];
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 FeatureRegistry featureRegistry(Ref ref) {
   return FeatureRegistry();
 }

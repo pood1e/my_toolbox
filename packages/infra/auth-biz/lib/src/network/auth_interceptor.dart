@@ -1,24 +1,24 @@
 import 'package:app_core/http.dart';
 
 class AuthInterceptor extends QueuedInterceptor {
+  final String _baseUrl;
   final Future<String> Function() _accessGetter;
-  final Future<String> Function() _baseUrlGetter;
   final Future<void> Function() _refresh;
 
   AuthInterceptor({
+    required String baseUrl,
     required Future<String> Function() accessGetter,
     required Future<void> Function() refresh,
-    required Future<String> Function() baseUrlGetter,
-  }) : _accessGetter = accessGetter,
-       _refresh = refresh,
-       _baseUrlGetter = baseUrlGetter;
+  }) : _baseUrl = baseUrl,
+       _accessGetter = accessGetter,
+       _refresh = refresh;
 
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    options.baseUrl = await _baseUrlGetter();
+    options.baseUrl = _baseUrl;
     final accessToken = await _accessGetter();
     options.headers['Authorization'] = 'Bearer $accessToken';
     handler.next(options);
@@ -34,7 +34,7 @@ class AuthInterceptor extends QueuedInterceptor {
         // retry
         final opts = err.requestOptions;
         opts.headers['Authorization'] = 'Bearer $newToken';
-        opts.baseUrl = await _baseUrlGetter();
+        opts.baseUrl = _baseUrl;
         final dio = Dio();
         final cloneReq = await dio.fetch(opts);
 

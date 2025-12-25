@@ -23,8 +23,13 @@ class AuthApiOverride {
   }
 
   static Future<Dio> authenticatedDio(Ref ref) async {
-    // 如果想切换server时使用新的dio
-    // await ref.watch(remoteServerProvider.future);
+    final baseUrl = await ref.watch(
+      remoteServerProvider.selectAsync((server) => server?.baseUrl),
+    );
+    if (baseUrl == null) {
+      logger.e('baseUrl is empty, request should not send now');
+      throw Exception();
+    }
     final dio = Dio();
     dio.interceptors.add(
       AuthInterceptor(
@@ -36,14 +41,7 @@ class AuthApiOverride {
           }
           return token;
         },
-        baseUrlGetter: () async {
-          final server = await ref.read(remoteServerProvider.future);
-          if (server == null) {
-            logger.e('server is empty, request should not send now');
-            throw Exception();
-          }
-          return server.baseUrl;
-        },
+        baseUrl: baseUrl,
         refresh: () async {
           final service = await ref.read(tokenServiceProvider.future);
           await service.refresh();

@@ -7,7 +7,7 @@ import 'launcher_service.dart';
 
 part 'service_providers.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<LauncherService> launcherService(Ref ref) async {
   final apps = ref.read(featureRegistryProvider).appDefinitions;
   return LauncherServiceImpl(

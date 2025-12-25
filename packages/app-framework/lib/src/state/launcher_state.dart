@@ -6,7 +6,7 @@ import '../service/service_providers.dart';
 
 part 'launcher_state.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 class LauncherEntryNotifier extends _$LauncherEntryNotifier {
   @override
   Stream<List<AppDefinition>> build() async* {

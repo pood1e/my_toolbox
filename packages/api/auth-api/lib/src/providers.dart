@@ -6,7 +6,7 @@ import 'domain/user_identity.dart';
 
 part 'providers.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<Dio> authenticatedDio(Ref ref) async {
   throw NotOverrideError();
 }

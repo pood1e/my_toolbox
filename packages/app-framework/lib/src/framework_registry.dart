@@ -66,7 +66,7 @@ class FrameworkRegistry {
   ];
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 FrameworkRegistry frameworkRegistry(Ref ref) {
   return FrameworkRegistry(ref: ref);
 }
