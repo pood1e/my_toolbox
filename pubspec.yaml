@@ -58,11 +58,12 @@ workspace:
   - packages/api/auth-api
   - packages/api/data-api
   - packages/api/sync-api
-  - packages/app-framework
+  - packages/framework-api
   - packages/infra/common-ui
   - packages/infra/auth-biz
   - packages/infra/data-biz
   - packages/infra/sync-biz
+  - packages/app-framework
 
 
 dependency_overrides:
