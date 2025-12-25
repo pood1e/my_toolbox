@@ -4,6 +4,7 @@ import 'package:app_core/route.dart';
 import 'package:auth_biz/auth_biz.dart';
 import 'package:flutter/material.dart';
 import 'package:sync_biz/sync_biz.dart';
+import 'package:theme_biz/theme_biz.dart';
 
 import 'ui/pages/launcher_page.dart';
 import 'ui/scaffold/adaptive_scaffold.dart';
@@ -47,7 +48,10 @@ class FrameworkRegistry {
             GoRoute(
               path: AppRoutes.settings, // '/settings'
               builder: (context, state) => SettingsScreen(),
-              routes: [_ref.read(syncSettingsRouteProvider)],
+              routes: [
+                _ref.read(syncSettingsRouteProvider),
+                _ref.read(themeSettingsRouteProvider),
+              ],
             ),
           ],
         ),

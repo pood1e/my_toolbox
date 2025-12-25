@@ -46,6 +46,16 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+
+              _SectionHeader(title: '通用'),
+              ListTile(
+                leading: const Icon(Icons.palette_outlined),
+                title: const Text('外观与主题'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(
+                  '${AppRoutes.settings}/${AppRoutes.themeSettingsPart}',
+                ),
+              ),
             ],
           );
         },

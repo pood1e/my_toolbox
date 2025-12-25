@@ -26,8 +26,8 @@ class MMKVStore implements KVStore {
   }
 
   @override
-  Future<int?> getInt(String key) async {
-    return _box.decodeInt(key);
+  Future<int> getInt(String key, {int defaultValue = 0}) async {
+    return _box.decodeInt(key, defaultValue: defaultValue);
   }
 
   @override
@@ -46,8 +46,8 @@ class MMKVStore implements KVStore {
   }
 
   @override
-  Future<bool?> getBool(String key) async {
-    return _box.decodeBool(key);
+  Future<bool> getBool(String key, {bool defaultValue = false}) async {
+    return _box.decodeBool(key, defaultValue: defaultValue);
   }
 
   @override

@@ -10,14 +10,10 @@ class SyncSettingsStorageImpl implements SyncSettingsStorage {
 
   @override
   Future<SyncSettings> load() async {
-    final enable = await _store.getBool('enable');
-    final auto = await _store.getBool('auto');
-    final realtime = await _store.getBool('realtime');
-    return SyncSettings(
-      enable: enable ?? true,
-      autoSync: auto ?? true,
-      realtimeSync: realtime ?? true,
-    );
+    final enable = await _store.getBool('enable', defaultValue: true);
+    final auto = await _store.getBool('auto', defaultValue: true);
+    final realtime = await _store.getBool('realtime', defaultValue: true);
+    return SyncSettings(enable: enable, autoSync: auto, realtimeSync: realtime);
   }
 
   @override

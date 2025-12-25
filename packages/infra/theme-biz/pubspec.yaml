@@ -1,5 +1,5 @@
-name: app_framework
-description: "平台集成实现"
+name: theme_biz
+description: "主题-实现"
 resolution: workspace
 
 environment:
@@ -8,22 +8,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  mmkv: any
-  drift: any
 
   json_annotation: any
   app_core:
-    path: ../app-core
+    path: ../../app-core
   framework_api:
-    path: ../framework-api
-  auth_biz:
-    path: ../infra/auth-biz
-  data_biz:
-    path: ../infra/data-biz
-  sync_biz:
-    path: ../infra/sync-biz
-  theme_biz:
-    path: ../infra/theme-biz
+    path: ../../framework-api
+  common_ui:
+    path: ../common-ui
+  dynamic_color: any
+  google_fonts: any
+  flex_color_scheme: any
+  flutter_native_splash: any
 
 dev_dependencies:
   flutter_test:
@@ -41,4 +37,5 @@ dev_dependencies:
   json_serializable: any
   # db
   drift_dev: any
+
 

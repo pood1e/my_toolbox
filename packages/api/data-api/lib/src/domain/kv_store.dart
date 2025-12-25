@@ -3,11 +3,11 @@ abstract class KVStore {
 
   Future<void> saveString(String key, String value);
 
-  Future<bool?> getBool(String key);
+  Future<bool> getBool(String key, {bool defaultValue = false});
 
   Future<void> saveBool(String key, bool value);
 
-  Future<int?> getInt(String key);
+  Future<int> getInt(String key, {int defaultValue = 0});
 
   Future<void> saveInt(String key, int value);
 

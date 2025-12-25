@@ -10,8 +10,8 @@ class SyncCursorStorageImpl implements SyncCursorStorage {
 
   @override
   Future<SyncCursor> load(String resourceId) async {
-    final cursor = await _store.getInt('${resourceId}_cursor');
-    final last = await _store.getInt('${resourceId}_last');
+    final cursor = await _store.getInt('${resourceId}_cursor', defaultValue: 0);
+    final last = await _store.getInt('${resourceId}_last', defaultValue: 0);
     return SyncCursor(cursor: cursor, lastSyncedAt: last);
   }
 

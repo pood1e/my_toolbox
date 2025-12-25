@@ -1,6 +1,7 @@
 import 'package:app_core/di.dart';
 import 'package:auth_api/auth_api.dart';
 import 'package:data_api/data_api.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../domain/scope_type.dart';
@@ -12,7 +13,7 @@ part 'service_providers.g.dart';
 @Riverpod(keepAlive: true)
 Future<DataScopeService> dataScopeService(Ref ref) async {
   final storageDirectory = await getApplicationDocumentsDirectory();
-  return DataScopeServiceImpl(root: storageDirectory.path);
+  return DataScopeServiceImpl(root: join(storageDirectory.path, 'my-toolbox'));
 }
 
 @Riverpod(keepAlive: true)
