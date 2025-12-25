@@ -35,4 +35,24 @@ class DataMigrationServiceImpl implements DataMigrationService {
 
     await guestScope.delete();
   }
+
+  @override
+  Future<bool> hasAnyNeedMigrate() async {
+    final guestScope = await _service.get(GuestScope().id);
+    final filtered = await Future.wait(
+      _migrations.map((migratable) async {
+        try {
+          final guestStore = guestScope.get(migratable.definition);
+          return await migratable.hasData(guestStore);
+        } catch (e) {
+          logger.e(
+            'Error when check migration ${migratable.definition.key}',
+            error: e,
+          );
+          return false;
+        }
+      }),
+    );
+    return filtered.any((t) => t);
+  }
 }

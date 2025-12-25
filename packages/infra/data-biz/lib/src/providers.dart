@@ -25,12 +25,33 @@ Future<void> Function() migrateFromGuestAction(Ref ref, UserIdentity userId) {
 }
 
 @riverpod
+Future<bool> Function() checkAnyNeedMigrate(Ref ref) {
+  return () async {
+    final service = await ref.read(dataScopeServiceProvider.future);
+    final migrations = await ref.watch(migrationsProvider.future);
+    final migrationService = DataMigrationServiceImpl(
+      migrations: migrations,
+      scopeService: service,
+    );
+    return await migrationService.hasAnyNeedMigrate();
+  };
+}
+
+@riverpod
 Future<void> Function() closeUserAction(Ref ref) {
   return () async {
     final manager = await ref.read(dataScopeServiceProvider.future);
     final userId = await ref.read(currentUserIdentityProvider.future);
     final scopeId = userId == null ? GuestScope() : UserScope(identity: userId);
     await manager.close(scopeId.id);
+  };
+}
+
+@riverpod
+Future<void> Function() clearGuestAction(Ref ref) {
+  return () async {
+    final manager = await ref.read(dataScopeServiceProvider.future);
+    await manager.delete(GuestScope().id);
   };
 }
 

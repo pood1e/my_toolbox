@@ -8,22 +8,22 @@ import 'service/auth_aop.dart';
 
 part 'need_override_providers.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<List<BeforeLogin>> beforeLogins(Ref ref) async {
   throw NotOverrideError();
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<List<AfterLogin>> afterLogins(Ref ref) async {
   throw NotOverrideError();
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<List<BeforeLogout>> beforeLogouts(Ref ref) async {
   throw NotOverrideError();
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<List<AfterLogout>> afterLogouts(Ref ref) async {
   throw NotOverrideError();
 }

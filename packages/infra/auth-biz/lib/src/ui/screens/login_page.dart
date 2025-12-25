@@ -1,4 +1,5 @@
 import 'package:app_core/di.dart';
+import 'package:app_core/logger.dart';
 import 'package:common_ui/message.dart';
 import 'package:flutter/material.dart';
 
@@ -70,8 +71,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         SnackbarService.showSuccess('登录成功'); // 全局 SnackBar
         widget.onLoginSuccess();
       }
-    } catch (e) {
-      // 3. 错误处理留在组件内部
+    } catch (e, stack) {
+      logger.e('loggin error: $e', error: e, stackTrace: stack);
       if (mounted) {
         SnackbarService.showError(getAuthErrorMessage(e));
       }

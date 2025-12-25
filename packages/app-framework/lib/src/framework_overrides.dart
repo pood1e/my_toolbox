@@ -7,26 +7,19 @@ import 'package:sync_api/sync_api.dart';
 import 'package:sync_biz/sync_biz.dart';
 
 import 'data/sync/sync_delegate_providers.dart';
+import 'logic/login_interceptors.dart';
 
 List<Override> frameworkOverrides = [
   // auth-biz
   beforeLoginsProvider.overrideWith((ref) async {
     return [
-      (userId) async {
-        final action = ref.read(closeUserActionProvider);
-        await action();
-        return true;
-      },
+      ref.read(migrateBeforeLoginProvider),
+      ref.read(closeUserScopeBeforeLoginProvider),
     ];
   }),
   afterLoginsProvider.overrideWithValue(AsyncValue.data([])),
   beforeLogoutsProvider.overrideWith((ref) async {
-    return [
-      (userId) async {
-        final action = ref.read(closeUserActionProvider);
-        await action();
-      },
-    ];
+    return [ref.read(closeUserScopeBeforeLogoutProvider)];
   }),
   afterLogoutsProvider.overrideWithValue(AsyncValue.data([])),
   // auth-api

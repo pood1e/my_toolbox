@@ -12,5 +12,7 @@ abstract class StorageDefinition<T> {
 abstract class Migratable<T> {
   StorageDefinition<T> get definition;
 
+  Future<bool> hasData(T source);
+
   Future<void> migrate(T source, T target);
 }
