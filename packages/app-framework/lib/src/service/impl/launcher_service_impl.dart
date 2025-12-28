@@ -1,22 +1,26 @@
 import 'package:app_core/core.dart';
+import 'package:framework_api/framework_api.dart';
 
 import '../../data/framework_database.dart';
-import '../../data/launcher/launcher_dao.dart';
+import '../../data/launcher/app_usage_dao.dart';
 import '../launcher_service.dart';
 
 class LauncherServiceImpl implements LauncherService {
   final List<AppDefinition> _allApps;
-  final LauncherDao _dao;
+  final AppUsageDao _dao;
+  final ServerTimeService _serverTimeService;
 
   LauncherServiceImpl({
     required List<AppDefinition> allApps,
-    required LauncherDao dao,
+    required AppUsageDao dao,
+    required ServerTimeService serverTimeService,
   }) : _allApps = allApps,
-       _dao = dao;
+       _dao = dao,
+       _serverTimeService = serverTimeService;
 
   @override
   Future<void> record(String id) async {
-    await _dao.trackUsage(id);
+    await _dao.recordUsage(id, _serverTimeService.nowMs);
   }
 
   @override
@@ -54,7 +58,7 @@ class LauncherServiceImpl implements LauncherService {
   /// 核心排序算法
   List<AppDefinition> _mergeAndSortApps(
     List<AppDefinition> sourceApps,
-    List<AppUsageEntity> usageLogs,
+    List<AppUsage> usageLogs,
   ) {
     // 1. 构建 usage 查找表 (Module ID -> UsageEntity)
     // 只有有记录的 App 才会在这里

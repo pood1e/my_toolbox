@@ -34,9 +34,9 @@ class RealtimeServiceImpl implements RealtimeService {
     if (_client != null) return;
 
     final wsUrl =
-        '${_server.tls ? "wss" : "ws"}://${_server.host}:${_server.port}';
+        '${_server.tls ? "wss" : "ws"}://${_server.host}:${_server.port}/ws-sync';
 
-    logger.i('🔌 WS: Connecting with token: ${_token.substring(0, 5)}...');
+    logger.i('🔌 Sync Realtime: Connecting ...');
 
     _client = StompClient(
       config: StompConfig(
@@ -58,7 +58,7 @@ class RealtimeServiceImpl implements RealtimeService {
         },
 
         onDisconnect: (frame) {
-          logger.i('🔌 WS Disconnected');
+          logger.i('🔌 Sync Realtime Disconnected');
         },
 
         // 这里的重连只处理网络波动，不处理 Token 刷新
@@ -74,13 +74,13 @@ class RealtimeServiceImpl implements RealtimeService {
   /// 停止连接 (清理资源)
   @override
   Future<void> stop() async {
-    logger.i('🛑 WS: Stopping client...');
+    logger.i('🛑 Sync Realtime: Stopping client...');
     _client?.deactivate();
     _client = null;
   }
 
   void _onConnect(StompFrame frame) {
-    logger.i('✅ WS Connected');
+    logger.i('✅ Sync Realtime Connected');
     _client?.subscribe(
       destination: '/user/topic/sync',
       callback: (frame) {
@@ -103,7 +103,6 @@ class RealtimeServiceImpl implements RealtimeService {
         errorStr.contains('401') || errorStr.contains('Unauthorized');
     if (isUnauthorized) {
       logger.e('🚨 WS: 401 detected, requesting token refresh...');
-      // 仅仅通知外部，自己不处理重连，也不断开（依靠销毁重建）
       _onAuthExpired();
     }
   }

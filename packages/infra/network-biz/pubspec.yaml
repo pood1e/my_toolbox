@@ -1,5 +1,5 @@
-name: app_framework
-description: "平台集成实现"
+name: network_biz
+description: "用户-实现"
 resolution: workspace
 
 environment:
@@ -8,24 +8,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  mmkv: any
-  drift: any
-
   json_annotation: any
+
   app_core:
-    path: ../app-core
-  framework_api:
-    path: ../framework-api
-  auth_biz:
-    path: ../infra/auth-biz
-  data_biz:
-    path: ../infra/data-biz
-  sync_biz:
-    path: ../infra/sync-biz
-  theme_biz:
-    path: ../infra/theme-biz
-  network_biz:
-    path: ../infra/network-biz
+    path: ../../app-core
+  auth_api:
+    path: ../../api/auth-api
+  data_api:
+    path: ../../api/data-api
+  network_api:
+    path: ../../api/network-api
+  system_clock: any
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +34,6 @@ dev_dependencies:
   # freezed
   freezed: any
   json_serializable: any
-  # db
-  drift_dev: any
+
+
 

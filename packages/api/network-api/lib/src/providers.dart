@@ -1,16 +1,16 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 
-import 'domain/sync_action.dart';
+import '../network_api.dart';
 
 part 'providers.g.dart';
 
-@riverpod
-Future<bool> autoSyncEnabled(Ref ref) {
+@Riverpod(keepAlive: true)
+Future<ServerTimeService> serverTimeService(Ref ref) {
   throw NotOverrideError();
 }
 
 @Riverpod(keepAlive: true)
-SyncAction syncAction(Ref ref) {
+Future<DeviceIdService> deviceIdService(Ref ref) {
   throw NotOverrideError();
 }

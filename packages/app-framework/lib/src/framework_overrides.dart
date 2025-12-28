@@ -2,6 +2,7 @@ import 'package:app_core/di.dart';
 import 'package:auth_biz/auth_biz.dart';
 import 'package:data_biz/data_biz.dart';
 import 'package:framework_api/framework_api.dart';
+import 'package:network_biz/network_biz.dart';
 import 'package:sync_biz/sync_biz.dart';
 
 import 'data/sync/sync_delegate_providers.dart';
@@ -36,10 +37,14 @@ List<Override> frameworkOverrides = [
 
   // sync-biz
   syncDelegatesProvider.overrideWith((ref) async {
-    return [await ref.watch(launcherSyncDelegateProvider.future)];
+    return [await ref.watch(appUsageSyncDelegateProvider.future)];
   }),
   // sync-api
   autoSyncEnabledProvider.overrideWith(SyncApiOverride.autoSyncEnalbed),
   syncActionProvider.overrideWith(SyncApiOverride.syncAction),
-  syncStandardApiProvider.overrideWith(SyncApiOverride.syncStandardApi),
+  // syncStandardApiProvider.overrideWith(SyncApiOverride.syncStandardApi),
+
+  // network-api
+  serverTimeServiceProvider.overrideWith(NetworkApiOverride.serverTimeService),
+  deviceIdServiceProvider.overrideWith(NetworkApiOverride.deviceIdService),
 ];

@@ -5,6 +5,6 @@ import 'package:sync_api/sync_api.dart';
 part 'need_override_providers.g.dart';
 
 @riverpod
-Future<List<SyncDelegate<dynamic>>> syncDelegates(Ref ref) {
+Future<List<SyncDelegate>> syncDelegates(Ref ref) {
   throw NotOverrideError();
 }

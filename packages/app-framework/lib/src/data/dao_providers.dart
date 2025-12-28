@@ -4,7 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
 import 'framework_database.dart';
-import 'launcher/launcher_dao.dart';
+import 'launcher/app_usage_dao.dart';
 
 part 'dao_providers.g.dart';
 
@@ -16,6 +16,13 @@ Future<FrameworkDatabase> frameworkDatabase(Ref ref) async {
     ).future,
   );
 
+  return db;
+}
+
+@Riverpod(keepAlive: true)
+Future<AppUsageDao> appUsageDao(Ref ref) async {
+  final db = await ref.watch(frameworkDatabaseProvider.future);
+  final dao = AppUsageDao(db);
   final autoSyncEnabled = await ref.watch(autoSyncEnabledProvider.future);
   if (autoSyncEnabled) {
     final launcherSub = db
@@ -23,17 +30,14 @@ Future<FrameworkDatabase> frameworkDatabase(Ref ref) async {
         .debounce(Duration(seconds: 5))
         .listen((updates) async {
           final action = ref.read(syncActionProvider);
-          await action('launcher');
+          await action('app_usage');
+          while ((await dao.checkHasChanges())) {
+            await action('app_usage');
+          }
         });
 
     ref.onDispose(() => launcherSub.cancel());
   }
 
-  return db;
-}
-
-@riverpod
-Future<LauncherDao> launcherDao(Ref ref) async {
-  final db = await ref.watch(frameworkDatabaseProvider.future);
-  return LauncherDao(db);
+  return dao;
 }

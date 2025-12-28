@@ -12,13 +12,13 @@ typedef CursorUpdater = Future<void> Function(String, int);
 typedef SyncChecker = Future<bool> Function();
 
 class SyncServiceImpl implements SyncService, SyncAllService {
-  final Map<String, SyncDelegate<dynamic>> _delegateMap;
+  final Map<String, SyncDelegate> _delegateMap;
   final SyncCursorStorage _cursorStorage;
   final Map<String, SyncCursor> _cursorMap = {};
   final Map<String, bool> _syncingMap = {};
 
   SyncServiceImpl({
-    required Map<String, SyncDelegate<dynamic>> delegateMap,
+    required Map<String, SyncDelegate> delegateMap,
     required SyncCursorStorage cursorStorage,
   }) : _delegateMap = delegateMap,
        _cursorStorage = cursorStorage;
@@ -64,31 +64,10 @@ class SyncServiceImpl implements SyncService, SyncAllService {
     }
   }
 
-  Future<void> syncFlow(
-    String resourceId,
-    SyncDelegate<dynamic> delegate,
-  ) async {
+  Future<void> syncFlow(String resourceId, SyncDelegate delegate) async {
     final cursor = await _loadCursor(resourceId);
-    final changes = await delegate.load(cursor);
-
-    if (changes != null && !delegate.isEmpty(changes)) {
-      await delegate.push(changes);
-      logger.i('sync:$resourceId push changes successfully.');
-    } else {
-      logger.i('sync:$resourceId no changes to push.');
-    }
-
-    logger.i('sync:$resourceId pulling remote changes...');
-    final result = await delegate.pull(cursor);
-    if (!delegate.isEmpty(result.payload) &&
-        delegate.needMerge(changes, result.payload)) {
-      await delegate.merge(result.payload);
-      logger.i('sync:$resourceId merge changes successfully.');
-    } else {
-      logger.i('sync:$resourceId no changes to merge.');
-    }
-
-    _saveCursor(resourceId, result.cursor);
+    final newCursor = await delegate.sync(cursor);
+    _saveCursor(resourceId, newCursor);
     logger.i('sync:$resourceId completed.');
   }
 

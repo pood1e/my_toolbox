@@ -41,6 +41,7 @@ dependencies:
   flex_color_scheme: ^8.4.0
   flutter_native_splash: ^2.4.7
   stream_transform: ^2.1.1
+  system_clock: ^3.0.0
 
 
 dev_dependencies:
@@ -63,12 +64,14 @@ workspace:
   - packages/api/auth-api
   - packages/api/data-api
   - packages/api/sync-api
+  - packages/api/network-api
   - packages/framework-api
   - packages/infra/common-ui
   - packages/infra/auth-biz
   - packages/infra/data-biz
   - packages/infra/sync-biz
   - packages/infra/theme-biz
+  - packages/infra/network-biz
   - packages/app-framework
 
 

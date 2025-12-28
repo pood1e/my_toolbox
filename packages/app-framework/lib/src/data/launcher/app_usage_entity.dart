@@ -1,11 +1,18 @@
 import 'package:drift/drift.dart';
-import 'package:framework_api/framework_api.dart';
 
-@DataClassName('AppUsageEntity')
-class AppUsageEntities extends Table with SyncTable {
-  TextColumn get module => text().unique()();
+@DataClassName('AppUsage')
+class AppUsageEntities extends Table {
+  TextColumn get module => text()();
 
-  DateTimeColumn get lastUsedAt => dateTime()();
+  IntColumn get lastUsedAt => integer()();
 
   IntColumn get openCount => integer().withDefault(const Constant(1))();
+
+  @override
+  Set<Column> get primaryKey => {module};
+
+  // sync part
+  IntColumn get unsyncCount => integer().withDefault(const Constant(0))();
+
+  IntColumn get lockedCount => integer().withDefault(const Constant(0))();
 }

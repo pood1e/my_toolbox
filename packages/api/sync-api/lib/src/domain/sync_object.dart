@@ -1,9 +1,18 @@
-mixin SyncObject {
-  String get id;
+import 'package:app_core/object.dart';
 
-  DateTime get createdAt;
+part 'sync_object.freezed.dart';
+part 'sync_object.g.dart';
 
-  DateTime get updatedAt;
+@Freezed(genericArgumentFactories: true)
+abstract class SyncDelta<T> with _$SyncDelta<T> {
+  const factory SyncDelta({
+    required int sequence,
+    required String deviceId,
+    required List<T> deltas,
+  }) = _SyncDelta;
 
-  DateTime? get deletedAt;
+  factory SyncDelta.fromJson(
+    Map<String, dynamic> json,
+    T Function(Object? json) fromJsonT,
+  ) => _$SyncDeltaFromJson(json, fromJsonT);
 }

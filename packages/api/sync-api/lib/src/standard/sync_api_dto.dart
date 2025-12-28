@@ -3,36 +3,27 @@ import 'package:app_core/object.dart';
 part 'sync_api_dto.freezed.dart';
 part 'sync_api_dto.g.dart';
 
-/// Push 请求信封
-/// 对应后端: SyncPushRequest
 @Freezed(genericArgumentFactories: true)
-abstract class SyncPushRequest<T> with _$SyncPushRequest<T> {
-  const SyncPushRequest._();
+abstract class SyncRequest<T> with _$SyncRequest<T> {
+  const SyncRequest._();
 
-  const factory SyncPushRequest({required T payload}) = _SyncPushRequest;
+  const factory SyncRequest({int? cursor, T? payload}) = _SyncRequest;
 
-  factory SyncPushRequest.fromJson(
+  factory SyncRequest.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
-  ) => _$SyncPushRequestFromJson(json, fromJsonT);
+  ) => _$SyncRequestFromJson(json, fromJsonT);
 }
 
-/// Pull 响应信封
-/// 对应后端: SyncResponse
 @Freezed(genericArgumentFactories: true)
-abstract class SyncPullResponse<T> with _$SyncPullResponse<T> {
-  const SyncPullResponse._();
+abstract class SyncResponse<T> with _$SyncResponse<T> {
+  const SyncResponse._();
 
-  const factory SyncPullResponse({
-    /// 业务数据载荷
-    required T payload,
+  const factory SyncResponse({required int cursor, T? payload}) =
+      _SyncResponse;
 
-    /// 新游标 utc时间
-    required int cursor,
-  }) = _SyncPullResponse;
-
-  factory SyncPullResponse.fromJson(
+  factory SyncResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
-  ) => _$SyncPullResponseFromJson(json, fromJsonT);
+  ) => _$SyncResponseFromJson(json, fromJsonT);
 }
