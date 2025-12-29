@@ -17,7 +17,7 @@ class AppUsageDao extends DatabaseAccessor<FrameworkDatabase>
   AppUsageDao(super.attachedDatabase);
 
   Stream<List<AppUsage>> watchAllUsage() {
-    return (select(db.appUsageEntities)..orderBy([
+    return (select(appUsageEntities)..orderBy([
           (t) =>
               OrderingTerm(expression: t.lastUsedAt, mode: OrderingMode.desc),
         ]))
@@ -26,7 +26,7 @@ class AppUsageDao extends DatabaseAccessor<FrameworkDatabase>
 
   Future<void> recordUsage(String moduleName, int now) async {
     await transaction(() async {
-      await into(db.appUsageEntities).insert(
+      await into(appUsageEntities).insert(
         AppUsageEntitiesCompanion(
           module: Value(moduleName),
           lastUsedAt: Value(now),
@@ -46,27 +46,26 @@ class AppUsageDao extends DatabaseAccessor<FrameworkDatabase>
   }
 
   Future<bool> checkHasChanges() async {
-    return await (select(db.appUsageEntities)
+    return await (select(appUsageEntities)
           ..where((t) => t.unsyncCount.isBiggerThanValue(0)))
         .get()
         .then((l) => l.isNotEmpty);
   }
 
   Future<SyncDelta<AppUsageDelta>?> lockAndGetPayload(
-    int now,
     String deviceId,
   ) async {
     return await transaction(() async {
       // 1. 初始化或获取 Meta
       var meta = await (select(
-        db.syncSequenceTable,
+        syncSequenceTable,
       )..where((t) => t.moduleId.equals(_kModuleId))).getSingleOrNull();
       if (meta == null) {
         await into(
-          db.syncSequenceTable,
+          syncSequenceTable,
         ).insert(SyncSequence(moduleId: _kModuleId, sequence: 0));
         meta = await (select(
-          db.syncSequenceTable,
+          syncSequenceTable,
         )..where((t) => t.moduleId.equals(_kModuleId))).getSingle();
       }
       int currentSequence = meta.sequence;
@@ -74,7 +73,7 @@ class AppUsageDao extends DatabaseAccessor<FrameworkDatabase>
       // 2. 【核心判断】检查是否处于 "Pending/Retry" 状态
       // 只要有一行数据的 lockedCount > 0，就说明上次没发完
       final hasPendingLock =
-          await (select(db.appUsageEntities)
+          await (select(appUsageEntities)
                 ..where((t) => t.lockedCount.isBiggerThanValue(0)))
               .get()
               .then((l) => l.isNotEmpty);
@@ -89,7 +88,7 @@ class AppUsageDao extends DatabaseAccessor<FrameworkDatabase>
         currentSequence += 1;
 
         await update(
-          db.syncSequenceTable,
+          syncSequenceTable,
         ).replace(meta.copyWith(sequence: currentSequence));
 
         await customStatement(
@@ -101,7 +100,7 @@ class AppUsageDao extends DatabaseAccessor<FrameworkDatabase>
       }
 
       final dirtyItems = await (select(
-        db.appUsageEntities,
+        appUsageEntities,
       )..where((t) => t.lockedCount.isBiggerThanValue(0))).get();
 
       return SyncDelta<AppUsageDelta>(

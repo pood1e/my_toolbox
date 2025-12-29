@@ -33,11 +33,10 @@ class SyncServiceImpl implements SyncService, SyncAllService {
     return cursorFromStorage.cursor;
   }
 
-  void _saveCursor(String resourceId, int cursor) {
+  Future<void> _saveCursor(String resourceId, int cursor) async {
     final syncCursor = SyncCursor(cursor: cursor, lastSyncedAt: cursor);
     _cursorMap[resourceId] = syncCursor;
-    // 异步存储
-    _cursorStorage.save(resourceId, syncCursor);
+    await _cursorStorage.save(resourceId, syncCursor);
   }
 
   @override
@@ -66,8 +65,10 @@ class SyncServiceImpl implements SyncService, SyncAllService {
 
   Future<void> syncFlow(String resourceId, SyncDelegate delegate) async {
     final cursor = await _loadCursor(resourceId);
-    final newCursor = await delegate.sync(cursor);
-    _saveCursor(resourceId, newCursor);
+    await delegate.sync(
+      cursor,
+      (newCursor) => _saveCursor(resourceId, newCursor),
+    );
     logger.i('sync:$resourceId completed.');
   }
 

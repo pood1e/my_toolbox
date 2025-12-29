@@ -9,18 +9,22 @@ class LauncherServiceImpl implements LauncherService {
   final List<AppDefinition> _allApps;
   final AppUsageDao _dao;
   final ServerTimeService _serverTimeService;
+  final SyncAction _syncAction;
 
   LauncherServiceImpl({
     required List<AppDefinition> allApps,
     required AppUsageDao dao,
     required ServerTimeService serverTimeService,
+    required SyncAction syncAction,
   }) : _allApps = allApps,
        _dao = dao,
-       _serverTimeService = serverTimeService;
+       _serverTimeService = serverTimeService,
+       _syncAction = syncAction;
 
   @override
   Future<void> record(String id) async {
     await _dao.recordUsage(id, _serverTimeService.nowMs);
+    await _syncAction('app_usage');
   }
 
   @override

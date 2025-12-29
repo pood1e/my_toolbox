@@ -5,29 +5,36 @@ import '../launcher/app_usage_dao.dart';
 import '../launcher/app_usage_dto.dart';
 
 class AppUsageSyncDelegate implements SyncDelegate {
-  final AppUsageDao _dao;
   final Dio _dio;
-  final ServerTimeService _serverTimeService;
   final DeviceIdService _deviceIdService;
 
+  final Future<void> Function(Future<void> Function(AppUsageDao)) _daoUse;
+
   AppUsageSyncDelegate({
-    required AppUsageDao dao,
     required Dio dio,
-    required ServerTimeService serverTimeService,
     required DeviceIdService deviceIdService,
-  }) : _dao = dao,
-       _dio = dio,
-       _serverTimeService = serverTimeService,
-       _deviceIdService = deviceIdService;
+    required Future<void> Function(Future<void> Function(AppUsageDao)) daoUse,
+  }) : _dio = dio,
+       _deviceIdService = deviceIdService,
+       _daoUse = daoUse;
 
   @override
   String get resourceId => 'app_usage';
 
   @override
-  Future<int> sync(int? cursor) async {
-    final locktime = _serverTimeService.nowMs;
-    final localPayload = await _dao.lockAndGetPayload(
-      locktime,
+  Future<void> sync(int? cursor, Future<void> Function(int) cursorSaver) async {
+    await _daoUse((dao) async {
+      int newCursor = await _syncInternal(dao, cursor);
+      await cursorSaver(newCursor);
+      while (await dao.checkHasChanges()) {
+        newCursor = await _syncInternal(dao, newCursor);
+        await cursorSaver(newCursor);
+      }
+    });
+  }
+
+  Future<int> _syncInternal(AppUsageDao dao, int? cursor) async {
+    final localPayload = await dao.lockAndGetPayload(
       await _deviceIdService.getDeviceId(),
     );
 
@@ -40,7 +47,7 @@ class AppUsageSyncDelegate implements SyncDelegate {
     );
 
     if (localPayload != null) {
-      await _dao.onSuccess();
+      await dao.onSuccess();
     }
 
     final data = SyncResponse<List<AppUsagePatch>>.fromJson(
@@ -50,7 +57,7 @@ class AppUsageSyncDelegate implements SyncDelegate {
           .toList(),
     );
     if (data.payload != null) {
-      await _dao.applyRemoteStats(data.payload!);
+      await dao.applyRemoteStats(data.payload!);
     }
 
     return data.cursor;

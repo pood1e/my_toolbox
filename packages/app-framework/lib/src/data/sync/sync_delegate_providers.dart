@@ -6,16 +6,22 @@ import 'app_usage_sync_delegate.dart';
 
 part 'sync_delegate_providers.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<AppUsageSyncDelegate> appUsageSyncDelegate(Ref ref) async {
-  final dao = await ref.watch(appUsageDaoProvider.future);
   final dio = await ref.watch(authenticatedDioProvider.future);
-  final timeService = await ref.watch(serverTimeServiceProvider.future);
   final deviceIdService = await ref.watch(deviceIdServiceProvider.future);
+
   return AppUsageSyncDelegate(
-    dao: dao,
+    daoUse: (action) async {
+      final sub = ref.listen(appUsageDaoProvider, (prev, next) {});
+      try {
+        final dao = await ref.read(appUsageDaoProvider.future);
+        await action(dao);
+      } finally {
+        sub.close();
+      }
+    },
     dio: dio,
-    serverTimeService: timeService,
     deviceIdService: deviceIdService,
   );
 }

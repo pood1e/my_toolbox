@@ -12,7 +12,9 @@ part 'service_providers.g.dart';
 Future<LauncherService> launcherService(Ref ref) async {
   final apps = ref.read(featureRegistryProvider).appDefinitions;
   final timeService = await ref.watch(serverTimeServiceProvider.future);
+  final syncAction = ref.read(syncActionProvider);
   return LauncherServiceImpl(
+    syncAction: syncAction,
     allApps: apps,
     dao: await ref.watch(appUsageDaoProvider.future),
     serverTimeService: timeService,
