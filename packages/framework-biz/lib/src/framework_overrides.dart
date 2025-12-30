@@ -5,7 +5,7 @@ import 'package:framework_api/framework_api.dart';
 import 'package:network_biz/network_biz.dart';
 import 'package:sync_biz/sync_biz.dart';
 
-import 'data/sync/sync_delegate_providers.dart';
+import 'domain/framework_registry.dart';
 import 'logic/login_interceptors.dart';
 
 List<Override> frameworkOverrides = [
@@ -37,12 +37,16 @@ List<Override> frameworkOverrides = [
 
   // sync-biz
   syncDelegatesProvider.overrideWith((ref) async {
-    return [await ref.watch(appUsageSyncDelegateProvider.future)];
+    final featureSyncs = ref.read(featureRegistryProvider);
+    final frameworkSyncs = ref.read(frameworkRegistryProvider);
+    return [
+      ...(await featureSyncs.syncDelegates(ref)),
+      ...(await frameworkSyncs.syncDelegates(ref)),
+    ];
   }),
   // sync-api
   autoSyncEnabledProvider.overrideWith(SyncApiOverride.autoSyncEnalbed),
   syncActionProvider.overrideWith(SyncApiOverride.syncAction),
-  // syncStandardApiProvider.overrideWith(SyncApiOverride.syncStandardApi),
 
   // network-api
   serverTimeServiceProvider.overrideWith(NetworkApiOverride.serverTimeService),

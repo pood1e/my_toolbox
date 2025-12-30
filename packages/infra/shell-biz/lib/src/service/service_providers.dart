@@ -2,7 +2,6 @@ import 'package:app_core/di.dart';
 import 'package:framework_api/framework_api.dart';
 
 import '../data/dao_providers.dart';
-import '../feature_registry.dart';
 import 'impl/launcher_service_impl.dart';
 import 'launcher_service.dart';
 

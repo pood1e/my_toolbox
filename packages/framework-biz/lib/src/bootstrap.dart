@@ -1,9 +1,9 @@
 import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
+import 'package:framework_api/framework_api.dart';
 import 'package:mmkv/mmkv.dart';
 
-import 'feature_registry.dart';
 import 'framework_overrides.dart';
 import 'my_application.dart';
 

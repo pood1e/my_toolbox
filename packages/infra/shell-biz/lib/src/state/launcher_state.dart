@@ -1,7 +1,7 @@
 import 'package:app_core/core.dart';
 import 'package:app_core/di.dart';
+import 'package:framework_api/framework_api.dart';
 
-import '../feature_registry.dart';
 import '../service/service_providers.dart';
 
 part 'launcher_state.g.dart';

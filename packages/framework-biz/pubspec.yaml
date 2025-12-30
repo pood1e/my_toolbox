@@ -1,4 +1,4 @@
-name: app_framework
+name: framework_biz
 description: "平台集成实现"
 resolution: workspace
 
@@ -26,6 +26,8 @@ dependencies:
     path: ../infra/theme-biz
   network_biz:
     path: ../infra/network-biz
+  shell_biz:
+    path: ../infra/shell-biz
 
 dev_dependencies:
   flutter_test:

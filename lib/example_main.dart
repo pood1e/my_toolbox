@@ -1,7 +1,8 @@
 import 'package:app_core/core.dart';
-import 'package:app_framework/starter.dart';
+import 'package:framework_api/framework_api.dart';
+import 'package:framework_biz/starter.dart';
 
-import 'example_app_definitions.dart';
+import 'src/example_app_definitions.dart';
 
 class MyToolboxFeatureRegistry extends FeatureRegistry {
   @override

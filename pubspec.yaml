@@ -34,8 +34,10 @@ dependencies:
 
   app_core:
     path: packages/app-core
-  app_framework:
-    path: packages/app-framework
+  framework_biz:
+    path: packages/framework-biz
+  framework_api:
+    path: packages/framework-api
   dynamic_color: ^1.8.1
   google_fonts: ^6.3.3
   flex_color_scheme: ^8.4.0
@@ -72,8 +74,8 @@ workspace:
   - packages/infra/sync-biz
   - packages/infra/theme-biz
   - packages/infra/network-biz
-  - packages/app-framework
-
+  - packages/infra/shell-biz
+  - packages/framework-biz
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428
