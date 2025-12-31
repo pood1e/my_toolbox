@@ -1,7 +1,7 @@
 import 'package:app_core/core.dart';
 import 'package:framework_api/framework_api.dart';
 
-import '../../data/framework_database.dart';
+import '../../data/shell_database.dart';
 import '../../data/launcher/app_usage_dao.dart';
 import '../launcher_service.dart';
 

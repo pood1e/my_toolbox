@@ -76,6 +76,7 @@ workspace:
   - packages/infra/network-biz
   - packages/infra/shell-biz
   - packages/framework-biz
+  - packages/features/smart-lifeflow
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428

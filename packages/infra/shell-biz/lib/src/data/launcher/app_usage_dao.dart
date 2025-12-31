@@ -2,7 +2,7 @@ import 'package:app_core/logger.dart';
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
-import '../framework_database.dart';
+import '../shell_database.dart';
 import '../sync/sync_sequence_table.dart';
 import 'app_usage_dto.dart';
 import 'app_usage_entity.dart';
@@ -10,7 +10,7 @@ import 'app_usage_entity.dart';
 part 'app_usage_dao.g.dart';
 
 @DriftAccessor(tables: [AppUsageEntities, SyncSequenceTable])
-class AppUsageDao extends DatabaseAccessor<FrameworkDatabase>
+class AppUsageDao extends DatabaseAccessor<ShellDatabase>
     with _$AppUsageDaoMixin {
   static const String _kModuleId = 'app_usage';
 

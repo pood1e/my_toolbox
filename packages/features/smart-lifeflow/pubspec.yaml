@@ -1,0 +1,35 @@
+name: smart_lifeflow
+description: "智能生活流"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  drift: any
+
+  json_annotation: any
+  app_core:
+    path: ../../app-core
+  framework_api:
+    path: ../../framework-api
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  # test
+  mockito: any
+  http_mock_adapter: any
+  # riverpod
+  riverpod_generator: any
+  #  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+  # db
+  drift_dev: any
+
