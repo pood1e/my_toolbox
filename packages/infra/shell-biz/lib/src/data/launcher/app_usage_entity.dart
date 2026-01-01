@@ -8,6 +8,8 @@ class AppUsageEntities extends Table {
 
   IntColumn get openCount => integer().withDefault(const Constant(1))();
 
+  IntColumn get serverUpdatedAt => integer().withDefault(const Constant(0))();
+
   @override
   Set<Column> get primaryKey => {module};
 

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('PlanEntity')
 class Plans extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();

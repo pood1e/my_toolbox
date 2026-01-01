@@ -21,6 +21,7 @@ abstract class AppUsagePatch with _$AppUsagePatch {
     required String module,
     required int totalCount,
     required int lastUsedAt,
+    required int serverUpdatedAt
   }) = _AppUsagePatch;
 
   factory AppUsagePatch.fromJson(Map<String, dynamic> json) =>

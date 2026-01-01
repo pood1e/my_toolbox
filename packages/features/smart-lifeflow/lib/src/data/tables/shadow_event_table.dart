@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('ShadowEventEntity')
 class ShadowEvents extends Table {
   TextColumn get id => text()();
 

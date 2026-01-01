@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../domain/lifeflow_shared.dart';
 import 'task_definition_table.dart';
 
+@DataClassName('TaskStateEntity')
 class TaskStates extends Table {
   // 1:1 强关联 Definition
   TextColumn get taskId => text().references(TaskDefinitions, #id)();

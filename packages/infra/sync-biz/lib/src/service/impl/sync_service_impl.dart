@@ -1,8 +1,6 @@
 import 'package:app_core/logger.dart';
 import 'package:sync_api/sync_api.dart';
 
-import '../../data/sync_cursor_storage.dart';
-import '../../domain/sync_cursor.dart';
 import '../../domain/sync_exceptions.dart';
 import '../sync_all_service.dart';
 import '../sync_service.dart';
@@ -13,31 +11,10 @@ typedef SyncChecker = Future<bool> Function();
 
 class SyncServiceImpl implements SyncService, SyncAllService {
   final Map<String, SyncDelegate> _delegateMap;
-  final SyncCursorStorage _cursorStorage;
-  final Map<String, SyncCursor> _cursorMap = {};
   final Map<String, bool> _syncingMap = {};
 
-  SyncServiceImpl({
-    required Map<String, SyncDelegate> delegateMap,
-    required SyncCursorStorage cursorStorage,
-  }) : _delegateMap = delegateMap,
-       _cursorStorage = cursorStorage;
-
-  Future<int?> _loadCursor(String resourceId) async {
-    final cursor = _cursorMap[resourceId];
-    if (cursor != null) {
-      return cursor.cursor;
-    }
-    final cursorFromStorage = await _cursorStorage.load(resourceId);
-    _cursorMap[resourceId] = cursorFromStorage;
-    return cursorFromStorage.cursor;
-  }
-
-  Future<void> _saveCursor(String resourceId, int cursor) async {
-    final syncCursor = SyncCursor(cursor: cursor, lastSyncedAt: cursor);
-    _cursorMap[resourceId] = syncCursor;
-    await _cursorStorage.save(resourceId, syncCursor);
-  }
+  SyncServiceImpl({required Map<String, SyncDelegate> delegateMap})
+    : _delegateMap = delegateMap;
 
   @override
   Future<void> sync(String resourceId) async {
@@ -64,11 +41,7 @@ class SyncServiceImpl implements SyncService, SyncAllService {
   }
 
   Future<void> syncFlow(String resourceId, SyncDelegate delegate) async {
-    final cursor = await _loadCursor(resourceId);
-    await delegate.sync(
-      cursor,
-      (newCursor) => _saveCursor(resourceId, newCursor),
-    );
+    await delegate.sync();
     logger.i('sync:$resourceId completed.');
   }
 

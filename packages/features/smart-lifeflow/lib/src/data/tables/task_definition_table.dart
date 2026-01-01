@@ -1,9 +1,11 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/lifeflow_shared.dart';
+import 'activity_table.dart';
 import 'converters.dart';
 import 'plan_table.dart';
 
+@DataClassName('TaskDefinitionEntity')
 class TaskDefinitions extends Table {
   TextColumn get id => text()(); // UUID
 
@@ -12,6 +14,8 @@ class TaskDefinitions extends Table {
 
   TextColumn get parentId =>
       text().nullable().references(TaskDefinitions, #id)();
+
+  TextColumn get activityId => text().nullable().references(Activities, #id)();
 
   // --- 内容 ---
   TextColumn get title => text()();

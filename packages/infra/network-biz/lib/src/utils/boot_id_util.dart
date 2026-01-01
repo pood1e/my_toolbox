@@ -46,7 +46,7 @@ class BootIdUtil {
         return content.trim();
       }
     } catch (e) {
-      print('❌ 读取 Linux Boot ID 失败: $e');
+      logger.e('❌ 读取 Linux Boot ID 失败: $e');
     }
     return null;
   }

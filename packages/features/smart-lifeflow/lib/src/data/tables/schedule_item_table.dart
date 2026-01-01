@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../domain/lifeflow_shared.dart';
 import 'task_definition_table.dart';
 
+@DataClassName('ScheduleItemEntity')
 class ScheduleItems extends Table {
   TextColumn get id => text()();
 

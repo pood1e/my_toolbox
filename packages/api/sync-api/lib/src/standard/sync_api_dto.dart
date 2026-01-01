@@ -14,16 +14,3 @@ abstract class SyncRequest<T> with _$SyncRequest<T> {
     T Function(Object? json) fromJsonT,
   ) => _$SyncRequestFromJson(json, fromJsonT);
 }
-
-@Freezed(genericArgumentFactories: true)
-abstract class SyncResponse<T> with _$SyncResponse<T> {
-  const SyncResponse._();
-
-  const factory SyncResponse({required int cursor, T? payload}) =
-      _SyncResponse;
-
-  factory SyncResponse.fromJson(
-    Map<String, dynamic> json,
-    T Function(Object? json) fromJsonT,
-  ) => _$SyncResponseFromJson(json, fromJsonT);
-}

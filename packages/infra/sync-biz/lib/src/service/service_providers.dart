@@ -3,7 +3,6 @@ import 'package:auth_api/auth_api.dart';
 import 'package:auth_biz/auth_biz.dart';
 import 'package:sync_api/sync_api.dart';
 
-import '../data/sync_local_providers.dart';
 import '../domain/sync_exceptions.dart';
 import '../need_override_providers.dart';
 import '../state/sync_settings_state.dart';
@@ -22,10 +21,7 @@ Future<SyncServiceImpl> syncServiceImpl(Ref ref) async {
     for (var delegate in delegates) delegate.resourceId: delegate,
   };
 
-  return SyncServiceImpl(
-    delegateMap: delegateMap,
-    cursorStorage: await ref.watch(syncCursorStorageProvider.future),
-  );
+  return SyncServiceImpl(delegateMap: delegateMap);
 }
 
 @riverpod

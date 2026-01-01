@@ -22,18 +22,17 @@ class AppUsageSyncDelegate implements SyncDelegate {
   String get resourceId => 'app_usage';
 
   @override
-  Future<void> sync(int? cursor, Future<void> Function(int) cursorSaver) async {
+  Future<void> sync() async {
     await _daoUse((dao) async {
-      int newCursor = await _syncInternal(dao, cursor);
-      await cursorSaver(newCursor);
+      await _syncInternal(dao);
       while (await dao.checkHasChanges()) {
-        newCursor = await _syncInternal(dao, newCursor);
-        await cursorSaver(newCursor);
+        await _syncInternal(dao);
       }
     });
   }
 
-  Future<int> _syncInternal(AppUsageDao dao, int? cursor) async {
+  Future<void> _syncInternal(AppUsageDao dao) async {
+    final cursor = await dao.getMaxCursor();
     final localPayload = await dao.lockAndGetPayload(
       await _deviceIdService.getDeviceId(),
     );
@@ -50,16 +49,9 @@ class AppUsageSyncDelegate implements SyncDelegate {
       await dao.onSuccess();
     }
 
-    final data = SyncResponse<List<AppUsagePatch>>.fromJson(
-      response.data,
-      (json) => (json as List)
-          .map((e) => AppUsagePatch.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-    if (data.payload != null) {
-      await dao.applyRemoteStats(data.payload!);
-    }
-
-    return data.cursor;
+    final data = (response.data as List)
+        .map((e) => AppUsagePatch.fromJson(e as Map<String, dynamic>))
+        .toList();
+    await dao.applyRemoteStats(data);
   }
 }

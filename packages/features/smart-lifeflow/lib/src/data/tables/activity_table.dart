@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('ActivityEntity')
 class Activities extends Table {
   TextColumn get id => text()();
 
@@ -18,6 +19,8 @@ class Activities extends Table {
       boolean().withDefault(const Constant(false))();
 
   // Sync
+  IntColumn get createdAt => integer()();
+
   IntColumn get updatedAt => integer()();
 
   IntColumn get deletedAt => integer().nullable()();
