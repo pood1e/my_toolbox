@@ -1,4 +1,5 @@
 import 'package:app_core/http.dart';
+import 'package:app_core/object.dart';
 import 'package:framework_api/framework_api.dart';
 
 import '../launcher/app_usage_dao.dart';
@@ -14,9 +15,10 @@ class AppUsageSyncDelegate implements SyncDelegate {
     required Dio dio,
     required DeviceIdService deviceIdService,
     required Future<void> Function(Future<void> Function(AppUsageDao)) daoUse,
-  }) : _dio = dio,
-       _deviceIdService = deviceIdService,
-       _daoUse = daoUse;
+  })
+      : _dio = dio,
+        _deviceIdService = deviceIdService,
+        _daoUse = daoUse;
 
   @override
   String get resourceId => 'app_usage';
@@ -39,7 +41,7 @@ class AppUsageSyncDelegate implements SyncDelegate {
 
     final response = await _dio.post(
       '/framework/app_usage/sync',
-      data: SyncRequest<SyncDelta<AppUsageDelta>>(
+      data: AppUsageSyncRequest<SyncDelta<AppUsageDelta>>(
         cursor: cursor,
         payload: localPayload,
       ).toJson((t) => t.toJson((x) => x.toJson())),
@@ -49,9 +51,10 @@ class AppUsageSyncDelegate implements SyncDelegate {
       await dao.onSuccess();
     }
 
-    final data = (response.data as List)
-        .map((e) => AppUsagePatch.fromJson(e as Map<String, dynamic>))
-        .toList();
-    await dao.applyRemoteStats(data);
+    final result = R.fromJson(response.data, (json) =>
+        (json as List).map((e) =>
+            AppUsagePatch.fromJson(e as Map<String, dynamic>))
+            .toList());
+    await dao.applyRemoteStats(result.data!);
   }
 }

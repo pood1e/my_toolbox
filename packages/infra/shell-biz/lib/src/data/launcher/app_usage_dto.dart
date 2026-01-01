@@ -27,3 +27,15 @@ abstract class AppUsagePatch with _$AppUsagePatch {
   factory AppUsagePatch.fromJson(Map<String, dynamic> json) =>
       _$AppUsagePatchFromJson(json);
 }
+
+@Freezed(genericArgumentFactories: true)
+abstract class AppUsageSyncRequest<T> with _$AppUsageSyncRequest<T> {
+  const AppUsageSyncRequest._();
+
+  const factory AppUsageSyncRequest({int? cursor, T? payload}) = _AppUsageSyncRequest;
+
+  factory AppUsageSyncRequest.fromJson(
+      Map<String, dynamic> json,
+      T Function(Object? json) fromJsonT,
+      ) => _$AppUsageSyncRequestFromJson(json, fromJsonT);
+}

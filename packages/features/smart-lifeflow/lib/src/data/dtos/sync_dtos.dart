@@ -26,7 +26,7 @@ abstract class SyncResponse with _$SyncResponse {
   const factory SyncResponse({
     // 省流确认: { "activities": ["id1", "id2"] }
     // 客户端收到后将本地 isDirty 置为 false
-    Map<String, List<String>>? ackedIds,
+    Map<String, Map<String, int>>? ackedIds,
 
     // 下行变更数据 (别人改的 + 回声)
     SyncPayload? changes,

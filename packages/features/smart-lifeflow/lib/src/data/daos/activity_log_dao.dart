@@ -52,21 +52,38 @@ class ActivityLogDao extends DatabaseAccessor<LifeflowDatabase>
     return res?.serverUpdatedAt ?? 0;
   }
 
-  Future<void> markSynced(List<String> ids, int newServerTime) async {
-    await (update(activityLogs)..where((t) => t.id.isIn(ids))).write(
-      ActivityLogsCompanion(
-        isDirty: const Value(false),
-        serverUpdatedAt: Value(newServerTime),
-      ),
-    );
+  Future<void> markSynced(Map<String, int> ackedItems, Map<String, int> snapshots) async {
+    for (final entry in ackedItems.entries) {
+      final id = entry.key;
+      final newServerTime = entry.value;
+      final sentTime = snapshots[id];
+
+      if (sentTime == null) continue;
+
+      await customStatement(
+        '''
+        UPDATE activity_logs
+        SET is_dirty = 0, server_updated_at = ?
+        WHERE id = ? AND updated_at = ?
+        ''',
+        [newServerTime, id, sentTime],
+      );
+    }
   }
 
   Future<void> applyRemote(List<ActivityLogDto> remotes) async {
-    await batch((batch) {
-      for (final dto in remotes) {
-        final cmp = dto.toCompanion(isDirty: false);
-        batch.insert(activityLogs, cmp, onConflict: DoUpdate((_) => cmp));
+    for (final dto in remotes) {
+      final companion = dto.toCompanion(isDirty: false);
+
+      final local = await (select(activityLogs)..where((t) => t.id.equals(dto.id))).getSingleOrNull();
+      if (local != null && local.serverUpdatedAt >= dto.serverUpdatedAt) {
+        continue;
       }
-    });
+
+      await into(activityLogs).insert(
+        companion,
+        onConflict: DoUpdate((old) => companion),
+      );
+    }
   }
 }

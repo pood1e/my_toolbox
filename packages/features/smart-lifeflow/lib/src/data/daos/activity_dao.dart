@@ -51,27 +51,41 @@ class ActivityDao extends DatabaseAccessor<LifeflowDatabase>
     return result?.serverUpdatedAt ?? 0;
   }
 
-  // --- 3. Sync Write (Ack) ---
-  Future<void> markSynced(List<String> ids, int newServerTime) async {
-    await (update(activities)..where((t) => t.id.isIn(ids))).write(
-      ActivitiesCompanion(
-        isDirty: const Value(false),
-        serverUpdatedAt: Value(newServerTime),
-      ),
-    );
+  Future<void> markSynced(Map<String, int> ackedItems, Map<String, int> snapshots) async {
+    for (final entry in ackedItems.entries) {
+      final id = entry.key;
+      final newServerTime = entry.value;
+      final sentTime = snapshots[id];
+
+      if (sentTime == null) continue;
+
+      await customStatement(
+        '''
+        UPDATE activities
+        SET is_dirty = 0, server_updated_at = ?
+        WHERE id = ? AND updated_at = ?
+        ''',
+        [newServerTime, id, sentTime],
+      );
+    }
   }
 
-  // --- 4. Sync Write (Merge) ---
+  /// 应用远程变更: 过滤回声后 Upsert
   Future<void> applyRemote(List<ActivityDto> remotes) async {
-    await batch((batch) {
-      for (final dto in remotes) {
-        final companion = dto.toCompanion(isDirty: false);
-        batch.insert(
-          activities,
-          companion,
-          onConflict: DoUpdate((old) => companion),
-        );
+    for (final dto in remotes) {
+      final companion = dto.toCompanion(isDirty: false);
+
+      // 1. 回声检查
+      final local = await (select(activities)..where((t) => t.id.equals(dto.id))).getSingleOrNull();
+      if (local != null && local.serverUpdatedAt >= dto.serverUpdatedAt) {
+        continue; // 本地版本更新或相等，跳过
       }
-    });
+
+      // 2. 写入覆盖
+      await into(activities).insert(
+        companion,
+        onConflict: DoUpdate((old) => companion),
+      );
+    }
   }
 }

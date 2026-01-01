@@ -42,21 +42,40 @@ class TaskStateDao extends DatabaseAccessor<LifeflowDatabase>
     return res?.serverUpdatedAt ?? 0;
   }
 
-  Future<void> markSynced(List<String> taskIds, int newServerTime) async {
-    await (update(taskStates)..where((t) => t.taskId.isIn(taskIds))).write(
-      TaskStatesCompanion(
-        isDirty: const Value(false),
-        serverUpdatedAt: Value(newServerTime),
-      ),
-    );
+  Future<void> markSynced(Map<String, int> ackedItems, Map<String, int> snapshots) async {
+    for (final entry in ackedItems.entries) {
+      final id = entry.key; // 这里是 taskId
+      final newServerTime = entry.value;
+      final sentTime = snapshots[id];
+
+      if (sentTime == null) continue;
+
+      // 注意 WHERE 条件是 task_id
+      await customStatement(
+        '''
+        UPDATE task_states
+        SET is_dirty = 0, server_updated_at = ?
+        WHERE task_id = ? AND updated_at = ?
+        ''',
+        [newServerTime, id, sentTime],
+      );
+    }
   }
 
   Future<void> applyRemote(List<TaskStateDto> remotes) async {
-    await batch((batch) {
-      for (final dto in remotes) {
-        final cmp = dto.toCompanion(isDirty: false);
-        batch.insert(taskStates, cmp, onConflict: DoUpdate((_) => cmp));
+    for (final dto in remotes) {
+      final companion = dto.toCompanion(isDirty: false);
+
+      // LWW Check
+      final local = await (select(taskStates)..where((t) => t.taskId.equals(dto.id))).getSingleOrNull();
+      if (local != null && local.serverUpdatedAt >= dto.serverUpdatedAt) {
+        continue;
       }
-    });
+
+      await into(taskStates).insert(
+        companion,
+        onConflict: DoUpdate((old) => companion),
+      );
+    }
   }
 }
