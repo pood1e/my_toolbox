@@ -1,6 +1,6 @@
 import 'package:app_core/object.dart';
 
-import 'lifeflow_dtos.dart';
+import 'reality_dtos.dart';
 
 part 'sync_dtos.freezed.dart';
 part 'sync_dtos.g.dart';
@@ -13,7 +13,7 @@ abstract class SyncRequest with _$SyncRequest {
     required Map<String, int> cursors,
 
     // 上传的脏数据
-    required SyncPayload push,
+    required SyncPayload changes,
   }) = _SyncRequest;
 
   factory SyncRequest.fromJson(Map<String, dynamic> json) =>
@@ -41,12 +41,8 @@ abstract class SyncResponse with _$SyncResponse {
 abstract class SyncPayload with _$SyncPayload {
   const factory SyncPayload({
     @Default([]) List<ActivityDto> activities,
-    @Default([]) List<PlanDto> plans,
-    @Default([]) List<TaskDefinitionDto> taskDefinitions,
-    @Default([]) List<TaskStateDto> taskStates,
-    @Default([]) List<ScheduleItemDto> scheduleItems,
     @Default([]) List<ActivityLogDto> activityLogs,
-    @Default([]) List<DailySnapshotDto> dailySnapshots,
+    @Default([]) List<ActivityShortcutDto> activityShortcuts,
   }) = _SyncPayload;
 
   factory SyncPayload.fromJson(Map<String, dynamic> json) =>

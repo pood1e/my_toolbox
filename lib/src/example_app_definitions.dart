@@ -28,9 +28,9 @@ final List<AppDefinition> kExampleApps = [
     route: '/apps/notes',
   ),
   const AppDefinition(
-    id: 'gallery',
-    name: '相册',
-    icon: Icons.photo_library_outlined,
-    route: '/apps/gallery',
+    id: 'lifeflow',
+    name: '生活流',
+    icon: Icons.stream,
+    route: '/lifeflow',
   ),
 ];

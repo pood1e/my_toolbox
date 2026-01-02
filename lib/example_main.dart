@@ -1,12 +1,23 @@
 import 'package:app_core/core.dart';
+import 'package:app_core/di.dart';
+import 'package:app_core/route.dart';
 import 'package:framework_api/framework_api.dart';
 import 'package:framework_biz/starter.dart';
+import 'package:smart_lifeflow/smart_lifeflow.dart';
 
 import 'src/example_app_definitions.dart';
 
 class MyToolboxFeatureRegistry extends FeatureRegistry {
   @override
   List<AppDefinition> get appDefinitions => kExampleApps;
+
+  @override
+  List<RouteBase> routes(Ref ref) => [...ref.read(lifeflowRoutesProvider)];
+
+  @override
+  Future<List<SyncDelegate>> syncDelegates(Ref ref) async {
+    return [await ref.read(lifeflowSyncDelegateProvider.future)];
+  }
 }
 
 void main() {

@@ -11,7 +11,8 @@ dependencies:
 
   # drift
   drift: any
-
+  network_api:
+    path: ../network-api
   app_core:
     path: ../../app-core
   json_annotation: any

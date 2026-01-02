@@ -1,5 +1,9 @@
+export 'src/dao/core_sync_table.dart';
+export 'src/dao/generic_lww_sync_dao.dart';
+export 'src/domain/lww_sync_table.dart';
 export 'src/domain/sync_action.dart';
 export 'src/domain/sync_delegate.dart';
-export 'src/domain/sync_sequence_table_mixin.dart';
 export 'src/domain/sync_object.dart';
+export 'src/domain/sync_sequence_table_mixin.dart';
 export 'src/providers.dart';
+export 'src/repository/core_sync_repository.dart';
