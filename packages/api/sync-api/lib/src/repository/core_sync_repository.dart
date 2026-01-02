@@ -12,11 +12,6 @@ abstract class CoreSyncRepository<D, Companion extends Insertable> {
   /// 获取单个活跃实体
   Future<D?> getById(String id);
 
-  /// 创建一个新实体
-  /// [companion] 是一个只包含业务字段的 Companion 对象
-  /// 基类实现会自动注入 id, createdAt, updatedAt, isDirty
-  Future<String> create(Companion companion);
-
   /// 更新一个已存在的实体
   /// 基类实现会自动注入 updatedAt, isDirty
   Future<void> update(D model);
@@ -65,31 +60,6 @@ Dao extends StandardLwwSyncDaoMixin<dynamic, DbTable, DbEntity>>
 
     final entity = await query.getSingleOrNull();
     return entity != null ? toDomain(entity as DbEntity) : null;
-  }
-
-  @override
-  Future<String> create(Companion companion) async {
-    final now = timeService.nowMs;
-    final id = uuid.v4();
-
-    final entityMap = companion.toColumns(true);
-
-    entityMap[_table.id.name] = Constant(id);
-    entityMap[_table.updatedAt.name] = Constant(now);
-    entityMap[_table.isDirty.name] = const Constant(true);
-    await dao.saveLocal(RawValuesInsertable(entityMap), now);
-
-    return id;
-  }
-
-  @override
-  Future<void> update(D model) async {
-    final now = timeService.nowMs;
-
-    final entityMap = toCompanion(model).toColumns(true);
-    entityMap[_table.updatedAt.name] = Constant(now);
-    entityMap[_table.isDirty.name] = const Constant(true);
-    await dao.saveLocal(RawValuesInsertable(entityMap), now);
   }
 
   @override

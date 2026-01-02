@@ -65,21 +65,11 @@ class ActivityServiceImpl implements ActivityService {
     if (activity.name.trim().isEmpty) {
       throw ArgumentError('Activity name cannot be empty.');
     }
-
-    // 调用 Repository 执行更新
-    // Repository 的 update 方法会自动处理 updatedAt 和 isDirty 标记
     return _activityRepo.update(activity);
   }
 
   @override
   Future<void> deleteActivity(String activityId) {
-    // 业务规则: (未来可以扩展)
-    // 1. 检查此 Activity 是否正在被一个进行中的 Log 使用，如果是则阻止删除。
-    // 2. 检查是否有 Task 将此 Activity 设为默认，如果是则将其置为 null。
-
-    // MVP 阶段: 直接调用软删除。
-    // 数据库的外键 `ON DELETE CASCADE` 会自动处理 ActivityShortcut 的物理删除。
-    // 历史的 ActivityLog 记录会保留对这个 (已软删除的) activityId 的引用，这是正确的。
     return _activityRepo.delete(activityId);
   }
 }

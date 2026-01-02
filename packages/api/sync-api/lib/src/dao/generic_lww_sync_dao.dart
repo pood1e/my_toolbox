@@ -22,7 +22,7 @@ mixin GenericLwwSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, D>
 
   // --- Local Write ---
 
-  Future<void> saveLocal(Insertable<dynamic> entry, int nowMs) async {
+  Future<void> saveLocal(Insertable<D> entry, int nowMs) async {
     // into(table) 接受 Raw TableInfo
     await into(table).insert(entry, onConflict: DoUpdate((old) => entry));
   }

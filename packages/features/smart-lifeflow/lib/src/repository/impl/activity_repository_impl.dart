@@ -41,23 +41,26 @@ class ActivityRepositoryImpl
     required String name,
     String? icon,
     String? colorHex,
-  }) {
+  }) async {
     final now = timeService.nowMs;
+    final id = uuid.v4();
 
-    // 1. 构建只包含业务和审计字段的 Companion
-    // ✅ 核心修正: 在这里手动设置 createdAt
+    // 1. 构建一个包含所有必填字段的 Companion
     final companion = ActivitiesCompanion.insert(
-      id: '',
+      // 业务字段
       name: name,
       icon: Value(icon),
       colorHex: Value(colorHex),
-      createdAt: now,
+      id: id,
+      createdAt: Value(now),
       updatedAt: now,
+      isDirty: const Value(true),
     );
 
-    // 2. 调用基类的 create 方法
-    // super.create 会自动处理 id, updatedAt, isDirty 的注入
-    return super.create(companion);
+    // 2. 调用 DAO 的通用保存方法
+    await dao.saveLocal(companion, now);
+
+    return id;
   }
 
   @override
@@ -67,5 +70,20 @@ class ActivityRepositoryImpl
     );
   }
 
-  // watchAll, getById, update, delete 方法都已由 CoreSyncRepositoryBase 自动实现
+  @override
+  Future<void> update(Activity model) async {
+    final now = timeService.nowMs;
+
+    // 1. 使用具体的 ActivitiesCompanion，它有 copyWith 方法
+    final companion = model.toCompanion();
+
+    // 2. 注入最新的 Sync Meta
+    final fullCompanion = companion.copyWith(
+      updatedAt: Value(now),
+      isDirty: const Value(true),
+    );
+
+    // 3. 保存
+    await dao.saveLocal(fullCompanion, now);
+  }
 }

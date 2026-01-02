@@ -112,7 +112,7 @@ class LifeflowDatabase extends _$LifeflowDatabase {
       icon: Value(icon),
       colorHex: Value(color),
       // Sync Meta
-      createdAt: now,
+      createdAt: Value(now),
       updatedAt: now,
       serverUpdatedAt: const Value(0),
       isDirty: const Value(true), // 初始数据也标记为脏，以便同步到云端
