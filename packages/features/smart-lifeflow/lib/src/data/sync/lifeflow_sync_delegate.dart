@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:app_core/http.dart';
 import 'package:framework_api/framework_api.dart';
 
 import '../dtos/sync_dtos.dart';

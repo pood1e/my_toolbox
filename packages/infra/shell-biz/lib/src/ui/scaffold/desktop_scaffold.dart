@@ -133,7 +133,7 @@ class _DesktopSidebar extends ConsumerWidget {
                             isSelected: currentPath.startsWith(app.route),
                             onTap: () async {
                               // 使用 push 还是 go 取决于你的导航策略
-                              context.go(app.route);
+                              context.push(app.route);
                               final service = await ref.read(
                                 launcherServiceProvider.future,
                               );

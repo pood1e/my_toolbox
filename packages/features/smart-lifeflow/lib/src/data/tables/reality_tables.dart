@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
-import 'table_shared.dart';
 
 @DataClassName('ActivityEntity')
 class Activities extends CoreSyncTable with AuditTable {

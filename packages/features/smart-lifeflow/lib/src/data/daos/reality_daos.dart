@@ -176,8 +176,7 @@ class ActivityShortcutDao extends DatabaseAccessor<LifeflowDatabase>
           // Sync Meta
           updatedAt: now,
           isDirty: const Value(true),
-        ),
-        now,
+        )
       );
     } else if (existing.deletedAt == null) {
       // Case B: 存在且活着 -> 软删除 (Unpin)
@@ -191,8 +190,7 @@ class ActivityShortcutDao extends DatabaseAccessor<LifeflowDatabase>
           deletedAt: const Value(null), // 复活
           updatedAt: Value(now),
           isDirty: const Value(true),
-        ),
-        now,
+        )
       );
     }
   }

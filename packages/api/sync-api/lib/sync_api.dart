@@ -7,3 +7,4 @@ export 'src/domain/sync_object.dart';
 export 'src/domain/sync_sequence_table_mixin.dart';
 export 'src/providers.dart';
 export 'src/repository/core_sync_repository.dart';
+export 'src/domain/lww_sync_payload.dart';

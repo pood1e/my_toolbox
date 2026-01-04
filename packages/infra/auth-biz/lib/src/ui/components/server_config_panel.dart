@@ -105,6 +105,7 @@ class _ServerConfigPanelState extends State<ServerConfigPanel> {
     return TextFormField(
       controller: widget.hostController,
       decoration: AppInputStyles.outline(
+        context,
         label: '主机地址 (Host / IP)',
         prefixIcon: Icons.dns_outlined,
       ),
@@ -126,6 +127,7 @@ class _ServerConfigPanelState extends State<ServerConfigPanel> {
           child: TextFormField(
             controller: widget.portController,
             decoration: AppInputStyles.outline(
+              context,
               label: '端口 (Port)',
               prefixIcon: Icons.numbers,
             ),

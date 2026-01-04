@@ -28,9 +28,9 @@ class ActivityRepositoryImpl
   Activity Function(ActivityEntity) get toDomain =>
       (e) => e.toDomain();
 
-  @override
-  ActivitiesCompanion Function(Activity) get toCompanion =>
-      (d) => d.toCompanion();
+  // @override
+  // ActivitiesCompanion Function(Activity) get toCompanion =>
+  //     (d) => d.toCompanion();
 
   // ===========================================================================
   // 2. 接口实现 (业务方法)
@@ -58,7 +58,7 @@ class ActivityRepositoryImpl
     );
 
     // 2. 调用 DAO 的通用保存方法
-    await dao.saveLocal(companion, now);
+    await dao.saveLocal(companion);
 
     return id;
   }
@@ -71,7 +71,7 @@ class ActivityRepositoryImpl
   }
 
   @override
-  Future<void> update(Activity model) async {
+  Future<Activity> update(Activity model) async {
     final now = timeService.nowMs;
 
     // 1. 使用具体的 ActivitiesCompanion，它有 copyWith 方法
@@ -84,6 +84,7 @@ class ActivityRepositoryImpl
     );
 
     // 3. 保存
-    await dao.saveLocal(fullCompanion, now);
+    await dao.saveLocal(fullCompanion);
+    return model;
   }
 }

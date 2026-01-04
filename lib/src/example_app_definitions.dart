@@ -22,10 +22,10 @@ final List<AppDefinition> kExampleApps = [
     route: '/apps/calculator',
   ),
   const AppDefinition(
-    id: 'notes',
-    name: '备忘录',
-    icon: Icons.note_alt_outlined,
-    route: '/apps/notes',
+    id: 'event_timeline',
+    name: '时间线',
+    icon: Icons.view_timeline,
+    route: '/event/timeline',
   ),
   const AppDefinition(
     id: 'lifeflow',

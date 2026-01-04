@@ -1,6 +1,8 @@
 import 'package:app_core/core.dart';
 import 'package:app_core/di.dart';
 import 'package:app_core/route.dart';
+import 'package:event_api/event_api.dart';
+import 'package:event_biz/event_biz.dart';
 import 'package:framework_api/framework_api.dart';
 import 'package:framework_biz/starter.dart';
 import 'package:smart_lifeflow/smart_lifeflow.dart';
@@ -12,7 +14,7 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
   List<AppDefinition> get appDefinitions => kExampleApps;
 
   @override
-  List<RouteBase> routes(Ref ref) => [...ref.read(lifeflowRoutesProvider)];
+  List<RouteBase> routes(Ref ref) => [...ref.read(eventRoutesProvider)];
 
   @override
   Future<List<SyncDelegate>> syncDelegates(Ref ref) async {
@@ -21,5 +23,7 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
 }
 
 void main() {
-  startApp(featureRegistry: MyToolboxFeatureRegistry());
+  startApp(featureRegistry: MyToolboxFeatureRegistry(), featureOverrides: [
+    eventServiceProvider.overrideWith(EventApiOverride.eventService)
+  ]);
 }

@@ -146,7 +146,7 @@ class _LauncherPageState extends ConsumerState<LauncherPage> {
           return _LibraryAppIcon(
             app: app,
             onTap: () async {
-              context.go(app.route);
+              context.push(app.route);
               final service = await ref.read(launcherServiceProvider.future);
               service.record(app.id);
             },

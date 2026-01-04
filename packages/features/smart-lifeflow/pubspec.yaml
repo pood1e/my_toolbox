@@ -13,6 +13,8 @@ dependencies:
   json_annotation: any
   app_core:
     path: ../../app-core
+  common_ui:
+    path: ../../infra/common-ui
   framework_api:
     path: ../../framework-api
 

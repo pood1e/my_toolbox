@@ -14,7 +14,7 @@ abstract class CoreSyncRepository<D, Companion extends Insertable> {
 
   /// 更新一个已存在的实体
   /// 基类实现会自动注入 updatedAt, isDirty
-  Future<void> update(D model);
+  Future<D> update(D model);
 
   /// 软删除一个实体
   Future<void> delete(String id);
@@ -40,7 +40,6 @@ Dao extends StandardLwwSyncDaoMixin<dynamic, DbTable, DbEntity>>
   final Uuid uuid;
 
   D Function(DbEntity) get toDomain;
-  UpdateCompanion<DbEntity> Function(D) get toCompanion;
 
   CoreSyncRepositoryBase({
     required this.dao,

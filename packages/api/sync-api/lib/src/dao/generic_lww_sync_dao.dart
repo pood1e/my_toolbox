@@ -22,7 +22,7 @@ mixin GenericLwwSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, D>
 
   // --- Local Write ---
 
-  Future<void> saveLocal(Insertable<D> entry, int nowMs) async {
+  Future<void> saveLocal(Insertable<D> entry) async {
     // into(table) 接受 Raw TableInfo
     await into(table).insert(entry, onConflict: DoUpdate((old) => entry));
   }
@@ -122,7 +122,7 @@ mixin StandardLwwSyncDaoMixin<
     final query = update(table)..where((_) => _asTable.id.equals(id));
 
     await query.write(
-      RawValuesInsertable({
+      RawValuesInsertable<D>({
         _asTable.deletedAt.name: Constant(nowMs),
         _asTable.updatedAt.name: Constant(nowMs),
         _asTable.isDirty.name: const Constant(true),

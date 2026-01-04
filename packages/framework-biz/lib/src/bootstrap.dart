@@ -7,12 +7,15 @@ import 'package:mmkv/mmkv.dart';
 import 'framework_overrides.dart';
 import 'my_application.dart';
 
-Future<void> startApp({FeatureRegistry? featureRegistry}) async {
+Future<void> startApp({
+  FeatureRegistry? featureRegistry,
+  List<Override> featureOverrides = const [],
+}) async {
   WidgetsBinding _ = WidgetsFlutterBinding.ensureInitialized();
   MMKV.initialize(logLevel: MMKVLogLevel.Error);
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
-  final overrides = frameworkOverrides;
+  final overrides = [...frameworkOverrides, ...featureOverrides];
   if (featureRegistry != null) {
     overrides.add(featureRegistryProvider.overrideWithValue(featureRegistry));
   }

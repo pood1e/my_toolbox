@@ -10,6 +10,7 @@ import '../../utils/boot_id_util.dart';
 class ServerTimeServiceImpl implements ServerTimeService {
   final ServerTimeStorage _storage;
   final String? _baseurl;
+  bool _hasSetBootId = false;
 
   int? _anchor;
 
@@ -22,10 +23,6 @@ class ServerTimeServiceImpl implements ServerTimeService {
   Future<void> tryRestoreAnchor() async {
     final bootId = await BootIdUtil.getBootId();
     final savedBootId = await _storage.getBootId();
-    if (bootId != null && bootId != savedBootId) {
-      _storage.saveBootId(bootId);
-    }
-
     final savedAnchor = await _storage.getAnchor();
     if (bootId != null && savedBootId == bootId && savedAnchor != 0) {
       _anchor = savedAnchor;
@@ -68,6 +65,14 @@ class ServerTimeServiceImpl implements ServerTimeService {
 
       _storage.saveAnchor(_anchor!);
       logger.i('✅ 时间校准完成 (持久化). latency:$latency, Anchor: $_anchor');
+      if (!_hasSetBootId) {
+        final bootId = await BootIdUtil.getBootId();
+        if (bootId != null) {
+          await _storage.saveBootId(bootId);
+          logger.i('✅ 记录BootId: $bootId');
+        }
+        _hasSetBootId = true;
+      }
     } catch (e) {
       logger.i('❌ 校准失败: $e');
     } finally {
