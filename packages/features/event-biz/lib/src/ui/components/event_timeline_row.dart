@@ -3,9 +3,6 @@ import 'package:common_ui/style.dart';
 import 'package:event_api/event_api.dart';
 import 'package:flutter/material.dart';
 
-// 假设这是你的 Event 模型文件路径，请根据实际情况调整
-// import 'data/event_model.dart';
-
 class EventTimelineRow extends StatelessWidget {
   final Event event;
 
