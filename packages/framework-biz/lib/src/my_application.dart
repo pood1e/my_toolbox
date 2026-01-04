@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:app_core/core.dart';
 import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,14 @@ class MyApplication extends ConsumerWidget {
         darkTheme: darkTheme,
         themeMode: themeMode,
         routerConfig: ref.read(appRouterProvider),
+        scrollBehavior: const MaterialScrollBehavior().copyWith(
+          dragDevices: {
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.touch,
+            PointerDeviceKind.stylus,
+            PointerDeviceKind.trackpad,
+          },
+        ),
       ),
     );
   }

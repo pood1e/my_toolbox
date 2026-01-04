@@ -1,5 +1,5 @@
-name: event_biz
-description: "事件-实现"
+name: memo_biz
+description: "闪念-实现"
 resolution: workspace
 
 environment:
@@ -15,8 +15,7 @@ dependencies:
     path: ../../framework-api
   event_api:
     path: ../event-api
-  common_ui:
-    path: ../../infra/common-ui
+
   json_annotation: any
 
   # db

@@ -11,7 +11,9 @@ class TimelineDateList extends _$TimelineDateList {
   List<DateTime> build() {
     // 初始状态：加载今天
     final now = DateTime.now();
-    return [DateTime(now.year, now.month, now.day)];
+    return List.generate(3, (index) {
+      return DateTime(now.year, now.month, now.day).subtract(Duration(days: index));
+    });
   }
 
   void loadMoreDays(int count) {

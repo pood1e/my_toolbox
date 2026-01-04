@@ -1,6 +1,10 @@
 import 'package:app_core/utils.dart';
+import 'package:common_ui/style.dart';
 import 'package:event_api/event_api.dart';
 import 'package:flutter/material.dart';
+
+// 假设这是你的 Event 模型文件路径，请根据实际情况调整
+// import 'data/event_model.dart';
 
 class EventTimelineRow extends StatelessWidget {
   final Event event;
@@ -9,47 +13,57 @@ class EventTimelineRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 使用扩展方法获取主题配置
+    final colors = context.colorScheme;
+    final textTheme = context.textTheme;
+
     final dateTime = DateTime.fromMillisecondsSinceEpoch(event.timestamp);
-    // 根据 source 获取 UI 配置
     final style = SourceStyleMapper.getStyle(event.source);
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 左侧：时间
+          // 1. 左侧：时间
           SizedBox(
-            width: 60,
+            width: 60, // 保持布局宽度的稳定性，这个通常不需要变为 Spacing
             child: Padding(
-              padding: const EdgeInsets.only(top: 18.0),
+              // 对齐右侧卡片内的第一行文字 (Card padding top + Text height adjustment)
+              padding: const EdgeInsets.only(top: AppSpacings.l + 2),
               child: Text(
                 DateFormat('HH:mm').format(dateTime),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey.shade500,
+                style: textTheme.labelMedium?.copyWith(
+                  color: colors.outline, // 使用 outline 颜色 (通常是灰色)
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
                 ),
               ),
             ),
           ),
 
-          // 中间：时间轴
+          // 2. 中间：时间轴
           Stack(
             alignment: Alignment.center,
             children: [
-              Container(width: 2, color: Colors.grey.shade200),
+              // 竖线
               Container(
-                margin: const EdgeInsets.only(top: 4),
-                width: 12,
-                height: 12,
+                width: 2,
+                color: colors.outlineVariant.withValues(alpha: AppAlpha.medium),
+              ),
+              // 圆点
+              Container(
+                margin: const EdgeInsets.only(top: AppSpacings.xs), // 微调对齐
+                width: AppSpacings.m, // 12.0
+                height: AppSpacings.m, // 12.0
                 decoration: BoxDecoration(
                   color: style.color,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  // 边框颜色应与页面背景一致，形成“切割”效果
+                  border: Border.all(color: context.pageBackground, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: style.color.withValues(alpha: .3),
+                      color: style.color.withValues(alpha: AppAlpha.disabled),
+                      // 0.3
                       blurRadius: 4,
                       spreadRadius: 1,
                     ),
@@ -59,44 +73,50 @@ class EventTimelineRow extends StatelessWidget {
             ],
           ),
 
-          // 右侧：内容卡片
+          // 3. 右侧：内容卡片
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 16, 16),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              // 统一间距：左 m, 上 xs, 右 l, 下 l
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacings.m,
+                AppSpacings.xs,
+                AppSpacings.l,
+                AppSpacings.l,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerLow, // 稍微区分于页面背景
+                  borderRadius: AppRadius.card, // 12.0
                 ),
-                color: Colors.white,
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(AppSpacings.m), // 卡片内部间距
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header: Source 标签
+                      // Header: Icon + Source
                       Row(
                         children: [
                           Icon(style.icon, size: 14, color: style.color),
-                          const SizedBox(width: 4),
+                          Gaps.h4, // 4.0
                           Text(
                             event.source.toUpperCase(),
-                            style: TextStyle(
+                            style: textTheme.labelSmall?.copyWith(
                               color: style.color,
-                              fontSize: 10,
                               fontWeight: FontWeight.bold,
+                              fontSize: 10, // 特殊小字号保持原样或定义在 Theme 中
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+
+                      Gaps.v8, // 8.0
                       // Content: Name
                       Text(
                         event.name,
-                        style: const TextStyle(
-                          fontSize: 15,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurface,
                           height: 1.4,
-                          color: Colors.black87,
                         ),
                       ),
                     ],
