@@ -124,7 +124,7 @@ class _SimpleDateHeader extends StatelessWidget {
       color: const Color(0xFFF5F7FA),
       alignment: Alignment.centerLeft,
       child: Text(
-        DateFormat('MM.dd EEEE', 'zh_CN').format(date),
+        DateFormat('yyyy-MM-dd').format(date),
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
     );
