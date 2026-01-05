@@ -1,5 +1,4 @@
 import 'package:app_core/object.dart';
-import 'package:data_api/data_api.dart';
 
 part 'sync_object.freezed.dart';
 part 'sync_object.g.dart';
