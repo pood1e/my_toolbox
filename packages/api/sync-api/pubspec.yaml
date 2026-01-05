@@ -13,6 +13,8 @@ dependencies:
   drift: any
   network_api:
     path: ../network-api
+  data_api:
+    path: ../data-api
   app_core:
     path: ../../app-core
   json_annotation: any

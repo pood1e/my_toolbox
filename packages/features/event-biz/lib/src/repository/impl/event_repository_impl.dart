@@ -1,49 +1,37 @@
+import 'package:app_core/uuid.dart';
 import 'package:drift/drift.dart';
 import 'package:event_api/event_api.dart';
-import 'package:framework_api/framework_api.dart';
 
 import '../../data/event_dao.dart';
 import '../../data/event_database.dart';
 import '../../data/event_mapper.dart';
-import '../../data/event_table.dart';
 import '../event_repository.dart';
 
-class EventRepositoryImpl
-    extends
-        CoreSyncRepositoryBase<
-          Event,
-          EventEntity,
-          Events,
-          EventsCompanion,
-          EventDao
-        >
-    implements EventRepository {
-  EventRepositoryImpl({required super.dao, required super.timeService});
+class EventRepositoryImpl implements EventRepository {
+  final EventDao _dao;
 
-  @override
-  Event Function(EventEntity) get toDomain =>
-      (e) => e.toDomain();
+  EventRepositoryImpl({required EventDao dao}) : _dao = dao;
 
   @override
   Future<Event> create({
     required String name,
     required String source,
     required int timestamp,
+    required int nowMs,
   }) async {
-    final id = uuid.v4();
-    final now = timeService.nowMs;
+    final id = Uuid().v4();
 
     final event = EventsCompanion.insert(
       id: id,
       name: name,
       timestamp: timestamp,
       source: source,
-      createdAt: Value(now),
-      updatedAt: now,
+      createdAt: Value(nowMs),
+      updatedAt: nowMs,
       isDirty: const Value(true),
     );
 
-    final result = await dao.createIfNotExist(event);
+    final result = await _dao.createIfNotExist(event);
     if (result == 0) {
       throw Exception();
     }
@@ -51,35 +39,33 @@ class EventRepositoryImpl
   }
 
   @override
-  Future<Event> update(Event event) async {
-    final now = timeService.nowMs;
-
+  Future<void> update(Event event, int nowMs) async {
     final companion = EventsCompanion(
       id: Value(event.id),
       name: Value(event.name),
       timestamp: Value(event.timestamp),
       source: Value(event.source),
-      updatedAt: Value(now),
+      updatedAt: Value(nowMs),
       isDirty: const Value(true),
     );
 
-    final result = await dao.updateIfExist(companion);
+    final result = await _dao.updateIfExist(companion);
     if (result == 0) {
       throw Exception();
     }
-    return event;
   }
 
   @override
-  Future<void> deleteByIdAndSource(String id, String source) async {
-    final now = timeService.nowMs;
-    await dao.softDeleteBySourceAndId(id, source, now);
+  Future<void> deleteByIdAndSource(String id, String source, int nowMs) async {
+    await _dao.softDeleteBySourceAndId(id, source, nowMs);
   }
 
   @override
   Stream<List<Event>> watchByRange(int startTime, int endTime) {
-    return dao
+    return _dao
         .watchByRange(startTime, endTime) // 获取 Entity流
-        .map((entities) => entities.map(toDomain).toList()); // 转换成 Model流
+        .map(
+          (entities) => entities.map((e) => e.toDomain()).toList(),
+        ); // 转换成 Model流
   }
 }

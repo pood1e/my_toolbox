@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import 'event_entity.dart';
 import 'event_table.dart';
 
 part 'event_database.g.dart';
@@ -10,4 +11,17 @@ class EventDatabase extends _$EventDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      // 1. 创建表结构
+      await m.createAll();
+
+      // 2. 创建性能与同步索引
+      await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_event_lww ON event(is_dirty, server_updated_at)',
+      );
+    },
+  );
 }

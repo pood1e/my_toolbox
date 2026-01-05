@@ -5,7 +5,6 @@ import 'package:event_api/event_api.dart';
 import 'package:event_biz/event_biz.dart';
 import 'package:framework_api/framework_api.dart';
 import 'package:framework_biz/starter.dart';
-import 'package:smart_lifeflow/smart_lifeflow.dart';
 
 import 'src/example_app_definitions.dart';
 
@@ -18,12 +17,15 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
 
   @override
   Future<List<SyncDelegate>> syncDelegates(Ref ref) async {
-    return [await ref.read(lifeflowSyncDelegateProvider.future)];
+    return [await ref.read(eventSyncDelegateProvider.future)];
   }
 }
 
 void main() {
-  startApp(featureRegistry: MyToolboxFeatureRegistry(), featureOverrides: [
-    eventServiceProvider.overrideWith(EventApiOverride.eventService)
-  ]);
+  startApp(
+    featureRegistry: MyToolboxFeatureRegistry(),
+    featureOverrides: [
+      eventServiceProvider.overrideWith(EventApiOverride.eventService),
+    ],
+  );
 }

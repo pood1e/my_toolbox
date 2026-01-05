@@ -7,7 +7,7 @@ abstract class EventService {
     required int timestamp,
   });
 
-  Future<Event> updateEvent({
+  Future<void> updateEvent({
     required String id,
     required String source,
     required String name,

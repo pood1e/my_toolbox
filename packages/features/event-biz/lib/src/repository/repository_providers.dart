@@ -23,6 +23,5 @@ Future<EventDao> eventDao(Ref ref) async {
 @riverpod
 Future<EventRepository> eventRepository(Ref ref) async {
   final dao = await ref.watch(eventDaoProvider.future);
-  final service = await ref.watch(serverTimeServiceProvider.future);
-  return EventRepositoryImpl(dao: dao, timeService: service);
+  return EventRepositoryImpl(dao: dao);
 }

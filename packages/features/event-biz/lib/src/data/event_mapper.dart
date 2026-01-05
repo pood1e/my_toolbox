@@ -3,6 +3,7 @@ import 'package:event_api/event_api.dart';
 
 import 'event_database.dart';
 import 'event_dto.dart';
+import 'event_entity.dart';
 
 extension EventEntityToDto on EventEntity {
   EventDto toDto() {
@@ -17,7 +18,22 @@ extension EventEntityToDto on EventEntity {
   }
 }
 
-extension EventDtoToCompanion on EventDto {
+extension EventDtoToEntity on EventDto {
+  EventEntity toEntity({bool isDirty = false}) {
+    return EventEntity(
+      id: id,
+      name: name,
+      timestamp: timestamp,
+      source: source,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      serverUpdatedAt: serverUpdatedAt,
+      isDirty: isDirty,
+    );
+  }
+}
+
+extension EventEntityToCompanion on EventEntity {
   EventsCompanion toCompanion() {
     return EventsCompanion(
       id: Value(id),
