@@ -10,7 +10,10 @@ part 'event_dao.g.dart';
 
 @DriftAccessor(tables: [Events])
 class EventDao extends DatabaseAccessor<EventDatabase>
-    with _$EventDaoMixin, LwwSyncDaoMixin<EventDatabase, Events, EventEntity> {
+    with
+        _$EventDaoMixin,
+        LwwSyncDaoMixin<EventDatabase, Events, EventEntity>,
+        LwwGcMixin<EventDatabase, Events, EventEntity> {
   EventDao(super.db);
 
   @override

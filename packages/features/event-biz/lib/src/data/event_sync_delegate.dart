@@ -42,4 +42,9 @@ class EventSyncDelegate
   EventEntity toEntity(EventDto dto) {
     return dto.toEntity(isDirty: false);
   }
+
+  @override
+  Map<String, dynamic> dtoToJson(EventDto dto) {
+    return dto.toJson();
+  }
 }

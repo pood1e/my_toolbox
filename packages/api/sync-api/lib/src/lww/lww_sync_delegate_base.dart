@@ -39,6 +39,8 @@ abstract class LwwSyncDelegateBase<
 
   DTO dtoFromJson(Map<String, dynamic> json);
 
+  Map<String, dynamic> dtoToJson(DTO dto);
+
   ACK ackFromJson(Map<String, dynamic> json);
 
   String get apiPath;
@@ -57,7 +59,10 @@ abstract class LwwSyncDelegateBase<
         for (var v in dirtyItems) _idHash(v.primaryKey): v.updatedAt,
       };
 
-      final dioResponse = await _dio.post(apiPath, data: request);
+      final dioResponse = await _dio.post(
+        apiPath,
+        data: request.toJson(dtoToJson),
+      );
       final result = R<LwwResponsePayload<DTO, ACK>>.fromJson(
         dioResponse.data,
         (payload) => LwwResponsePayload<DTO, ACK>.fromJson(
