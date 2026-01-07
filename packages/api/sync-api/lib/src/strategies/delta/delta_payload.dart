@@ -14,9 +14,10 @@ class DeltaStateSnapshot {
 @Freezed(genericArgumentFactories: true)
 abstract class DeltaSyncRequestPart<T> with _$DeltaSyncRequestPart<T> {
   const factory DeltaSyncRequestPart({
-    required int sequence,
-    required String deviceId,
-    required List<T> deltas,
+    required int cursor,
+    int? sequence,
+    String? deviceId,
+    List<T>? deltas,
   }) = _DeltaSyncRequestPart<T>;
 
   factory DeltaSyncRequestPart.fromJson(

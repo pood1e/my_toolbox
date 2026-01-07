@@ -41,9 +41,9 @@ class AppUsageSyncHandler
 
   @override
   Map<String, dynamic> reqToJson(
-    CommonSyncRequestPart<DeltaSyncRequestPart<AppUsageDelta>> req,
+    DeltaSyncRequestPart<AppUsageDelta> delta,
   ) {
-    return req.toJson((delta) => delta.toJson((usage) => usage.toJson()));
+    return delta.toJson((usage) => usage.toJson());
   }
 }
 
@@ -51,7 +51,7 @@ class AppUsageSyncDelegate
     extends
         SingleSyncDelegate<
           AppUsageDao,
-          CommonSyncRequestPart<DeltaSyncRequestPart<AppUsageDelta>>,
+          DeltaSyncRequestPart<AppUsageDelta>,
           List<AppUsagePatch>
         > {
   AppUsageSyncDelegate({

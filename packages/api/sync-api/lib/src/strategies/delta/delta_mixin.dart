@@ -21,7 +21,8 @@ mixin DeltaDao2PCMixin<
   DB extends GeneratedDatabase,
   T extends Table,
   E,
-  SEQ extends SyncSequenceTableMixin
+  SEQ extends SyncSequenceTableMixin,
+  SE
 >
     on
         DatabaseAccessor<DB>,
@@ -29,7 +30,7 @@ mixin DeltaDao2PCMixin<
         MaxCursorSyncDaoMixin<DB, T, E>
     implements DeltaOpInterface<E> {
   // 需要子类提供 Sequence 表的信息
-  TableInfo<SEQ, dynamic> get sequenceTable;
+  TableInfo<SEQ, SE> get sequenceTable;
 
   // 模块 ID，用于 Sequence 区分
   String get syncModuleId;
@@ -40,77 +41,75 @@ mixin DeltaDao2PCMixin<
 
   /// 准备发送数据
   /// 自动处理 Sequence 自增和数据锁定
-  Future<DeltaSyncRequestPart<PUSH>?> lockAndGetPayload<PUSH>(
+  Future<DeltaSyncRequestPart<PUSH>> lockAndGetPayload<PUSH>(
     String deviceId,
     PUSH Function(E entity) mapper,
   ) async {
-    return await transaction(() async {
-      // A. 获取 Sequence 元数据
-      var meta =
+    final cursor = await getMaxCursor();
+
+    // A. 获取 Sequence 元数据
+    var meta =
+        await (select(sequenceTable as TableInfo)..where(
+              (t) =>
+                  (t as SyncSequenceTableMixin).moduleId.equals(syncModuleId),
+            ))
+            .getSingleOrNull();
+
+    // 初始化 Sequence
+    if (meta == null) {
+      await into(sequenceTable as TableInfo).insert(
+        RawValuesInsertable({
+          'module_id': Constant(syncModuleId),
+          'sequence': const Constant(0),
+        }),
+      );
+      meta =
           await (select(sequenceTable as TableInfo)..where(
                 (t) =>
                     (t as SyncSequenceTableMixin).moduleId.equals(syncModuleId),
               ))
-              .getSingleOrNull();
+              .getSingle();
+    }
 
-      // 初始化 Sequence
-      if (meta == null) {
-        await into(sequenceTable as TableInfo).insert(
-          RawValuesInsertable({
-            'module_id': Constant(syncModuleId),
-            'sequence': const Constant(0),
-          }),
-        );
-        meta =
-            await (select(sequenceTable as TableInfo)..where(
-                  (t) => (t as SyncSequenceTableMixin).moduleId.equals(
-                    syncModuleId,
-                  ),
-                ))
-                .getSingle();
-      }
+    int currentSequence = (meta as dynamic).sequence;
 
-      int currentSequence = (meta as dynamic).sequence;
+    // B. 检查状态
+    final state = await checkState();
 
-      // B. 检查状态
-      final state = await checkState();
+    if (state.hasLocked) {
+      // [重试模式]
+      // 存在 Locked 数据，说明上次发送失败或未收到 ACK。
+      // 保持 Sequence 不变，直接重发 Locked 数据。
+      // logger.i('♻️ [Delta] Retry sequence: $currentSequence');
+    } else if (state.hasUnsync) {
+      // [新批次模式]
+      // 无 Locked，有 Unsync。开启新批次。
+      currentSequence += 1;
 
-      if (state.hasLocked) {
-        // [重试模式]
-        // 存在 Locked 数据，说明上次发送失败或未收到 ACK。
-        // 保持 Sequence 不变，直接重发 Locked 数据。
-        // logger.i('♻️ [Delta] Retry sequence: $currentSequence');
-      } else if (state.hasUnsync) {
-        // [新批次模式]
-        // 无 Locked，有 Unsync。开启新批次。
-        currentSequence += 1;
+      // 1. 更新 Sequence
+      await (update(sequenceTable as TableInfo)..where(
+            (t) => (t as SyncSequenceTableMixin).moduleId.equals(syncModuleId),
+          ))
+          .write(
+            RawValuesInsertable<SE>({'sequence': Constant(currentSequence)}),
+          );
 
-        // 1. 更新 Sequence
-        await (update(sequenceTable as TableInfo)..where(
-              (t) =>
-                  (t as SyncSequenceTableMixin).moduleId.equals(syncModuleId),
-            ))
-            .write(
-              RawValuesInsertable({'sequence': Constant(currentSequence)}),
-            );
+      // 2. 执行状态跃迁 (Unsync -> Locked)
+      // 具体移哪些字段，由子类实现
+      await moveUnsyncToLocked();
+    } else {
+      return DeltaSyncRequestPart<PUSH>(cursor: cursor);
+    }
 
-        // 2. 执行状态跃迁 (Unsync -> Locked)
-        // 具体移哪些字段，由子类实现
-        await moveUnsyncToLocked();
-      } else {
-        // 无数据
-        return null;
-      }
+    // C. 构建 Payload
+    final lockedItems = await getLockedItems();
 
-      // C. 构建 Payload
-      final lockedItems = await getLockedItems();
-
-      return DeltaSyncRequestPart<PUSH>(
-        sequence: currentSequence,
-        deviceId: deviceId,
-        deltas: lockedItems.map(mapper).toList(),
-      );
-    });
+    return DeltaSyncRequestPart<PUSH>(
+      sequence: currentSequence,
+      deviceId: deviceId,
+      deltas: lockedItems.map(mapper).toList(),
+      cursor: cursor,
+    );
   }
 
   // ===========================================================================

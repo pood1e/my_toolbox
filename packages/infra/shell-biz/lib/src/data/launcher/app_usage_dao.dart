@@ -18,7 +18,8 @@ class AppUsageDao extends DatabaseAccessor<ShellDatabase>
           ShellDatabase,
           AppUsageEntities,
           AppUsageEntity,
-          SyncSequenceTable
+          SyncSequenceTable,
+          SyncSequence
         >,
         SyncTransactionalDaoMixin<ShellDatabase> {
   AppUsageDao(super.attachedDatabase);
@@ -44,28 +45,28 @@ class AppUsageDao extends DatabaseAccessor<ShellDatabase>
 
   /// 记录一次使用
   Future<void> recordUsage(String moduleName, int nowMs) async {
-    // 逻辑: server_count 不变, unsync_count + 1
-    await into(appUsageEntities).insert(
-      AppUsageEntitiesCompanion(
-        module: Value(moduleName),
-        lastUsedAt: Value(nowMs),
-        openCount: const Value(0),
-        // 新数据默认基准为0
-        unsyncCount: const Value(1),
-        // 初始增量 1
-        lockedCount: const Value(0),
-        serverUpdatedAt: const Value(0),
-      ),
-      onConflict: DoUpdate(
-        (old) => AppUsageEntitiesCompanion.custom(
-          // 已有数据：unsync + 1
-          unsyncCount: old.unsyncCount + const Constant(1),
-          // 更新时间
-          lastUsedAt: Constant(nowMs),
-          // 其他字段保持不变 (Drift DoUpdate默认只更新指定字段)
+    await transaction(() async {
+      await into(appUsageEntities).insert(
+        AppUsageEntitiesCompanion(
+          module: Value(moduleName),
+          lastUsedAt: Value(nowMs),
+          openCount: const Value(1),
+          unsyncCount: const Value(1),
+          lockedCount: const Value(0),
+          serverUpdatedAt: const Value(0), // 新数据默认 0
         ),
-      ),
-    );
+        onConflict: DoUpdate(
+              (old) => AppUsageEntitiesCompanion.custom(
+            // UI总数 + 1
+            openCount: old.openCount + const Constant(1),
+            // 未同步增量 + 1
+            unsyncCount: old.unsyncCount + const Constant(1),
+            // LWW 时间更新
+            lastUsedAt: Constant(nowMs),
+          ),
+        ),
+      );
+    });
   }
 
   // ===========================================================================
