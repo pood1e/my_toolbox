@@ -10,7 +10,7 @@ part 'sync_delegate_provider.g.dart';
 Future<EventSyncDelegate> eventSyncDelegate(Ref ref) async {
   final dio = await ref.watch(authenticatedDioProvider.future);
   return EventSyncDelegate(
-    daoUse: (action) async {
+    resourceUse: (action) async {
       final sub = ref.listen(eventDaoProvider, (prev, next) {});
       try {
         final dao = await ref.read(eventDaoProvider.future);

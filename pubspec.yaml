@@ -88,6 +88,8 @@ workspace:
   - packages/features/smart-lifeflow
   - packages/features/event-api
   - packages/features/event-biz
+  - packages/features/memo-biz
+
 
 dependency_overrides:
   # fixed https://github.com/rrousselGit/riverpod/issues/4428

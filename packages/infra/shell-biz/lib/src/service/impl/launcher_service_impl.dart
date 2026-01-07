@@ -62,7 +62,7 @@ class LauncherServiceImpl implements LauncherService {
   /// 核心排序算法
   List<AppDefinition> _mergeAndSortApps(
     List<AppDefinition> sourceApps,
-    List<AppUsage> usageLogs,
+    List<AppUsageEntity> usageLogs,
   ) {
     // 1. 构建 usage 查找表 (Module ID -> UsageEntity)
     // 只有有记录的 App 才会在这里

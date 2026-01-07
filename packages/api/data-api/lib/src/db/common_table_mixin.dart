@@ -1,22 +1,15 @@
 import 'package:drift/drift.dart';
 
-mixin AuditTable on Table {
+mixin CreatedAtTableMixin on Table {
   IntColumn get createdAt => integer().clientDefault(
     () => DateTime.now().toUtc().millisecondsSinceEpoch,
   )();
+}
 
+mixin UpdatedAtTableMixin on Table {
   IntColumn get updatedAt => integer()();
 }
 
-mixin SoftDeleteTable on Table {
+mixin DeletedAtTableMixin on Table {
   IntColumn get deletedAt => integer().nullable()();
-}
-
-mixin AuditEntity {
-  int get createdAt;
-  int get updatedAt;
-}
-
-mixin SoftDeleteEntity {
-  int? get deletedAt;
 }

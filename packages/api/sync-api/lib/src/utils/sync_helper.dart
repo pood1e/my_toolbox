@@ -1,4 +1,0 @@
-class SyncHelper {
-  SyncHelper._();
-
-}

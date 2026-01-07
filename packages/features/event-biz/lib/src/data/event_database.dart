@@ -1,11 +1,11 @@
 import 'package:drift/drift.dart';
 
-import 'event_entity.dart';
+import 'event_dao.dart';
 import 'event_table.dart';
 
 part 'event_database.g.dart';
 
-@DriftDatabase(tables: [Events])
+@DriftDatabase(tables: [Events], daos: [EventDao])
 class EventDatabase extends _$EventDatabase {
   EventDatabase(super.e);
 
@@ -20,7 +20,11 @@ class EventDatabase extends _$EventDatabase {
 
       // 2. 创建性能与同步索引
       await customStatement(
-        'CREATE INDEX IF NOT EXISTS idx_event_lww ON event(is_dirty, server_updated_at)',
+        'CREATE INDEX IF NOT EXISTS idx_event_lww_dirty ON event(is_dirty)',
+      );
+
+      await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_event_lww_cursor ON event(server_updated_at)',
       );
     },
   );

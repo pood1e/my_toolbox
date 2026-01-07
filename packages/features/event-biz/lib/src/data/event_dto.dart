@@ -5,7 +5,7 @@ part 'event_dto.freezed.dart';
 part 'event_dto.g.dart';
 
 @freezed
-abstract class EventDto with _$EventDto implements LwwObject {
+abstract class EventDto with _$EventDto implements LwwPayload {
   const EventDto._();
 
   const factory EventDto({
@@ -25,7 +25,7 @@ abstract class EventDto with _$EventDto implements LwwObject {
       _$EventDtoFromJson(json);
 
   @override
-  List<dynamic> get primaryKey => [id, source];
+  List<dynamic> get primaryId => [id, source];
 }
 
 @freezed
@@ -42,5 +42,19 @@ abstract class EventAck with _$EventAck implements LwwAck {
       _$EventAckFromJson(json);
 
   @override
-  List<dynamic> get primaryKey => [id, source];
+  List<dynamic> get primaryId => [id, source];
+}
+
+@freezed
+abstract class EventSnapshot with _$EventSnapshot implements LwwSnapshot {
+  const EventSnapshot._();
+
+  const factory EventSnapshot({
+    required String id,
+    required String source,
+    required int updatedAt,
+  }) = _EventSnapshot;
+
+  @override
+  List<dynamic> get primaryId => [id, source];
 }

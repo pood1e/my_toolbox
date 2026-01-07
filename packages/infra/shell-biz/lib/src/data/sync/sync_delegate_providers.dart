@@ -12,7 +12,7 @@ Future<AppUsageSyncDelegate> appUsageSyncDelegate(Ref ref) async {
   final deviceIdService = await ref.watch(deviceIdServiceProvider.future);
 
   return AppUsageSyncDelegate(
-    daoUse: (action) async {
+    resourceUse: (action) async {
       final sub = ref.listen(appUsageDaoProvider, (prev, next) {});
       try {
         final dao = await ref.read(appUsageDaoProvider.future);

@@ -32,7 +32,7 @@ class EventRepositoryImpl implements EventRepository {
     );
 
     final result = await _dao.createIfNotExist(event);
-    if (result == 0) {
+    if (!result) {
       throw Exception();
     }
     return Event(id: id, name: name, timestamp: timestamp, source: source);
@@ -50,14 +50,14 @@ class EventRepositoryImpl implements EventRepository {
     );
 
     final result = await _dao.updateIfExist(companion);
-    if (result == 0) {
+    if (!result) {
       throw Exception();
     }
   }
 
   @override
   Future<void> deleteByIdAndSource(String id, String source, int nowMs) async {
-    await _dao.softDeleteBySourceAndId(id, source, nowMs);
+    await _dao.softDelete([id, source], nowMs);
   }
 
   @override

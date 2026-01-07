@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-@DataClassName('AppUsage')
+@DataClassName('AppUsageEntity')
 class AppUsageEntities extends Table {
   TextColumn get module => text()();
 

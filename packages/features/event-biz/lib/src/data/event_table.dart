@@ -1,10 +1,15 @@
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
-import 'event_entity.dart';
-
-@UseRowClass(EventEntity)
-class Events extends LwwTable with AuditTable, SoftDeleteTable {
+@DataClassName('EventEntity')
+class Events extends Table
+    with
+        IsDirtySyncTableMixin,
+        CursorSyncTableMixin,
+        UpdatedAtTableMixin,
+        LwwTableMixin,
+        DeletedAtTableMixin,
+        CreatedAtTableMixin {
   TextColumn get id => text()();
 
   TextColumn get name => text()();
