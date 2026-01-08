@@ -10,8 +10,8 @@ extension SyncKeyExtension on List<dynamic> {
 }
 
 mixin MaxCursorSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
-    on TableInfoMixin<T, E>, DatabaseAccessor<DB>
-    implements MaxCursorSyncDao {
+    on DatabaseAccessor<DB>
+    implements MaxCursorSyncDao, TableGetter<T, E>, ColumnFinder {
   @protected
   GeneratedColumn<int> get cursorColumn => findColumn('server_updated_at');
 
@@ -24,8 +24,12 @@ mixin MaxCursorSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
 }
 
 mixin SoftDeleteSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
-    on TableInfoMixin<T, E>, DatabaseAccessor<DB>
-    implements SoftDeleteSyncDao, PrimaryKeyDao {
+    on DatabaseAccessor<DB>
+    implements
+        SoftDeleteSyncDao,
+        ColumnFinder,
+        PrimaryKeyDao,
+        TableGetter<T, E> {
   @protected
   GeneratedColumn<int> get deletedAtColumn => findColumn('deleted_at');
 
@@ -56,8 +60,8 @@ mixin SoftDeleteSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
 }
 
 mixin DirtySelectSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
-    on TableInfoMixin<T, E>, DatabaseAccessor<DB>
-    implements DirtySelectSyncDao<E> {
+    on DatabaseAccessor<DB>
+    implements DirtySelectSyncDao<E>, ColumnFinder, TableGetter<T, E> {
   @protected
   GeneratedColumn<bool> get isDirtyColumn => findColumn('is_dirty');
 
@@ -76,8 +80,12 @@ mixin AckPatchSyncDaoMixin<
   T extends Table,
   E
 >
-    on PrimaryKeyDaoMixin<T, E>, DatabaseAccessor<DB>
-    implements AckPatchSyncDao<S, ACK> {
+    on DatabaseAccessor<DB>
+    implements
+        AckPatchSyncDao<S, ACK>,
+        ColumnFinder,
+        TableGetter<T, E>,
+        PrimaryKeyDao {
   @protected
   GeneratedColumn<bool> get isDirtyColumn => findColumn('is_dirty');
 

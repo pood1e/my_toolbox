@@ -17,7 +17,7 @@ dependencies:
     path: ../event-api
   common_ui:
     path: ../../infra/common-ui
-  json_annotation: any
+  json_annotation: ^4.9.0
 
   # db
   drift: any

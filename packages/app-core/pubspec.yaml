@@ -16,7 +16,7 @@ dependencies:
   logger: any
   # object define
   freezed_annotation: any
-  json_annotation: any
+  json_annotation: ^4.9.0
   # di & state
   riverpod_annotation: any
   flutter_riverpod: any

@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 
 import 'common_dao_interfaces.dart';
 
-mixin TableInfoMixin<T extends Table, E> {
-  TableInfo<T, E> get table;
-
+mixin TableInfoMixin<T extends Table, E>
+    implements ColumnFinder, TableGetter<T, E> {
+  @override
   @protected
   GeneratedColumn<C> findColumn<C extends Object>(String name) {
     return table.$columns.firstWhere(
@@ -19,8 +19,8 @@ mixin TableInfoMixin<T extends Table, E> {
 }
 
 mixin CommonDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
-    on TableInfoMixin<T, E>, DatabaseAccessor<DB>
-    implements CommonDao<E> {
+    on DatabaseAccessor<DB>
+    implements CommonDao<E>, TableGetter<T, E> {
   @override
   Future<void> upsert(Insertable<E> entry) async {
     await into(table).insert(entry, onConflict: DoUpdate((old) => entry));
@@ -38,8 +38,8 @@ mixin CommonDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
   }
 }
 
-mixin PrimaryKeyDaoMixin<T extends Table, E> on TableInfoMixin<T, E>
-    implements PrimaryKeyDao {
+mixin PrimaryKeyDaoMixin<T extends Table, E>
+    implements PrimaryKeyDao, TableGetter<T, E> {
   /// 根据主键自动生成 Where 条件
   /// [ids] 列表中的顺序必须与 Table 定义主键的顺序一致
   @override

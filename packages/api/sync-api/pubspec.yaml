@@ -17,7 +17,7 @@ dependencies:
     path: ../data-api
   app_core:
     path: ../../app-core
-  json_annotation: any
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:

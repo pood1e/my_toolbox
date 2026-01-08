@@ -13,7 +13,7 @@ dependencies:
     path: ../../app-core
   auth_api:
     path: ../auth-api
-  json_annotation: any
+  json_annotation: ^4.9.0
 
   # db
   drift: any

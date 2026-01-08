@@ -16,7 +16,7 @@ dependencies:
   event_api:
     path: ../event-api
 
-  json_annotation: any
+  json_annotation: ^4.9.0
 
   # db
   drift: any

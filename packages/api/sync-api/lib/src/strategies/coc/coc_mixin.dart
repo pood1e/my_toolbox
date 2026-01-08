@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../domain/common_sync_dao_mixin.dart';
+import '../../domain/common_sync_interfaces.dart';
 import '../../domain/common_sync_table_mixin.dart';
 import 'coc_dao.dart';
 import 'coc_payload.dart';
@@ -30,19 +31,22 @@ mixin CocDaoSyncMixin<
   ACK extends CocAck,
   P extends CocPayload
 >
-    on
-        DatabaseAccessor<DB>,
-        TableInfoMixin<T, E>,
-        PrimaryKeyDaoMixin<T, E>, // 提供 whereById
-        AckPatchSyncDaoMixin<DB, S, ACK, T, E>, // 提供 applyAcks 框架
-        DirtySelectSyncDaoMixin<DB, T, E>, // 提供 getDirties
-        MaxCursorSyncDaoMixin<DB, T, E> // 提供 getMaxCursor
-    implements CocDao<E, S, ACK, P> {
+    on DatabaseAccessor<DB>, AckPatchSyncDaoMixin<DB, S, ACK, T, E>
+    implements
+        CocDao<E, S, ACK, P>,
+        PrimaryKeyDao,
+        DirtySelectSyncDao<E>,
+        MaxCursorSyncDao,
+        ColumnFinder,
+        TableGetter<T, E> {
   // --- 列查找 ---
+  @protected
   GeneratedColumn<int> get updatedAtColumn => findColumn('updated_at');
 
+  @protected
   GeneratedColumn<int> get versionColumn => findColumn('version');
 
+  @protected
   GeneratedColumn<int> get serverUpdatedAtColumn =>
       findColumn('server_updated_at');
 

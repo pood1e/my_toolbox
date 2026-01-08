@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  json_annotation: any
+  json_annotation: ^4.9.0
   app_core:
     path: ../../app-core
   framework_api:

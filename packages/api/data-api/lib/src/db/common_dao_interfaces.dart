@@ -1,5 +1,14 @@
 import 'package:drift/drift.dart';
 
+abstract class ColumnFinder {
+  GeneratedColumn<C> findColumn<C extends Object>(String name);
+}
+
+abstract class TableGetter<T extends Table, E> {
+  TableInfo<T, E> get table;
+}
+
+
 abstract class PrimaryKeyDao {
   Expression<bool> whereById(List<dynamic> ids);
 }
