@@ -15,7 +15,8 @@ dependencies:
     path: ../../framework-api
   event_api:
     path: ../event-api
-
+  common_ui:
+    path: ../../infra/common-ui
   json_annotation: ^4.9.0
 
   # db

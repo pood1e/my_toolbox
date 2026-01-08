@@ -1,11 +1,12 @@
 import 'package:app_core/di.dart';
+import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../memo_domain.dart';
 import '../../memo_service.dart';
 
 class MemoEditorScreen extends ConsumerStatefulWidget {
-  final MemoDomain? memo; // null 代表新建
+  final MemoDomain? memo;
 
   const MemoEditorScreen({super.key, this.memo});
 
@@ -33,45 +34,41 @@ class _MemoEditorScreenState extends ConsumerState<MemoEditorScreen> {
     if (content.trim().isEmpty) return;
 
     final service = await ref.read(memoServiceProvider.future);
+    widget.memo == null
+        ? await service.createMemo(content)
+        : await service.updateMemo(widget.memo!.id, content);
 
-    if (widget.memo == null) {
-      await service.createMemo(content);
-    } else {
-      await service.updateMemo(widget.memo!.id, content);
-    }
-
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isEditing = widget.memo != null;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Memo' : 'New Memo'),
-        actions: [IconButton(onPressed: _save, icon: const Icon(Icons.check))],
+        title: Text(widget.memo != null ? 'Edit Memo' : 'New Memo'),
+        actions: [
+          IconButton(onPressed: _save, icon: const Icon(Icons.check)),
+          Gaps.h8, // 右侧留点空隙
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        // 统一使用页面边距
+        padding: const EdgeInsets.all(AppSpacings.page),
         child: TextField(
           controller: _controller,
-          autofocus: !isEditing,
+          autofocus: widget.memo == null,
           maxLines: null,
-          // 无限高度
           expands: true,
-          // 撑满屏幕
           textAlignVertical: TextAlignVertical.top,
-          style: theme.textTheme.bodyLarge,
+          style: context.textTheme.bodyLarge,
           decoration: InputDecoration(
             hintText: 'What\'s on your mind?',
-            hintStyle: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.outline,
+            hintStyle: context.textTheme.bodyLarge?.copyWith(
+              color: context.colorScheme.outline,
             ),
-            border: InputBorder.none, // 无边框，像便签一样
+            border: InputBorder.none,
+            // 移除默认 Padding，由外层 Padding 控制
+            contentPadding: EdgeInsets.zero,
           ),
         ),
       ),

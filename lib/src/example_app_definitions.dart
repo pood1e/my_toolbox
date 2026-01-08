@@ -18,7 +18,7 @@ final List<AppDefinition> kExampleApps = [
   const AppDefinition(
     id: 'memo',
     name: '闪念',
-    icon: Icons.note,
+    icon: Icons.flash_on,
     route: '/memo',
   ),
   const AppDefinition(

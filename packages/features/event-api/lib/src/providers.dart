@@ -5,7 +5,7 @@ import 'service/event_service.dart';
 
 part 'providers.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<EventService> eventService(Ref ref) {
   throw NotOverrideError();
 }

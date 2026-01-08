@@ -17,6 +17,7 @@ class AppSpacings {
   // 语义化间距
   static const double page = xl; // 页面默认内边距 (24.0)
   static const double card = l; // 卡片内部内边距 (16.0)
+  static const double fabSafe = 88.0; // 列表底部避让 FAB 的高度
 }
 
 /// 组件特定尺寸 (Component Sizes)
@@ -25,6 +26,9 @@ class AppSizes {
   static const double iconBoxSmall = 42.0;
   static const double iconBoxMedium = 48.0;
   static const double iconBoxLarge = 56.0;
+  static const double iconSmall = 16.0;  // 小图标 (如状态icon)
+  static const double iconMedium = 24.0; // 标准图标 (如菜单)
+  static const double illustration = 64.0; // 空状态插图
 }
 
 /// 统一圆角定义 (Radius System)

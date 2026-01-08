@@ -1,4 +1,5 @@
 import 'package:app_core/di.dart';
+import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../components/memo_tile.dart';
@@ -29,11 +30,9 @@ class MemoListScreen extends StatelessWidget {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const MemoEditorScreen()));
-          },
+          onPressed: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const MemoEditorScreen())),
           child: const Icon(Icons.add),
         ),
       ),
@@ -48,7 +47,6 @@ class _MemoListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 根据状态选择不同的 Provider
     final memosAsync = ref.watch(
       isArchived ? archivedMemosProvider : activeMemosProvider,
     );
@@ -62,14 +60,14 @@ class _MemoListView extends ConsumerWidget {
               children: [
                 Icon(
                   isArchived ? Icons.archive_outlined : Icons.note_alt_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  size: AppSizes.illustration, // 64.0
+                  color: context.colorScheme.surfaceContainerHighest,
                 ),
-                const SizedBox(height: 16),
+                Gaps.v16,
                 Text(
                   'No memos found',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    color: context.colorScheme.outline,
                   ),
                 ),
               ],
@@ -79,18 +77,15 @@ class _MemoListView extends ConsumerWidget {
 
         return ListView.builder(
           itemCount: memos.length,
-          padding: const EdgeInsets.only(bottom: 80), // 避让 FAB
+          // 底部留出安全距离，防止 FAB 遮挡最后一条
+          padding: const EdgeInsets.only(bottom: AppSpacings.fabSafe),
           itemBuilder: (context, index) {
             final memo = memos[index];
             return MemoTile(
               memo: memo,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => MemoEditorScreen(memo: memo),
-                  ),
-                );
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => MemoEditorScreen(memo: memo)),
+              ),
             );
           },
         );

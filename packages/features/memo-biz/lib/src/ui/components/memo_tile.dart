@@ -1,4 +1,5 @@
 import 'package:app_core/di.dart';
+import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../memo_domain.dart';
@@ -12,51 +13,52 @@ class MemoTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Card(
-      // 使用 Theme 定义的 Card 样式
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 0, // M3 风格通常由颜色表面区分
-      color: colorScheme.surfaceContainer,
+      // 1. 使用预设边距
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacings.page, // 24.0
+        vertical: AppSpacings.s, // 8.0
+      ),
+      elevation: 0,
+      color: context.colorScheme.surfaceContainer,
+      // 2. 使用语义化 Shape (虽然 Card 默认有圆角，但显式指定更安全)
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12), // 匹配 Card 默认圆角
+        borderRadius: AppRadius.card,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          // 3. 使用预设内边距
+          padding: const EdgeInsets.all(AppSpacings.card),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. 内容摘要
               Text(
                 memo.content,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyLarge,
+                style: context.textTheme.bodyLarge,
               ),
-              const SizedBox(height: 12),
-              // 2. 底部信息栏 (时间 + 状态)
+              // 4. 使用预设间隔
+              Gaps.v12,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    // 简单的格式化，实际建议用 intl 包
-                    "${memo.updatedAt.year}-${memo.updatedAt.month}-${memo.updatedAt.day} ${memo.updatedAt.hour}:${memo.updatedAt.minute}",
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.outline,
+                    _formatDate(memo.updatedAt),
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: context.colorScheme.outline,
                     ),
                   ),
                   Row(
                     children: [
-                      // 脏标记 (未同步状态)
-                      if (memo.isDirty)
+                      if (memo.isDirty) ...[
                         Icon(
                           Icons.cloud_upload_outlined,
-                          size: 16,
-                          color: colorScheme.primary,
+                          size: AppSizes.iconSmall, // 16.0
+                          color: context.colorScheme.primary,
                         ),
-                      // 更多操作菜单
+                        Gaps.h8,
+                      ],
                       _buildActionMenu(context, ref),
                     ],
                   ),
@@ -70,49 +72,56 @@ class MemoTile extends ConsumerWidget {
   }
 
   Widget _buildActionMenu(BuildContext context, WidgetRef ref) {
-    return PopupMenuButton<String>(
-      icon: Icon(
-        Icons.more_vert,
-        size: 20,
-        color: Theme.of(context).colorScheme.outline,
-      ),
-      onSelected: (value) async {
-        final service = await ref.read(memoServiceProvider.future);
-        switch (value) {
-          case 'toggle_archive':
-            if (memo.isArchived) {
-              await service.unarchiveMemo(memo.id);
-            } else {
-              await service.archiveMemo(memo.id);
-            }
-            break;
-          case 'delete':
+    // PopupMenu 的样式比较特殊，通常保持默认或单独封装
+    return SizedBox(
+      height: AppSizes.iconMedium, // 24.0
+      width: AppSizes.iconMedium,
+      child: PopupMenuButton<String>(
+        padding: EdgeInsets.zero,
+        icon: Icon(
+          Icons.more_vert,
+          size: AppSizes.iconSmall, // 使用统一尺寸
+          color: context.colorScheme.outline,
+        ),
+        onSelected: (value) async {
+          final service = await ref.read(memoServiceProvider.future);
+          if (value == 'toggle_archive') {
+            memo.isArchived
+                ? await service.unarchiveMemo(memo.id)
+                : await service.archiveMemo(memo.id);
+          } else if (value == 'delete') {
             await service.deleteMemo(memo.id);
-            break;
-        }
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'toggle_archive',
-          child: Row(
-            children: [
-              Icon(memo.isArchived ? Icons.unarchive : Icons.archive, size: 20),
-              const SizedBox(width: 12),
-              Text(memo.isArchived ? 'Unarchive' : 'Archive'),
-            ],
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'toggle_archive',
+            child: Row(
+              children: [
+                Icon(
+                  memo.isArchived ? Icons.unarchive : Icons.archive,
+                  size: AppSizes.iconMedium,
+                ),
+                Gaps.h12,
+                Text(memo.isArchived ? 'Unarchive' : 'Archive'),
+              ],
+            ),
           ),
-        ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(
-            children: [
-              Icon(Icons.delete_outline, size: 20),
-              const SizedBox(width: 12),
-              Text('Delete'),
-            ],
+          const PopupMenuItem(
+            value: 'delete',
+            child: Row(
+              children: [
+                Icon(Icons.delete_outline, size: AppSizes.iconMedium),
+                Gaps.h12,
+                Text('Delete'),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
+
+  String _formatDate(DateTime d) =>
+      '${d.year}-${d.month}-${d.day} ${d.hour}:${d.minute}';
 }
