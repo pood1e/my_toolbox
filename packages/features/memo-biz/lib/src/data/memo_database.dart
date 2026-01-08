@@ -29,11 +29,11 @@ class MemoDatabase extends _$MemoDatabase {
 
       // 2. 创建性能与同步索引
       await customStatement(
-        'CREATE INDEX IF NOT EXISTS idx_memo_coc_dirty ON event(is_dirty)',
+        'CREATE INDEX IF NOT EXISTS idx_memo_coc_dirty ON memos(is_dirty)',
       );
 
       await customStatement(
-        'CREATE INDEX IF NOT EXISTS idx_memo_coc_cursor ON event(server_updated_at)',
+        'CREATE INDEX IF NOT EXISTS idx_memo_coc_cursor ON memos(server_updated_at)',
       );
     },
   );

@@ -16,10 +16,10 @@ final List<AppDefinition> kExampleApps = [
     route: '/apps/weather',
   ),
   const AppDefinition(
-    id: 'calculator',
-    name: '计算器',
-    icon: Icons.calculate_outlined,
-    route: '/apps/calculator',
+    id: 'memo',
+    name: '闪念',
+    icon: Icons.note,
+    route: '/memo',
   ),
   const AppDefinition(
     id: 'event_timeline',

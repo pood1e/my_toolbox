@@ -14,6 +14,9 @@ abstract class MemoPayload with _$MemoPayload implements CocPayload {
     required String id,
     required String content,
     required String contentHash,
+    required bool isArchived,
+    required int createdAt,
+    int? deletedAt,
     // --- CoC 必需字段 ---
     required int version,
     required int updatedAt,

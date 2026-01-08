@@ -20,11 +20,11 @@ class EventDatabase extends _$EventDatabase {
 
       // 2. 创建性能与同步索引
       await customStatement(
-        'CREATE INDEX IF NOT EXISTS idx_event_lww_dirty ON event(is_dirty)',
+        'CREATE INDEX IF NOT EXISTS idx_event_lww_dirty ON events(is_dirty)',
       );
 
       await customStatement(
-        'CREATE INDEX IF NOT EXISTS idx_event_lww_cursor ON event(server_updated_at)',
+        'CREATE INDEX IF NOT EXISTS idx_event_lww_cursor ON events(server_updated_at)',
       );
     },
   );

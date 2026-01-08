@@ -44,6 +44,8 @@ dependencies:
     path: packages/features/event-api
   event_biz:
     path: packages/features/event-biz
+  memo_biz:
+    path: packages/features/memo-biz
 
   dynamic_color: ^1.8.1
   google_fonts: ^6.3.3

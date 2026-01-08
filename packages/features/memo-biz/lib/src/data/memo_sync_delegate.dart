@@ -5,7 +5,9 @@ import 'memo_dao.dart';
 import 'memo_database.dart';
 import 'memo_dto.dart';
 import 'memo_mapper.dart';
-import 'memo_table.dart'; // for AppDatabase
+import 'memo_table.dart';
+
+part 'memo_sync_delegate.g.dart';
 
 class MemoSyncHandler
     extends
