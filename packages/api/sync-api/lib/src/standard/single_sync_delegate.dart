@@ -24,7 +24,7 @@ abstract class SingleSyncDelegate<Res extends TransactionalResource, Req, Resp>
 
       // 2. Transport (直接发送 Request 对象)
       final dioResponse = await dio.post(
-        apiPath,
+        '/sync/$resourceId',
         data: handler.reqToJson(request),
       );
 

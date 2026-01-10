@@ -65,9 +65,6 @@ class MemoSyncDelegate
     : super(handler: MemoSyncHandler());
 
   @override
-  String get apiPath => '/memo/sync';
-
-  @override
   String get resourceId => 'memo';
 }
 

@@ -67,7 +67,4 @@ class EventSyncDelegate
 
   @override
   String get resourceId => 'event';
-
-  @override
-  String get apiPath => '/event/sync';
 }

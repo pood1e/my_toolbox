@@ -12,7 +12,12 @@ abstract class DeltaSyncHandler<
   PUSH,
   PULL
 >
-    extends SyncHandler<DAO, DeltaSyncRequestPart<PUSH>, List<PULL>> {
+    extends
+        SyncHandler<
+          DAO,
+          DeltaSyncRequestPart<PUSH>,
+          DeltaSyncResponsePart<PULL>
+        > {
   final DeviceIdService _deviceIdService;
 
   DeltaSyncHandler({required DeviceIdService deviceIdService})
@@ -31,12 +36,12 @@ abstract class DeltaSyncHandler<
   @override
   Future<void> merge(
     DAO dao,
-    List<PULL> resp,
+    DeltaSyncResponsePart<PULL> resp,
     DeltaSyncRequestPart<PUSH> sentReq,
   ) async {
     // 1. 处理下行数据 (由子类实现具体的 Upsert 逻辑)
-    if (resp.isNotEmpty) {
-      await applyRemotePatches(dao, resp);
+    if (resp.changes.isNotEmpty) {
+      await applyRemotePatches(dao, resp.changes);
     }
 
     // 2. 处理上行确认 (Commit)

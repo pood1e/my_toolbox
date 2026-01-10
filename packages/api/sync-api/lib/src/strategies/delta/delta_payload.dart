@@ -25,3 +25,16 @@ abstract class DeltaSyncRequestPart<T> with _$DeltaSyncRequestPart<T> {
     T Function(Object? json) fromJsonT,
   ) => _$DeltaSyncRequestPartFromJson(json, fromJsonT);
 }
+
+/// Delta 同步请求体
+@Freezed(genericArgumentFactories: true)
+abstract class DeltaSyncResponsePart<T> with _$DeltaSyncResponsePart<T> {
+  const factory DeltaSyncResponsePart({
+    required List<T> changes,
+  }) = _DeltaSyncResponsePart<T>;
+
+  factory DeltaSyncResponsePart.fromJson(
+      Map<String, dynamic> json,
+      T Function(Object? json) fromJsonT,
+      ) => _$DeltaSyncResponsePartFromJson(json, fromJsonT);
+}

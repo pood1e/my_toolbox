@@ -33,16 +33,15 @@ class AppUsageSyncHandler
   }
 
   @override
-  List<AppUsagePatch> respFromJson(Object? json) {
-    // 假设返回的是 Patch 列表
-    final list = json as List<dynamic>;
-    return list.map((e) => AppUsagePatch.fromJson(e)).toList();
+  DeltaSyncResponsePart<AppUsagePatch> respFromJson(Object? json) {
+    return DeltaSyncResponsePart<AppUsagePatch>.fromJson(
+      json as Map<String, dynamic>,
+      (l) => AppUsagePatch.fromJson(l as Map<String, dynamic>),
+    );
   }
 
   @override
-  Map<String, dynamic> reqToJson(
-    DeltaSyncRequestPart<AppUsageDelta> delta,
-  ) {
+  Map<String, dynamic> reqToJson(DeltaSyncRequestPart<AppUsageDelta> delta) {
     return delta.toJson((usage) => usage.toJson());
   }
 }
@@ -52,16 +51,13 @@ class AppUsageSyncDelegate
         SingleSyncDelegate<
           AppUsageDao,
           DeltaSyncRequestPart<AppUsageDelta>,
-          List<AppUsagePatch>
+          DeltaSyncResponsePart<AppUsagePatch>
         > {
   AppUsageSyncDelegate({
     required super.dio,
     required super.resourceUse,
     required DeviceIdService deviceIdService,
   }) : super(handler: AppUsageSyncHandler(deviceIdService: deviceIdService));
-
-  @override
-  String get apiPath => '/shell/app_usage/sync';
 
   @override
   String get resourceId => 'app_usage';

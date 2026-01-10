@@ -49,7 +49,7 @@ abstract class CompositeSyncDelegate<Tr extends TransactionalResource>
       // 2. Transport (一次请求)
       // =======================================================================
       final dioResponse = await dio.post(
-        apiPath,
+        '/sync/$resourceId',
         data: requestMap, // 发送聚合 JSON
       );
 

@@ -35,7 +35,5 @@ abstract class SyncDelegateBase<Res extends TransactionalResource, Req, Resp>
   final Dio dio;
   final ResourceBorrower<Res> resourceUse;
 
-  String get apiPath;
-
   SyncDelegateBase({required this.dio, required this.resourceUse});
 }
