@@ -99,7 +99,7 @@ class PomodoroServiceImpl implements PomodoroService {
   @override
   Future<void> extendPomodoro(String id, int seconds) async {
     final active = await _repo.getPomodoroById(id);
-    if (active != null && active.id == id) {
+    if (active != null) {
       final newEndAt = active.endAt + (seconds * 1000);
       await _repo.updatePomodoroEndTime(id, newEndAt, _serverTimeService.nowMs);
     }

@@ -15,7 +15,7 @@ abstract class PrimaryKeyDao {
 abstract class CommonDao<E> {
   Future<void> upsert(Insertable<E> entry);
 
-  Future<bool> updateIfExist(Insertable<E> entry);
+  Future<bool> updateIfExist(List<dynamic> id,Insertable<E> entry);
 
   Future<bool> createIfNotExist(Insertable<E> entry);
 }

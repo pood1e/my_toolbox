@@ -18,26 +18,6 @@ mixin TableInfoMixin<T extends Table, E>
   }
 }
 
-mixin CommonDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
-    on DatabaseAccessor<DB>
-    implements CommonDao<E>, TableGetter<T, E> {
-  @override
-  Future<void> upsert(Insertable<E> entry) async {
-    await into(table).insert(entry, onConflict: DoUpdate((old) => entry));
-  }
-
-  @override
-  Future<bool> updateIfExist(Insertable<E> entry) async {
-    return await update(table).replace(entry);
-  }
-
-  @override
-  Future<bool> createIfNotExist(Insertable<E> entry) async {
-    return (await into(table).insert(entry, mode: InsertMode.insertOrIgnore)) >
-        0;
-  }
-}
-
 mixin PrimaryKeyDaoMixin<T extends Table, E> on TableGetter<T, E>
     implements PrimaryKeyDao {
   /// 根据主键自动生成 Where 条件
@@ -94,5 +74,26 @@ mixin GetOneDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
   @override
   Future<E?> getById(List<dynamic> id) async {
     return await (select(table)..where((_) => whereById(id))).getSingleOrNull();
+  }
+}
+
+mixin CommonDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
+    on DatabaseAccessor<DB>, PrimaryKeyDaoMixin<T, E>
+    implements CommonDao<E>, TableGetter<T, E> {
+  @override
+  Future<void> upsert(Insertable<E> entry) async {
+    await into(table).insert(entry, onConflict: DoUpdate((old) => entry));
+  }
+
+  @override
+  Future<bool> updateIfExist(List<dynamic> id, Insertable<E> entry) async {
+    final query = update(table)..where((_) => whereById(id));
+    return (await query.write(entry)) > 0;
+  }
+
+  @override
+  Future<bool> createIfNotExist(Insertable<E> entry) async {
+    return (await into(table).insert(entry, mode: InsertMode.insertOrIgnore)) >
+        0;
   }
 }

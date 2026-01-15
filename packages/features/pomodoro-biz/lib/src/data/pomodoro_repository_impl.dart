@@ -37,8 +37,8 @@ class PomodoroRepositoryImpl implements PomodoroRepository {
     int serverTime,
   ) async {
     await _pomodoroDao.updateIfExist(
+      [id],
       PomodorosCompanion(
-        id: Value(id),
         endAt: Value(newEndAt),
         isDirty: Value(true),
         updatedAt: Value(serverTime),
@@ -54,8 +54,8 @@ class PomodoroRepositoryImpl implements PomodoroRepository {
     int serverTime,
   ) async {
     await _sessionDao.updateIfExist(
+      [id],
       PomodoroSessionsCompanion(
-        id: Value(id),
         name: Value(name),
         note: Value(note),
         updatedAt: Value(serverTime),

@@ -41,15 +41,13 @@ class EventRepositoryImpl implements EventRepository {
   @override
   Future<void> update(Event event, int nowMs) async {
     final companion = EventsCompanion(
-      id: Value(event.id),
       name: Value(event.name),
       timestamp: Value(event.timestamp),
-      source: Value(event.source),
       updatedAt: Value(nowMs),
       isDirty: const Value(true),
     );
 
-    final result = await _dao.updateIfExist(companion);
+    final result = await _dao.updateIfExist([event.id, event.source], companion);
     if (!result) {
       throw Exception();
     }

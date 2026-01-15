@@ -136,7 +136,8 @@ class PomodoroDao extends DatabaseAccessor<PomodoroDatabase>
   }
 
   Future<TypedResult?> getPomodoroById(String id) async {
-    final query = _selectPomodoro()..where(pomodoros.deletedAt.isNull());
+    final query = _selectPomodoro()
+      ..where(pomodoros.id.equals(id) & pomodoros.deletedAt.isNull());
     return query.getSingle();
   }
 }

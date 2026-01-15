@@ -55,25 +55,38 @@ class PomodoroLifecycleManager extends _$PomodoroLifecycleManager {
 
   @override
   void build() {
-    // 1. 资源清理
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
     });
 
-    // 2. 监听数据源
-    // watch 会确保当 activePomodoro 变化时，build 重新执行，Timer 被重置
     final activeAsync = ref.watch(activePomodoroProvider);
 
     activeAsync.when(
       data: (pomodoro) => _handleStateChange(pomodoro),
-      loading: () => _timer?.cancel(), // 加载中先取消定时器，防止误判
+      loading: () => _timer?.cancel(),
       error: (err, stack) => _timer?.cancel(),
     );
   }
 
+  Future<void> _onTimerComplete(Pomodoro pomodoro) async {
+    final service = await ref.read(pomodoroServiceProvider.future);
+    if (pomodoro.type == PomodoroType.focus) {
+      // 场景 A: 专注结束 -> 自动进入下一阶段 (休息)
+      logger.i('✅ 专注结束，自动开启休息...');
+
+      await service.nextPhase(pomodoro.id);
+
+      // 注意: nextPhase 内部会创建新的 Pomodoro 并保存到数据库
+      // LifecycleManager 会监听到数据库变化，自动为这个新的休息设置定时器
+    } else {
+      // 场景 B: 休息结束 -> 停止 (等待用户手动开启下一个专注)
+      logger.i('✅ 休息结束，停止计时，等待用户手动开始...');
+      await service.stopPomodoro(pomodoro.id);
+    }
+  }
+
   void _handleStateChange(Pomodoro? pomodoro) {
-    // 先取消旧的
     _timer?.cancel();
     _timer = null;
 
@@ -83,30 +96,22 @@ class PomodoroLifecycleManager extends _$PomodoroLifecycleManager {
     final remainingMs = pomodoro.endAt - now;
 
     if (remainingMs > 0) {
-      // A. 还在进行中：设置定时器
-      // print("⏰ 自动结束倒计时: ${remainingMs / 1000}秒");
+      // 1. 还在进行中：设置定时器
       _timer = Timer(Duration(milliseconds: remainingMs), () async {
-        // --- 关键修改点 1: 异步获取 Service ---
         try {
-          final service = await ref.read(pomodoroServiceProvider.future);
-          await service.stopPomodoro(pomodoro.id);
-          logger.i('✅ 定时器触发: 自动停止成功');
+          await _onTimerComplete(pomodoro);
         } catch (e) {
-          logger.e('❌ 自动停止失败: $e', error: e);
+          logger.e('❌ 自动流转失败: $e');
         }
       });
     } else {
-      // B. 已经过期：立即停止
-      // print("⚠️ 任务已过期，立即触发停止");
-
-      // 使用 microtask 避免在 build 期间产生副作用
+      // 2. 已经过期
       Future.microtask(() async {
-        // --- 关键修改点 2: 异步获取 Service ---
         try {
-          final service = await ref.read(pomodoroServiceProvider.future);
-          await service.stopPomodoro(pomodoro.id);
+          // 同样调用 onTimerComplete 处理过期逻辑
+          await _onTimerComplete(pomodoro);
         } catch (e) {
-          logger.e('❌ 过期停止失败: $e', error: e);
+          logger.e('❌ 过期处理失败: $e');
         }
       });
     }
