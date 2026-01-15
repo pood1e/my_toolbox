@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 /// 示例 App 定义列表
 final List<AppDefinition> kExampleApps = [
   const AppDefinition(
-    id: 'todo',
-    name: '待办事项',
-    icon: Icons.check_circle_outline,
-    route: '/apps/todo',
+    id: 'pomodoro',
+    name: '专注',
+    icon: Icons.coffee,
+    route: '/pomodoro',
   ),
   const AppDefinition(
     id: 'weather',

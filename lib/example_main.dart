@@ -6,6 +6,7 @@ import 'package:event_biz/event_biz.dart';
 import 'package:framework_api/framework_api.dart';
 import 'package:framework_biz/starter.dart';
 import 'package:memo_biz/memo_biz.dart';
+import 'package:pomodoro_biz/pomodoro_biz.dart';
 
 import 'src/example_app_definitions.dart';
 
@@ -17,6 +18,7 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
   List<RouteBase> routes(Ref ref) => [
     ...ref.read(eventRoutesProvider),
     ...ref.read(memoRoutesProvider),
+    ...ref.read(pomodoroRoutesProvider),
   ];
 
   @override
@@ -24,6 +26,7 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
     return [
       await ref.read(eventSyncDelegateProvider.future),
       await ref.read(memoSyncDelegateProvider.future),
+      await ref.read(pomodoroSyncDelegateProvider.future),
     ];
   }
 }

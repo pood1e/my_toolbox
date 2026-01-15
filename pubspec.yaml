@@ -46,6 +46,8 @@ dependencies:
     path: packages/features/event-biz
   memo_biz:
     path: packages/features/memo-biz
+  pomodoro_biz:
+    path: packages/features/pomodoro-biz
 
   dynamic_color: ^1.8.1
   google_fonts: ^6.3.3
@@ -91,6 +93,7 @@ workspace:
   - packages/features/event-api
   - packages/features/event-biz
   - packages/features/memo-biz
+  - packages/features/pomodoro-biz
 
 
 dependency_overrides:
