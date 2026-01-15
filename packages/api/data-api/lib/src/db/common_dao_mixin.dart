@@ -38,8 +38,8 @@ mixin CommonDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
   }
 }
 
-mixin PrimaryKeyDaoMixin<T extends Table, E>
-    implements PrimaryKeyDao, TableGetter<T, E> {
+mixin PrimaryKeyDaoMixin<T extends Table, E> on TableGetter<T, E>
+    implements PrimaryKeyDao {
   /// 根据主键自动生成 Where 条件
   /// [ids] 列表中的顺序必须与 Table 定义主键的顺序一致
   @override
@@ -85,5 +85,14 @@ mixin PrimaryKeyDaoMixin<T extends Table, E>
     }
 
     return predicate;
+  }
+}
+
+mixin GetOneDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
+    on PrimaryKeyDao, DatabaseAccessor<DB>, TableGetter<T, E>
+    implements GetOneDao<E> {
+  @override
+  Future<E?> getById(List<dynamic> id) async {
+    return await (select(table)..where((_) => whereById(id))).getSingleOrNull();
   }
 }

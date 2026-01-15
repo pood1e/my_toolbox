@@ -51,14 +51,17 @@ class MemoTile extends ConsumerWidget {
                   ),
                   Row(
                     children: [
-                      if (memo.isDirty) ...[
-                        Icon(
-                          Icons.cloud_upload_outlined,
-                          size: AppSizes.iconSmall, // 16.0
-                          color: context.colorScheme.primary,
-                        ),
-                        Gaps.h8,
-                      ],
+                      Icon(
+                        // 图标切换：脏数据用上传云，已同步用完成云
+                        memo.isDirty
+                            ? Icons.cloud_upload_outlined
+                            : Icons.cloud_done_outlined,
+                        size: AppSizes.iconSmall,
+                        color: memo.isDirty
+                            ? context.colorScheme.primary
+                            : context.colorScheme.tertiary,
+                      ),
+                      Gaps.h8,
                       _buildActionMenu(context, ref),
                     ],
                   ),

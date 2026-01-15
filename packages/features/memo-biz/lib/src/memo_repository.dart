@@ -1,7 +1,9 @@
 import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
+import 'package:framework_api/framework_api.dart';
 
 import 'data/memo_dao.dart';
+import 'data/memo_database.dart';
 import 'data/memo_mapper.dart';
 import 'memo_domain.dart';
 
@@ -80,5 +82,24 @@ class MemoRepositoryImpl implements MemoRepository {
 @riverpod
 Future<MemoRepository> memoRepository(Ref ref) async {
   final dao = await ref.watch(memoDaoProvider.future);
+  ref.watch(memoChangesListenerProvider);
   return MemoRepositoryImpl(dao);
+}
+
+@riverpod
+Future<void> memoChangesListener(Ref ref) async {
+  final db = await ref.watch(memoDatabaseProvider.future);
+
+  final sub = db.tableUpdates(TableUpdateQuery.onTable(db.memos)).listen((
+    updates,
+  ) async {
+    if (await ref.read(autoSyncEnabledProvider.future)) {
+      final autoSyncService = await ref.watch(autoSyncServiceProvider.future);
+      autoSyncService.markSync('memo');
+    }
+  });
+
+  ref.onDispose(() {
+    sub.cancel();
+  });
 }

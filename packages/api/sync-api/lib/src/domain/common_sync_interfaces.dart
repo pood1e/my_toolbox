@@ -16,6 +16,7 @@ abstract class SoftDeleteSyncDao {
 /// [DAO 能力] 获取脏数据
 abstract class DirtySelectSyncDao<E> {
   Future<List<E>> getDirtyItems();
+  Future<bool> hasDirtyItems();
 }
 
 abstract class AckPatchSyncDao<

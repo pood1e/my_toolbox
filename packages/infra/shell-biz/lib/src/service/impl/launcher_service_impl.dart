@@ -1,30 +1,26 @@
 import 'package:app_core/core.dart';
 import 'package:framework_api/framework_api.dart';
 
-import '../../data/shell_database.dart';
 import '../../data/launcher/app_usage_dao.dart';
+import '../../data/shell_database.dart';
 import '../launcher_service.dart';
 
 class LauncherServiceImpl implements LauncherService {
   final List<AppDefinition> _allApps;
   final AppUsageDao _dao;
   final ServerTimeService _serverTimeService;
-  final SyncAction _syncAction;
 
   LauncherServiceImpl({
     required List<AppDefinition> allApps,
     required AppUsageDao dao,
     required ServerTimeService serverTimeService,
-    required SyncAction syncAction,
   }) : _allApps = allApps,
        _dao = dao,
-       _serverTimeService = serverTimeService,
-       _syncAction = syncAction;
+       _serverTimeService = serverTimeService;
 
   @override
   Future<void> record(String id) async {
     await _dao.recordUsage(id, _serverTimeService.nowMs);
-    await _syncAction('app_usage');
   }
 
   @override

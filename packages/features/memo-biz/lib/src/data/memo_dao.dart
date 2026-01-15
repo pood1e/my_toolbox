@@ -107,5 +107,6 @@ class MemoDao extends DatabaseAccessor<MemoDatabase>
 
 @riverpod
 Future<MemoDao> memoDao(Ref ref) async {
-  return MemoDao(await ref.watch(memoDatabaseProvider.future));
+  final db = await ref.watch(memoDatabaseProvider.future);
+  return MemoDao(db);
 }

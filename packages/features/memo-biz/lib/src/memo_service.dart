@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:app_core/crypto.dart';
 import 'package:app_core/di.dart';
 import 'package:app_core/uuid.dart';
+import 'package:drift/drift.dart';
 import 'package:event_api/event_api.dart';
 import 'package:framework_api/framework_api.dart';
 
+import 'data/memo_database.dart';
 import 'memo_repository.dart';
 
 part 'memo_service.g.dart';
@@ -116,11 +118,11 @@ class MemoServiceImpl implements MemoService {
 @riverpod
 Future<MemoService> memoService(Ref ref) async {
   final repo = await ref.watch(memoRepositoryProvider.future);
-  final service = await ref.watch(serverTimeServiceProvider.future);
+  final serverTimeService = await ref.watch(serverTimeServiceProvider.future);
   final eventService = await ref.watch(eventServiceProvider.future);
   return MemoServiceImpl(
     repository: repo,
     eventService: eventService,
-    serverTimeService: service,
+    serverTimeService: serverTimeService,
   );
 }

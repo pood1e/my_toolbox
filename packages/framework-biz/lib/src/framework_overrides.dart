@@ -46,7 +46,8 @@ List<Override> frameworkOverrides = [
   }),
   // sync-api
   autoSyncEnabledProvider.overrideWith(SyncApiOverride.autoSyncEnalbed),
-  syncActionProvider.overrideWith(SyncApiOverride.syncAction),
+  syncServiceProvider.overrideWith(SyncApiOverride.syncService),
+  autoSyncServiceProvider.overrideWith(SyncApiOverride.autoSyncService),
 
   // network-api
   serverTimeServiceProvider.overrideWith(NetworkApiOverride.serverTimeService),

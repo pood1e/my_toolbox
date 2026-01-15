@@ -63,9 +63,7 @@ class EventRepositoryImpl implements EventRepository {
   @override
   Stream<List<Event>> watchByRange(int startTime, int endTime) {
     return _dao
-        .watchByRange(startTime, endTime) // 获取 Entity流
-        .map(
-          (entities) => entities.map((e) => e.toDomain()).toList(),
-        ); // 转换成 Model流
+        .watchByRange(startTime, endTime)
+        .map((entities) => entities.map((e) => e.toDomain()).toList());
   }
 }

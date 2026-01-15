@@ -3,6 +3,7 @@ import 'package:framework_api/framework_api.dart';
 
 import '../data/event_dao.dart';
 import '../data/event_database.dart';
+import '../providers.dart';
 import 'event_repository.dart';
 import 'impl/event_repository_impl.dart';
 
@@ -23,5 +24,6 @@ Future<EventDao> eventDao(Ref ref) async {
 @riverpod
 Future<EventRepository> eventRepository(Ref ref) async {
   final dao = await ref.watch(eventDaoProvider.future);
+  ref.watch(eventChangesListenerProvider);
   return EventRepositoryImpl(dao: dao);
 }

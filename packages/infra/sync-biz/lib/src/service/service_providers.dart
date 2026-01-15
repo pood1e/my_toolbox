@@ -10,7 +10,6 @@ import 'impl/realtime_service_impl.dart';
 import 'impl/sync_service_impl.dart';
 import 'realtime_service.dart';
 import 'sync_all_service.dart';
-import 'sync_service.dart';
 
 part 'service_providers.g.dart';
 
@@ -26,25 +25,12 @@ Future<SyncServiceImpl> syncServiceImpl(Ref ref) async {
 
 @riverpod
 Future<SyncAllService> syncAllService(Ref ref) async {
-  final syncEnabled = await ref.watch(syncEnabledProvider.future);
-  if (!syncEnabled) {
-    throw SyncDisallowException();
-  }
-  return await ref.watch(syncServiceImplProvider.future);
-}
-
-@riverpod
-Future<SyncService> syncService(Ref ref) async {
-  final syncEnabled = await ref.watch(syncEnabledProvider.future);
-  if (!syncEnabled) {
-    throw SyncDisallowException();
-  }
   return await ref.watch(syncServiceImplProvider.future);
 }
 
 @riverpod
 Future<bool> anySyncing(Ref ref) async {
-  final service = await ref.read(syncServiceProvider.future);
+  final service = await ref.read(syncAllServiceProvider.future);
   return service.anySyncing;
 }
 
@@ -69,6 +55,8 @@ Future<RealtimeService> realtimeService(Ref ref) async {
     throw SyncUnavailableException();
   }
 
+  final syncService = await ref.watch(syncServiceProvider.future);
+
   final service = RealtimeServiceImpl(
     server: userIdentity.server,
     token: authenciatedToken,
@@ -76,7 +64,7 @@ Future<RealtimeService> realtimeService(Ref ref) async {
       final action = ref.read(refreshAccessTokenProvider);
       await action();
     },
-    triggerSyncAction: ref.read(syncActionProvider),
+    syncService: syncService,
   );
   service.start();
   ref.onDispose(() {

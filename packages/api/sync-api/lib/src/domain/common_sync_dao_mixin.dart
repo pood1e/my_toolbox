@@ -71,6 +71,17 @@ mixin DirtySelectSyncDaoMixin<DB extends GeneratedDatabase, T extends Table, E>
       table,
     )..where((_) => isDirtyColumn.equals(true))).get().then((v) => v.cast<E>());
   }
+
+  @override
+  Future<bool> hasDirtyItems() {
+    // 1. 构建查询
+    final query = select(table)
+      ..where((_) => isDirtyColumn.equals(true))
+      ..limit(1); // 关键优化：只取一条
+
+    // 2. 执行并判断结果是否为空
+    return query.get().then((v) => v.isNotEmpty);
+  }
 }
 
 mixin AckPatchSyncDaoMixin<
