@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'package:app_core/crypto.dart';
 import 'package:app_core/di.dart';
 import 'package:app_core/uuid.dart';
-import 'package:drift/drift.dart';
 import 'package:event_api/event_api.dart';
 import 'package:framework_api/framework_api.dart';
 
-import 'data/memo_database.dart';
 import 'memo_repository.dart';
 
 part 'memo_service.g.dart';
