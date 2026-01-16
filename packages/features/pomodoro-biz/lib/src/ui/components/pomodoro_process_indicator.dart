@@ -1,78 +1,45 @@
-import 'dart:async';
-
+import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 
 import '../../pomodoro_domain.dart';
+import '../state/logical_state.dart';
 
-class PomodoroProcessIndicator extends StatefulWidget {
+class PomodoroProcessIndicator extends ConsumerWidget {
   final Pomodoro pomodoro;
   final double size;
 
   const PomodoroProcessIndicator({
     super.key,
     required this.pomodoro,
-    this.size = 260.0,
+    this.size = 200.0,
   });
 
   @override
-  State<PomodoroProcessIndicator> createState() =>
-      _PomodoroProcessIndicatorState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 1. 监听低频状态 (Running / Pending)
+    // 只有当状态改变时 (例如倒计时结束瞬间)，整个大组件才会 Rebuild 一次
+    final phase = ref.watch(currentPomodoroPhaseProvider);
 
-class _PomodoroProcessIndicatorState extends State<PomodoroProcessIndicator> {
-  late Timer _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final p = widget.pomodoro;
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    // --- 1. 计算逻辑 ---
-    final nowMs = DateTime.now().millisecondsSinceEpoch;
-    final totalMs = p.endAt - p.startAt;
-    final remainMs = p.endAt - nowMs;
-
-    final progress = totalMs == 0 ? 0.0 : (remainMs / totalMs).clamp(0.0, 1.0);
-    final remaining = remainMs > 0
-        ? Duration(milliseconds: remainMs)
-        : Duration.zero;
-
-    // --- 2. 颜色逻辑 (修改点) ---
-    // 不再区分红绿，统一使用主题的主色调
-    final Color primaryColor = colorScheme.primary;
-
-    // 轨道颜色：使用主色的低透明度版本，或者使用 surfaceContainerHighest
-    final Color trackColor = primaryColor.withOpacity(0.15);
+    final primaryColor = theme.colorScheme.primary;
+    final trackColor = primaryColor.withOpacity(0.15);
 
     return SizedBox(
-      width: widget.size,
-      height: widget.size,
+      width: size,
+      height: size,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // 组件 1: 背景图标
-          _PomodoroTypeBackground(
-            type: p.type,
-            color: primaryColor, // 也是主题色
-            size: widget.size * 0.6,
+          // === 静态层 (不随倒计时刷新) ===
+
+          // 1. 背景图标
+          _BackgroundIcon(
+            type: pomodoro.type,
+            color: primaryColor,
+            size: size * 0.5,
           ),
 
-          // 组件 2: 进度轨道
+          // 2. 轨道
           SizedBox.expand(
             child: CircularProgressIndicator(
               value: 1.0,
@@ -81,21 +48,22 @@ class _PomodoroProcessIndicatorState extends State<PomodoroProcessIndicator> {
             ),
           ),
 
-          // 组件 3: 实际进度
+          // === 动态层 (内部局部刷新) ===
+
+          // 3. 智能进度条
           SizedBox.expand(
-            child: CircularProgressIndicator(
-              value: progress,
+            child: _SmartProgressRing(
+              pomodoro: pomodoro,
+              phase: phase,
               color: primaryColor,
-              strokeWidth: 16,
-              strokeCap: StrokeCap.round,
             ),
           ),
 
-          // 组件 4: 中间信息
+          // 4. 中间文字区域
           Center(
             child: SizedBox(
-              width: widget.size * 0.75,
-              height: widget.size * 0.75,
+              width: size * 0.70,
+              height: size * 0.70,
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.center,
@@ -103,14 +71,21 @@ class _PomodoroProcessIndicatorState extends State<PomodoroProcessIndicator> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 时间文本
-                    _PomodoroTimerText(
-                      remaining: remaining,
+                    // 智能倒计时文字
+                    _SmartTimerText(
+                      pomodoro: pomodoro,
+                      phase: phase,
                       color: primaryColor,
                     ),
+
                     const SizedBox(height: 8),
-                    // 状态标签
-                    _PomodoroStatusBadge(type: p.type, color: primaryColor),
+
+                    // 状态标签 (只随 Phase 变，不随倒计时变)
+                    _StatusBadge(
+                      type: pomodoro.type,
+                      phase: phase,
+                      color: primaryColor,
+                    ),
                   ],
                 ),
               ),
@@ -123,15 +98,190 @@ class _PomodoroProcessIndicatorState extends State<PomodoroProcessIndicator> {
 }
 
 // =========================================================
-// 子组件 (保持逻辑，但颜色由父组件传入主题色)
+// 组件 1: 智能进度环 (动静分离)
+// =========================================================
+class _SmartProgressRing extends StatelessWidget {
+  final Pomodoro pomodoro;
+  final PomodoroPhase phase;
+  final Color color;
+
+  const _SmartProgressRing({
+    required this.pomodoro,
+    required this.phase,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // 策略：如果是 Pending，直接返回静态 Widget，完全不消耗 Riverpod 资源
+    if (phase == PomodoroPhase.pending) {
+      return CircularProgressIndicator(
+        value: 1.0, // 满圈
+        color: color,
+        strokeWidth: 16,
+        strokeCap: StrokeCap.round,
+      );
+    }
+
+    // 只有在 Running 时，才使用 Consumer 监听时间
+    return _DynamicRing(
+      totalMs: pomodoro.endAt - pomodoro.startAt,
+      color: color,
+    );
+  }
+}
+
+/// 私有组件：仅负责监听时间并更新进度
+class _DynamicRing extends ConsumerWidget {
+  final int totalMs;
+  final Color color;
+
+  const _DynamicRing({required this.totalMs, required this.color});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // !!! 只有这里会每秒 Rebuild !!!
+    final timeLeft = ref.watch(timeLeftProvider);
+
+    final progress = totalMs == 0
+        ? 0.0
+        : (timeLeft.inMilliseconds / totalMs).clamp(0.0, 1.0);
+
+    return CircularProgressIndicator(
+      value: progress,
+      color: color,
+      strokeWidth: 16,
+      strokeCap: StrokeCap.round,
+    );
+  }
+}
+
+// =========================================================
+// 组件 2: 智能文字 (动静分离)
+// =========================================================
+class _SmartTimerText extends StatelessWidget {
+  final Pomodoro pomodoro;
+  final PomodoroPhase phase;
+  final Color color;
+
+  const _SmartTimerText({
+    required this.pomodoro,
+    required this.phase,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // 策略：Pending 状态显示固定的总时长
+    if (phase == PomodoroPhase.pending) {
+      final totalDuration = Duration(
+        milliseconds: pomodoro.endAt - pomodoro.startAt,
+      );
+      return _FormattedText(duration: totalDuration, color: color);
+    }
+
+    // Running 状态：使用 Consumer 监听时间
+    return _DynamicTimerText(color: color);
+  }
+}
+
+/// 私有组件：仅负责监听时间并更新文字
+class _DynamicTimerText extends ConsumerWidget {
+  final Color color;
+
+  const _DynamicTimerText({required this.color});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // !!! 只有这里会每秒 Rebuild !!!
+    final timeLeft = ref.watch(timeLeftProvider);
+    return _FormattedText(duration: timeLeft, color: color);
+  }
+}
+
+/// 纯展示组件：格式化样式
+class _FormattedText extends StatelessWidget {
+  final Duration duration;
+  final Color color;
+
+  const _FormattedText({required this.duration, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+
+    return Text(
+      "$minutes:$seconds",
+      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+        fontWeight: FontWeight.w800,
+        fontSize: 64,
+        color: color,
+        // 等宽数字
+        fontFeatures: [const FontFeature.tabularFigures()],
+      ),
+    );
+  }
+}
+
+// =========================================================
+// 组件 3: 静态背景与标签 (保持不变)
 // =========================================================
 
-class _PomodoroTypeBackground extends StatelessWidget {
+class _StatusBadge extends StatelessWidget {
+  final PomodoroType type;
+  final PomodoroPhase phase;
+  final Color color;
+
+  const _StatusBadge({
+    required this.type,
+    required this.phase,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    String label;
+    if (phase == PomodoroPhase.pending) {
+      label = type == PomodoroType.focus ? "专注完成" : "休息结束";
+    } else {
+      switch (type) {
+        case PomodoroType.focus:
+          label = "专注中";
+          break;
+        case PomodoroType.shortBreak:
+          label = "短休息";
+          break;
+        case PomodoroType.longBreak:
+          label = "长休息";
+          break;
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          color: color,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+class _BackgroundIcon extends StatelessWidget {
   final PomodoroType type;
   final Color color;
   final double size;
 
-  const _PomodoroTypeBackground({
+  const _BackgroundIcon({
     required this.type,
     required this.color,
     required this.size,
@@ -142,7 +292,7 @@ class _PomodoroTypeBackground extends StatelessWidget {
     IconData icon;
     switch (type) {
       case PomodoroType.focus:
-        icon = Icons.psychology_outlined; // 建议用 outlined 版本更精致
+        icon = Icons.psychology_outlined;
         break;
       case PomodoroType.shortBreak:
         icon = Icons.coffee_outlined;
@@ -151,80 +301,9 @@ class _PomodoroTypeBackground extends StatelessWidget {
         icon = Icons.weekend_outlined;
         break;
     }
-
     return Opacity(
-      opacity: 0.1, // 背景图标稍微淡一点，不要抢视觉
+      opacity: 0.05,
       child: Icon(icon, size: size, color: color),
-    );
-  }
-}
-
-class _PomodoroStatusBadge extends StatelessWidget {
-  final PomodoroType type;
-  final Color color;
-
-  const _PomodoroStatusBadge({required this.type, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    String label;
-    switch (type) {
-      case PomodoroType.focus:
-        label = '专注中';
-        break;
-      case PomodoroType.shortBreak:
-        label = '短休息';
-        break;
-      case PomodoroType.longBreak:
-        label = '长休息';
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        // 背景色更淡，接近透明
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: color,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-        ),
-      ),
-    );
-  }
-}
-
-class _PomodoroTimerText extends StatelessWidget {
-  final Duration remaining;
-  final Color color;
-
-  const _PomodoroTimerText({required this.remaining, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final minutes = remaining.inMinutes
-        .remainder(60)
-        .toString()
-        .padLeft(2, '0');
-    final seconds = remaining.inSeconds
-        .remainder(60)
-        .toString()
-        .padLeft(2, '0');
-    final timeStr = '$minutes:$seconds';
-
-    return Text(
-      timeStr,
-      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-        fontWeight: FontWeight.w800, // 字体加粗
-        fontSize: 56, // 稍微加大字号
-        color: color,
-        fontFeatures: [const FontFeature.tabularFigures()],
-      ),
     );
   }
 }

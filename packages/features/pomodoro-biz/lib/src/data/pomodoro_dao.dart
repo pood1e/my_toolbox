@@ -118,20 +118,15 @@ class PomodoroDao extends DatabaseAccessor<PomodoroDatabase>
     ])..orderBy([OrderingTerm.desc(pomodoros.startAt)]);
   }
 
-  Stream<TypedResult?> watchProcessing(int tick) async* {
+  Stream<TypedResult?> watchLatest() async* {
     final query = _selectPomodoro()
-      ..where(
-        pomodoros.endAt.isBiggerThanValue(tick) & pomodoros.deletedAt.isNull(),
-      )
+      ..where(pomodoros.deletedAt.isNull())
       ..limit(1);
     yield* query.watchSingleOrNull();
   }
 
-  Stream<List<TypedResult>> watchHistory(int tick) async* {
-    final query = _selectPomodoro()
-      ..where(
-        pomodoros.endAt.isSmallerThanValue(tick) & pomodoros.deletedAt.isNull(),
-      );
+  Stream<List<TypedResult>> watchAll() async* {
+    final query = _selectPomodoro()..where(pomodoros.deletedAt.isNull());
     yield* query.watch();
   }
 

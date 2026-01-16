@@ -1,7 +1,8 @@
 import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 
-import '../pomodoro_state.dart';
+import '../../providers.dart';
+import '../state/ui_state.dart';
 
 class CreateSessionDialog extends ConsumerStatefulWidget {
   const CreateSessionDialog({super.key});
@@ -63,6 +64,24 @@ class _CreateSessionDialogState extends ConsumerState<CreateSessionDialog> {
       if (mounted) {
         // 5. 成功后关闭弹窗
         Navigator.of(context).pop();
+        Future.delayed(const Duration(milliseconds: 100), () {
+          // 安全检查：虽然通常不会出错，但加上 try-catch 更稳健
+          try {
+            // 读取全局控制器
+            final controller = ref.read(pomodoroSheetControllerProvider);
+
+            // 只有当 Sheet 确实渲染出来了(isAttached)，才执行动画
+            if (controller.isAttached) {
+              controller.animateTo(
+                1.0, // 1.0 代表全屏展开
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOutQuart,
+              );
+            }
+          } catch (e) {
+            debugPrint('无法自动展开面板: $e');
+          }
+        });
       }
     } catch (e) {
       // 6. 错误处理

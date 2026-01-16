@@ -6,11 +6,11 @@ import '../pomodoro_domain.dart';
 abstract class PomodoroRepository {
   // --- 查询 (Reads) ---
 
-  /// 监听当前正在进行的番茄钟 (Stream)
-  Stream<Pomodoro?> watchActivePomodoro(int tick);
+  /// 监听最新的一条
+  Stream<Pomodoro?> watchLatest();
 
   /// 监听所有历史记录 (Stream)
-  Stream<List<Pomodoro>> watchHistory(int tick);
+  Stream<List<Pomodoro>> watchAll();
 
   /// 获取一个钟
   Future<Pomodoro?> getPomodoroById(String id);
@@ -30,6 +30,8 @@ abstract class PomodoroRepository {
     String? note,
     int serverTime,
   );
+
+  Future<void> closeSession(String sessionId, int serverTime);
 
   /// 更新 Pomodoro 的结束时间 (用于 Stop 或 Extend)
   Future<void> updatePomodoroEndTime(String id, int newEndAt, int serverTime);

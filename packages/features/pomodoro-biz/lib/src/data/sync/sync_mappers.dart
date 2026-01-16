@@ -40,7 +40,7 @@ extension PomodoroSessionDtoToCompanion on PomodoroSessionDto {
       id: Value(id),
       name: Value(name),
       note: Value(note),
-
+      manualClosed: Value(manualClosed),
       updatedAt: Value(updatedAt),
       deletedAt: Value(deletedAt),
       serverUpdatedAt: Value(serverUpdatedAt),
@@ -57,6 +57,7 @@ extension PomodoroSessionEntityToDto on PomodoroSessionEntity {
       note: note,
       updatedAt: updatedAt,
       deletedAt: deletedAt,
+      manualClosed: manualClosed,
     );
   }
 }

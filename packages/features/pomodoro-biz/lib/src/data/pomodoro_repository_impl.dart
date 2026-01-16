@@ -75,6 +75,7 @@ class PomodoroRepositoryImpl implements PomodoroRepository {
         id: sessionEntity.id,
         name: sessionEntity.name,
         note: sessionEntity.note,
+        manualClosed: sessionEntity.manualClosed,
       ),
       startAt: pomodoroEntity.startAt,
       endAt: pomodoroEntity.endAt,
@@ -83,16 +84,16 @@ class PomodoroRepositoryImpl implements PomodoroRepository {
   }
 
   @override
-  Stream<Pomodoro?> watchActivePomodoro(int tick) {
-    return _pomodoroDao.watchProcessing(tick).map((row) {
+  Stream<Pomodoro?> watchLatest() {
+    return _pomodoroDao.watchLatest().map((row) {
       if (row == null) return null;
       return _mapRowToDomain(row);
     });
   }
 
   @override
-  Stream<List<Pomodoro>> watchHistory(int tick) {
-    return _pomodoroDao.watchHistory(tick).map((rows) {
+  Stream<List<Pomodoro>> watchAll() {
+    return _pomodoroDao.watchAll().map((rows) {
       return rows.map((row) => _mapRowToDomain(row)).toList();
     });
   }
@@ -104,5 +105,17 @@ class PomodoroRepositoryImpl implements PomodoroRepository {
       return null;
     }
     return _mapRowToDomain(result);
+  }
+
+  @override
+  Future<void> closeSession(String sessionId, int serverTime) async {
+    await _sessionDao.updateIfExist(
+      [sessionId],
+      PomodoroSessionsCompanion(
+        manualClosed: Value(true),
+        isDirty: Value(true),
+        updatedAt: Value(serverTime),
+      ),
+    );
   }
 }

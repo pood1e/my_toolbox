@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../pomodoro_domain.dart';
 import '../components/pomodoro_fab.dart';
 import '../components/pomodoro_tile.dart';
-import '../pomodoro_state.dart';
+import '../state/ui_state.dart';
 import 'pomodoro_screen.dart';
 
 class PomodoroMainScreen extends ConsumerWidget {
@@ -15,83 +15,77 @@ class PomodoroMainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Stack(
       children: [
+        // 1. 底层：基础界面 (Scaffold)
         Scaffold(
-          // 1. 带 BackBtn 的 AppBar
           appBar: AppBar(
-            leading: const BackButton(), // 显式返回按钮
+            leading: const BackButton(),
             title: const Text('番茄专注'),
             centerTitle: true,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            scrolledUnderElevation: 0,
             actions: [
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () {
-                  // 更多设置...
-                },
-              ),
+              IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
             ],
           ),
-
-          // 2. 使用 Stack 叠加布局
+          // 历史记录列表
           body: const _HistoryListSection(),
 
-          // 3. 智能 FAB
+          // 悬浮按钮 (负责新建和倒计时显示)
+          // 位于 Sheet 之下。当 Sheet 展开(1.0)时，FAB 会被遮挡。
+          // 当 Sheet 收起(0.0)时，FAB 可点击。
           floatingActionButton: const PomodoroFab(),
         ),
 
-        // 顶层: 可下拉的番茄钟面板
-        // (这个组件内部会监听状态，无任务时自动隐藏)
+        // 2. 顶层：专注面板 (Sheet)
+        // 默认高度为 0，不可见。通过 Controller 控制展开。
         const PomodoroScreen(),
       ],
     );
   }
 }
 
-/// 内部组件: 处理历史记录列表的获取与渲染
+// =========================================================
+// 内部组件：历史列表区域
+// =========================================================
 class _HistoryListSection extends ConsumerWidget {
   const _HistoryListSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final historyAsync = ref.watch(pomodoroHistoryProvider);
+    // 获取历史列表 (已包含过滤逻辑)
+    final history = ref.watch(pomodoroHistoryProvider);
 
-    return historyAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('加载失败: $err')),
-      data: (history) {
-        if (history.isEmpty) {
-          return const _EmptyStatePlaceholder();
-        }
+    if (history.isEmpty) {
+      return const _EmptyStatePlaceholder();
+    }
 
-        // 按日期分组: Map<DateTime, List<Pomodoro>>
-        // 需要 import 'package:collection/collection.dart';
-        final grouped = groupBy(history, (Pomodoro p) {
-          final date = DateTime.fromMillisecondsSinceEpoch(p.startAt);
-          return DateTime(date.year, date.month, date.day);
-        });
+    // 按日期分组
+    final grouped = groupBy(history, (Pomodoro p) {
+      final date = DateTime.fromMillisecondsSinceEpoch(p.startAt);
+      return DateTime(date.year, date.month, date.day);
+    });
 
-        return ListView.builder(
-          // !!! 关键: 底部留出空间给 FAB 和 MiniBar
-          padding: const EdgeInsets.only(bottom: 120, top: 8),
-          itemCount: grouped.length,
-          itemBuilder: (context, index) {
-            final dateKey = grouped.keys.elementAt(index);
-            final items = grouped[dateKey]!;
+    return ListView.builder(
+      // 底部留出空间给 FAB (虽然 Sheet 是 0，但 FAB 还在)
+      padding: const EdgeInsets.only(bottom: 100, top: 8),
+      itemCount: grouped.length,
+      itemBuilder: (context, index) {
+        final dateKey = grouped.keys.elementAt(index);
+        final items = grouped[dateKey]!;
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _DateHeader(date: dateKey),
-                ...items.map((p) => PomodoroTile(pomodoro: p)),
-              ],
-            );
-          },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _DateHeader(date: dateKey),
+            ...items.map((p) => PomodoroTile(pomodoro: p)),
+          ],
         );
       },
     );
   }
 }
 
-/// 内部组件: 日期标题
+// 日期标题组件
 class _DateHeader extends StatelessWidget {
   final DateTime date;
 
@@ -125,7 +119,7 @@ class _DateHeader extends StatelessWidget {
   }
 }
 
-/// 内部组件: 空状态占位
+// 空状态组件
 class _EmptyStatePlaceholder extends StatelessWidget {
   const _EmptyStatePlaceholder();
 
@@ -145,12 +139,6 @@ class _EmptyStatePlaceholder extends StatelessWidget {
             '暂无专注记录',
             style: TextStyle(color: Colors.grey.shade500, fontSize: 16),
           ),
-          const SizedBox(height: 8),
-          Text(
-            '点击右下角按钮开始',
-            style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-          ),
-          const SizedBox(height: 100), // 视觉居中偏上一点
         ],
       ),
     );

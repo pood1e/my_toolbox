@@ -24,6 +24,7 @@ extension PomodoroSessionDomainToEntity on PomodoroSession {
       id: id,
       name: name,
       note: Value(note),
+      manualClosed: Value(manualClosed),
       isDirty: Value(true),
     );
   }

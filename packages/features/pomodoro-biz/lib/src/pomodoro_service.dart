@@ -16,8 +16,10 @@ abstract class PomodoroService {
   /// 更新session信息
   Future<void> updateSession(String sessionId, String name, String? note);
 
+  Future<void> closeSession(String sessionId);
+
   /// 进行中的
-  Stream<Pomodoro?> watchProcessing();
+  Stream<Pomodoro?> watchLatest();
 
   /// for debug
   Stream<List<Pomodoro>> watchAll();

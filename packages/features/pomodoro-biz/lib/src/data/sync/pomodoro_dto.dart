@@ -16,6 +16,7 @@ abstract class PomodoroSessionDto
     required String id,
     required String name,
     String? note,
+    required bool manualClosed,
     required int updatedAt,
     int? deletedAt,
     @Default(0) int serverUpdatedAt,

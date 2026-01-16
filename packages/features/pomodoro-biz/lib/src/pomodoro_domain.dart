@@ -21,5 +21,12 @@ abstract class PomodoroSession with _$PomodoroSession {
     required String id,
     required String name,
     String? note,
+    @Default(false) bool manualClosed
   }) = _PomodoroSession;
+}
+
+enum PomodoroPhase {
+  running, // 进行中
+  pending, // 时间到，等待操作 (结算中)
+  idle, // 超时/已归档
 }

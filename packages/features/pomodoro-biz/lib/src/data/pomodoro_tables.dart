@@ -22,6 +22,7 @@ class PomodoroSessions extends Table
   // note 不能为空，但可以默认为空字符串
   TextColumn get note => text().nullable()();
 
+  BoolColumn get manualClosed => boolean().withDefault(const Constant(false))();
   // 定义主键
   @override
   Set<Column> get primaryKey => {id};

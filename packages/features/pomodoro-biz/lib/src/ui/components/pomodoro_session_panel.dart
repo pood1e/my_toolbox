@@ -2,7 +2,7 @@ import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 
 import '../../pomodoro_domain.dart';
-import '../pomodoro_state.dart';
+import '../../providers.dart';
 
 class PomodoroSessionPanel extends ConsumerWidget {
   final PomodoroSession session;

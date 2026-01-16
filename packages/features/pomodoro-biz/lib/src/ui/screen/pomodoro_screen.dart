@@ -5,48 +5,45 @@ import '../../pomodoro_domain.dart';
 import '../components/pomodoro_operation_area.dart';
 import '../components/pomodoro_process_indicator.dart';
 import '../components/pomodoro_session_panel.dart';
-import '../pomodoro_state.dart';
+import '../state/logical_state.dart';
+import '../state/trigger_state.dart';
+import '../state/ui_state.dart';
 
 class PomodoroScreen extends ConsumerWidget {
   const PomodoroScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncPomodoro = ref.watch(activePomodoroProvider);
+    // 1. 监听状态 (Idle / Running / Pending)
+    final phase = ref.watch(currentPomodoroPhaseProvider);
+    // 2. 监听数据
+    final pomodoro = ref.watch(latestPomodoroProvider).value;
+    // 3. 获取控制器
     final sheetController = ref.watch(pomodoroSheetControllerProvider);
 
-    return asyncPomodoro.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-      data: (pomodoro) {
-        if (pomodoro == null) return const SizedBox.shrink();
-        return DraggableScrollableSheet(
-          controller: sheetController,
-          initialChildSize: 0.0,
-          minChildSize: 0.0,
-          maxChildSize: 1.0,
-          snap: true,
-          snapSizes: const [0, 1.0],
+    // 核心逻辑：只有在非 Idle 且有数据时才挂载 Sheet
+    if (phase == PomodoroPhase.idle || pomodoro == null) {
+      return const SizedBox.shrink();
+    }
 
-          builder: (context, scrollController) {
-            return _SheetBackground(
-              // 关键：点击露出的把手区域也能展开
-              onTapHandleArea: () {
-                if (sheetController.isAttached && sheetController.size < 0.5) {
-                  sheetController.animateTo(
-                    1.0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutQuart,
-                  );
-                }
-              },
-              child: _FullContent(
-                pomodoro: pomodoro,
-                scrollController: scrollController,
-                sheetController: sheetController,
-              ),
-            );
-          },
+    // 4. 配置 Sheet
+    return DraggableScrollableSheet(
+      controller: sheetController,
+      // 默认完全隐藏 (0.0)
+      initialChildSize: 0.0,
+      minChildSize: 0.0,
+      maxChildSize: 1.0,
+      snap: true,
+      snapSizes: const [0.0, 1.0],
+
+      // 只有两个状态：隐藏 或 全屏
+      builder: (context, scrollController) {
+        return _SheetBackground(
+          child: _FullContent(
+            pomodoro: pomodoro,
+            scrollController: scrollController,
+            sheetController: sheetController,
+          ),
         );
       },
     );
@@ -54,27 +51,22 @@ class PomodoroScreen extends ConsumerWidget {
 }
 
 // =========================================================
-// 组件 1: 背景容器
+// 组件 1: 背景容器 (提供 Material 上下文和样式)
 // =========================================================
 class _SheetBackground extends StatelessWidget {
   final Widget child;
-  final VoidCallback onTapHandleArea;
 
-  const _SheetBackground({required this.child, required this.onTapHandleArea});
+  const _SheetBackground({required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Material(
       elevation: 16,
       color: Theme.of(context).colorScheme.surface,
+      // 只有顶部圆角，模拟抽屉效果
       borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       clipBehavior: Clip.antiAlias,
-      child: GestureDetector(
-        // 处理点击事件：当用户点击露出的那一小条时，触发展开
-        // 因为内容区可能还没铺满，GestureDetector 放在这里兜底
-        onTap: onTapHandleArea,
-        child: child,
-      ),
+      child: child,
     );
   }
 }
@@ -95,37 +87,50 @@ class _FullContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 使用 CustomScrollView 配合 DraggableScrollableSheet
     return CustomScrollView(
-      controller: scrollController, // 绑定后，拖拽灰色条或空白处均可上拉
+      controller: scrollController, // 必须绑定，否则无法拖拽
       slivers: [
-        // 1. 顶部把手区域 (收起时唯一可见的部分)
+        // 1. 顶部把手区域
         SliverToBoxAdapter(
           child: _HeaderHandle(
-            onCollapse: () => sheetController.animateTo(
-              0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            ),
+            onCollapse: () {
+              // 点击收起：高度变为 0.0
+              sheetController.animateTo(
+                0.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
           ),
         ),
 
-        // 2. 主内容区域
+        // 2. 主内容区域 (自适应填满剩余空间)
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              spacing: 16,
               children: [
+                // 顶部留一点空间
+                const SizedBox(height: 10),
+
+                // 会话信息面板 (名称 + 备注 + 完成按钮)
+                PomodoroSessionPanel(session: pomodoro.session),
+
+                // 状态环 (倒计时 + 进度)
                 Center(
                   child: PomodoroProcessIndicator(
                     pomodoro: pomodoro,
-                    size: 200,
+                    size: 280,
                   ),
                 ),
-                PomodoroSessionPanel(session: pomodoro.session),
+
+                // 操作区 (Running/Pending 按钮组)
                 PomodoroOperationArea(pomodoro: pomodoro),
+
+                // 底部留白，视觉平衡
                 const SizedBox(height: 60),
               ],
             ),
@@ -146,32 +151,28 @@ class _HeaderHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 增加顶部 Padding 确保把手位置适中
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-      // 这里的颜色设置为透明，确保点击事件能穿透给 ScrollView 或背景的 GestureDetector
-      color: Colors.transparent,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
       child: Column(
         children: [
-          // 灰色拖拽条 (Visual Handle)
-          // 这是收起状态下用户主要看到的东西
+          // 灰色小横条 (视觉提示：此处可拖拽)
           Center(
             child: Container(
-              width: 48, // 稍微加宽一点，更易识别
+              width: 48,
               height: 5,
               decoration: BoxDecoration(
-                color: Colors.grey.shade400, // 稍微加深一点颜色
+                color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
 
-          // 收起按钮 (展开时才需要点击，收起时它是被隐藏在屏幕下方的)
+          // 收起按钮
           Align(
             alignment: Alignment.centerLeft,
             child: IconButton(
               icon: const Icon(Icons.keyboard_arrow_down_rounded),
-              tooltip: "收起",
+              tooltip: '收起',
               onPressed: onCollapse,
             ),
           ),
