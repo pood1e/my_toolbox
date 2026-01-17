@@ -101,11 +101,8 @@ class WaitingOperationButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final nextLabel = '开始专注';
-    final nextIcon = Icons.play_arrow_rounded;
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 8,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         // 1. 关闭会话
         _CircleOpBtn(
@@ -120,8 +117,8 @@ class WaitingOperationButtons extends ConsumerWidget {
         ),
 
         _CircleOpBtn(
-          icon: nextIcon,
-          label: nextLabel,
+          icon: Icons.play_arrow_rounded,
+          label: '继续专注',
           bgColor: Colors.green.shade100,
           iconColor: Colors.black87,
           isPrimary: true,

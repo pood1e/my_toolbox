@@ -1,7 +1,9 @@
 import 'package:app_core/di.dart';
+import 'package:app_core/logger.dart';
 import 'package:flutter/material.dart';
 
 import '../../pomodoro_domain.dart';
+import '../../providers.dart';
 import '../components/pomodoro_operation_area.dart';
 import '../components/pomodoro_process_indicator.dart';
 import '../components/pomodoro_session_panel.dart';
@@ -20,6 +22,30 @@ class PomodoroScreen extends ConsumerWidget {
     final pomodoro = ref.watch(latestPomodoroProvider).value;
     // 3. 获取控制器
     final sheetController = ref.watch(pomodoroSheetControllerProvider);
+
+    ref.listen<PomodoroPhase>(currentPomodoroPhaseProvider, (
+      previous,
+      next,
+    ) async {
+      // 触发条件 1: 状态从 Running 变为 Pending (意味着倒计时刚归零)
+      if (previous == PomodoroPhase.running && next == PomodoroPhase.pending) {
+        // 获取当前的任务快照 (此时 pomodoro 可能还没更新，所以我们要用 read 获取最新的)
+        // 或者直接使用外层的 pomodoro 变量(它是最新的 watch 结果)
+        final currentPomodoro = ref.read(latestPomodoroProvider).value;
+
+        if (currentPomodoro != null) {
+          // 触发条件 2: 当前类型是 Focus (专注)
+          if (currentPomodoro.type == PomodoroType.focus) {
+            logger.i('⚡️ 检测到专注结束，UI 触发自动流转...');
+
+            final service = await ref.read(pomodoroServiceProvider.future);
+            // 执行自动跳转 (Focus -> Break)
+            await service.nextPhase(currentPomodoro.id);
+          }
+          // 如果是 Break，什么都不做，停留在 Pending 状态等待用户
+        }
+      }
+    });
 
     // 核心逻辑：只有在非 Idle 且有数据时才挂载 Sheet
     if (phase == PomodoroPhase.idle || pomodoro == null) {
