@@ -10,26 +10,17 @@ import 'memo_table.dart';
 part 'memo_dao.g.dart';
 
 @DriftAccessor(tables: [Memos])
-class MemoDao extends DatabaseAccessor<MemoDatabase>
-    with
-        _$MemoDaoMixin,
-        TableInfoMixin<Memos, Memo>,
-        PrimaryKeyDaoMixin<Memos, Memo>,
-        AckPatchSyncDaoMixin<MemoDatabase, MemoSnapshot, MemoAck, Memos, Memo>,
-        DirtySelectSyncDaoMixin<MemoDatabase, Memos, Memo>,
-        MaxCursorSyncDaoMixin<MemoDatabase, Memos, Memo>,
-        CocDaoSyncMixin<
+class MemoDao
+    extends
+        StandardCocDao<
           MemoDatabase,
           Memos,
           Memo,
           MemoSnapshot,
           MemoAck,
           MemoPayload
-        >,
-        CommonDaoMixin<MemoDatabase, Memos, Memo>,
-        SoftDeleteSyncDaoMixin<MemoDatabase, Memos, Memo>,
-        SoftDeleteCocDaoMixin<MemoDatabase, Memos, Memo>,
-        SyncTransactionalDaoMixin<MemoDatabase> {
+        >
+    with _$MemoDaoMixin {
   MemoDao(super.attachedDatabase);
 
   @override
@@ -48,8 +39,9 @@ class MemoDao extends DatabaseAccessor<MemoDatabase>
   }) async {
     await transaction(() async {
       // 1. [Read-Before-Write] 查询现有数据
-      final existing = await (select(memos)..where((t) => t.id.equals(id)))
-          .getSingleOrNull();
+      final existing = await (select(
+        memos,
+      )..where((t) => t.id.equals(id))).getSingleOrNull();
 
       // 2. [Check & Branch]
       if (existing != null) {

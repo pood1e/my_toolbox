@@ -9,19 +9,16 @@ import 'app_usage_entity.dart';
 part 'app_usage_dao.g.dart';
 
 @DriftAccessor(tables: [AppUsageEntities, SyncSequenceTable])
-class AppUsageDao extends DatabaseAccessor<ShellDatabase>
-    with
-        _$AppUsageDaoMixin,
-        TableInfoMixin<AppUsageEntities, AppUsageEntity>,
-        MaxCursorSyncDaoMixin<ShellDatabase, AppUsageEntities, AppUsageEntity>,
-        DeltaDao2PCMixin<
+class AppUsageDao
+    extends
+        StandardDeltaDao<
           ShellDatabase,
           AppUsageEntities,
           AppUsageEntity,
           SyncSequenceTable,
           SyncSequence
-        >,
-        SyncTransactionalDaoMixin<ShellDatabase> {
+        >
+    with _$AppUsageDaoMixin {
   AppUsageDao(super.attachedDatabase);
 
   @override
@@ -56,7 +53,7 @@ class AppUsageDao extends DatabaseAccessor<ShellDatabase>
           serverUpdatedAt: const Value(0), // 新数据默认 0
         ),
         onConflict: DoUpdate(
-              (old) => AppUsageEntitiesCompanion.custom(
+          (old) => AppUsageEntitiesCompanion.custom(
             // UI总数 + 1
             openCount: old.openCount + const Constant(1),
             // 未同步增量 + 1

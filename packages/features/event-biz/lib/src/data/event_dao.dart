@@ -9,32 +9,17 @@ import 'event_table.dart';
 part 'event_dao.g.dart';
 
 @DriftAccessor(tables: [Events])
-class EventDao extends DatabaseAccessor<EventDatabase>
-    with
-        _$EventDaoMixin,
-        TableInfoMixin<Events, EventEntity>,
-        SoftDeleteSyncDaoMixin<EventDatabase, Events, EventEntity>,
-        SoftDeleteLwwDaoMixin<EventDatabase, Events, EventEntity>,
-        PrimaryKeyDaoMixin<Events, EventEntity>,
-        AckPatchSyncDaoMixin<
-          EventDatabase,
-          EventSnapshot,
-          EventAck,
-          Events,
-          EventEntity
-        >,
-        DirtySelectSyncDaoMixin<EventDatabase, Events, EventEntity>,
-        MaxCursorSyncDaoMixin<EventDatabase, Events, EventEntity>,
-        LwwDaoSyncMixin<
+class EventDao
+    extends
+        StandardLwwDao<
           EventDatabase,
           Events,
           EventEntity,
           EventSnapshot,
           EventAck,
           EventDto
-        >,
-        SyncTransactionalDaoMixin<EventDatabase>,
-        CommonDaoMixin<EventDatabase, Events, EventEntity> {
+        >
+    with _$EventDaoMixin {
   EventDao(super.db);
 
   @override
