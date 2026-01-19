@@ -16,8 +16,8 @@ class MemoDao
           MemoDatabase,
           Memos,
           Memo,
-          MemoSnapshot,
-          MemoAck,
+          SimpleCocSnapshot,
+          SimpleCocAck,
           MemoPayload
         >
     with _$MemoDaoMixin {

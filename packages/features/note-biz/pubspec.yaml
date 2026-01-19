@@ -1,0 +1,40 @@
+name: note_biz
+description: "笔记-实现"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  app_core:
+    path: ../../app-core
+  framework_api:
+    path: ../../framework-api
+  event_api:
+    path: ../event-api
+  common_ui:
+    path: ../../infra/common-ui
+  appflowy_editor: any
+  json_annotation: ^4.9.0
+
+  # db
+  drift: any
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  # riverpod
+  riverpod_generator: any
+  #  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+  drift_dev: any
+
+

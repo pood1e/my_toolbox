@@ -22,6 +22,13 @@ mixin CocTableMixin on Table
   TextColumn get conflictRefId => text().nullable()();
 }
 
+abstract class StandardCocTable extends Table
+    with
+        IsDirtySyncTableMixin,
+        CursorSyncTableMixin,
+        UpdatedAtTableMixin,
+        CocTableMixin {}
+
 /// CoC DAO 实现 Mixin
 mixin CocDaoSyncMixin<
   DB extends GeneratedDatabase,

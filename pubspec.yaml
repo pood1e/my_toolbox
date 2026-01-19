@@ -48,6 +48,8 @@ dependencies:
     path: packages/features/memo-biz
   pomodoro_biz:
     path: packages/features/pomodoro-biz
+  note_biz:
+    path: packages/features/note-biz
 
   dynamic_color: ^1.8.1
   google_fonts: ^6.3.3
@@ -57,6 +59,7 @@ dependencies:
   system_clock: ^3.0.0
   geolocator: ^14.0.2
   collection: ^1.19.1
+  appflowy_editor: ^6.2.0
 
 
 dev_dependencies:
@@ -93,12 +96,8 @@ workspace:
   - packages/features/event-api
   - packages/features/event-biz
   - packages/features/memo-biz
+  - packages/features/note-biz
   - packages/features/pomodoro-biz
-
-
-dependency_overrides:
-  # fixed https://github.com/rrousselGit/riverpod/issues/4428
-  analyzer_buffer: 0.1.11
 
 melos:
   scripts:

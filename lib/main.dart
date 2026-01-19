@@ -6,6 +6,7 @@ import 'package:event_biz/event_biz.dart';
 import 'package:framework_api/framework_api.dart';
 import 'package:framework_biz/starter.dart';
 import 'package:memo_biz/memo_biz.dart';
+import 'package:note_biz/note_biz.dart';
 import 'package:pomodoro_biz/pomodoro_biz.dart';
 
 import 'src/example_app_definitions.dart';
@@ -19,6 +20,7 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
     ...ref.read(eventRoutesProvider),
     ...ref.read(memoRoutesProvider),
     ...ref.read(pomodoroRoutesProvider),
+    ...ref.read(noteRoutesProvider),
   ];
 
   @override
@@ -27,6 +29,7 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
       await ref.read(eventSyncDelegateProvider.future),
       await ref.read(memoSyncDelegateProvider.future),
       await ref.read(pomodoroSyncDelegateProvider.future),
+      await ref.read(noteSyncDelegateProvider.future),
     ];
   }
 }

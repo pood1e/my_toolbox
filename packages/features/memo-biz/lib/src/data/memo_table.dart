@@ -1,14 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
-class Memos extends Table
-    with
-        IsDirtySyncTableMixin,
-        CursorSyncTableMixin,
-        CreatedAtTableMixin,
-        UpdatedAtTableMixin,
-        DeletedAtTableMixin,
-        CocTableMixin {
+class Memos extends StandardCocTable
+    with CreatedAtTableMixin, DeletedAtTableMixin {
   TextColumn get id => text()();
 
   TextColumn get content => text()();

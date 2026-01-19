@@ -15,9 +15,9 @@ class MemoSyncHandler
           MemoDatabase,
           Memos,
           Memo,
-          MemoSnapshot,
+          SimpleCocSnapshot,
           MemoPayload,
-          MemoAck,
+          SimpleCocAck,
           MemoDao
         > {
   // ===========================================================================
@@ -33,8 +33,8 @@ class MemoSyncHandler
   /// Payload (Network Push) -> Snapshot (Local Memory)
   /// 用于在收到 ACK 时判断数据是否在传输期间被修改
   @override
-  MemoSnapshot fromPayload(MemoPayload payload) {
-    return MemoSnapshot(id: payload.id, updatedAt: payload.updatedAt);
+  SimpleCocSnapshot fromPayload(MemoPayload payload) {
+    return SimpleCocSnapshot(id: payload.id, updatedAt: payload.updatedAt);
   }
 
   // ===========================================================================
@@ -42,7 +42,7 @@ class MemoSyncHandler
   // ===========================================================================
 
   @override
-  MemoAck fromJsonACK(Map<String, dynamic> json) => MemoAck.fromJson(json);
+  SimpleCocAck fromJsonACK(Map<String, dynamic> json) => SimpleCocAck.fromJson(json);
 
   @override
   MemoPayload fromJsonP(Map<String, dynamic> json) =>
@@ -57,9 +57,9 @@ class MemoSyncDelegate
         StandardSingleSyncDelegate<
           MemoDao,
           MemoPayload,
-          MemoAck,
+            SimpleCocAck,
           CommonSyncRequestPart<MemoPayload>,
-          CommonSyncResponsePart<MemoAck, MemoPayload>
+          CommonSyncResponsePart<SimpleCocAck, MemoPayload>
         > {
   MemoSyncDelegate({required super.dio, required super.resourceUse})
     : super(handler: MemoSyncHandler());

@@ -10,10 +10,10 @@ final List<AppDefinition> kExampleApps = [
     route: '/pomodoro',
   ),
   const AppDefinition(
-    id: 'weather',
-    name: '天气预报',
-    icon: Icons.wb_sunny_outlined,
-    route: '/apps/weather',
+    id: 'note',
+    name: '笔记',
+    icon: Icons.description,
+    route: '/note/inbox',
   ),
   const AppDefinition(
     id: 'memo',

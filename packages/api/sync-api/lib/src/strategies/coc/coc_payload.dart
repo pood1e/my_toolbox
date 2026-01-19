@@ -1,4 +1,9 @@
+import 'package:app_core/object.dart';
+
 import '../../standard/standard_sync_payload.dart';
+
+part 'coc_payload.freezed.dart';
+part 'coc_payload.g.dart';
 
 /// CoC 策略的 Payload 接口 (数据传输对象 DTO)
 abstract class CocPayload {
@@ -24,4 +29,36 @@ abstract class CocAck extends StandardSyncResponseAck {
   int get serverUpdatedAt;
 
   int get version;
+}
+
+@freezed
+abstract class SimpleCocSnapshot
+    with _$SimpleCocSnapshot
+    implements CocSnapshot {
+  const SimpleCocSnapshot._();
+
+  const factory SimpleCocSnapshot({
+    required String id,
+    required int updatedAt,
+  }) = _SimpleCocSnapshot;
+
+  @override
+  List<dynamic> get primaryId => [id];
+}
+
+@freezed
+abstract class SimpleCocAck with _$SimpleCocAck implements CocAck {
+  const SimpleCocAck._();
+
+  const factory SimpleCocAck({
+    required String id,
+    required int serverUpdatedAt,
+    required int version,
+  }) = _SimpleCocAck;
+
+  factory SimpleCocAck.fromJson(Map<String, dynamic> json) =>
+      _$SimpleCocAckFromJson(json);
+
+  @override
+  List<dynamic> get primaryId => [id];
 }

@@ -1,0 +1,28 @@
+import 'package:app_core/di.dart';
+import 'package:framework_api/framework_api.dart';
+
+import '../data/note_repositories.dart';
+import 'impl/note_service_impl.dart';
+
+part 'note_service.g.dart';
+
+abstract class NoteService {
+  Future<String> createDocument({
+    required String title,
+    required Map<String, dynamic> content,
+  });
+
+  Future<void> updateDocument({
+    required String id,
+    required String title,
+    required Map<String, dynamic> content,
+  });
+}
+
+@riverpod
+Future<NoteService> noteService(Ref ref) async {
+  return NoteServiceImpl(
+    docRepository: await ref.watch(documentRepositoryProvider.future),
+    timeService: await ref.watch(serverTimeServiceProvider.future),
+  );
+}

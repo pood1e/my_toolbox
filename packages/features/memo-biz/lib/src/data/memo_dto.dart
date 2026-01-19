@@ -1,4 +1,3 @@
-
 import 'package:app_core/object.dart';
 import 'package:framework_api/framework_api.dart';
 
@@ -29,36 +28,4 @@ abstract class MemoPayload with _$MemoPayload implements CocPayload {
 
   factory MemoPayload.fromJson(Map<String, dynamic> json) =>
       _$MemoPayloadFromJson(json);
-}
-
-/// 快照 (用于并发安全检查)
-@freezed
-abstract class MemoSnapshot with _$MemoSnapshot implements CocSnapshot {
-  const MemoSnapshot._();
-
-  const factory MemoSnapshot({
-    required String id,
-    required int updatedAt,
-  }) = _MemoSnapshot;
-
-  @override
-  List<dynamic> get primaryId => [id];
-}
-
-/// 服务端响应 ACK
-@freezed
-abstract class MemoAck with _$MemoAck implements CocAck {
-  const MemoAck._();
-
-  const factory MemoAck({
-    required String id,
-    required int version,
-    required int serverUpdatedAt,
-  }) = _MemoAck;
-
-  @override
-  List<dynamic> get primaryId => [id];
-
-  factory MemoAck.fromJson(Map<String, dynamic> json) =>
-      _$MemoAckFromJson(json);
 }
