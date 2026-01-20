@@ -21,6 +21,8 @@ dependencies:
     path: ../api/sync-api
   network_api:
     path: ../api/network-api
+  ai_api:
+    path: ../api/ai-api
 
 dev_dependencies:
   flutter_test:

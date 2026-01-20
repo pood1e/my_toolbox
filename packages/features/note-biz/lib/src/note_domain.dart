@@ -18,3 +18,14 @@ abstract class Document with _$Document {
     required DateTime updatedAt,
   }) = _Document;
 }
+
+@freezed
+abstract class Block with _$Block {
+  const factory Block({
+    required String blockId,
+    required String docId,
+    required String content,
+    required String docTitle
+}) = _Block;
+
+}

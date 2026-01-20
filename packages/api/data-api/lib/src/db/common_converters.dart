@@ -20,3 +20,18 @@ class JsonMapConverter extends TypeConverter<Map<String, dynamic>, String> {
     return json.encode(value);
   }
 }
+
+class VectorConverter extends TypeConverter<List<double>, String> {
+  const VectorConverter();
+
+  @override
+  List<double> fromSql(String fromDb) {
+    // 数据库存的是 "[0.123, 0.456, ...]"
+    return (jsonDecode(fromDb) as List).cast<double>();
+  }
+
+  @override
+  String toSql(List<double> value) {
+    return jsonEncode(value);
+  }
+}

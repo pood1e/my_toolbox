@@ -151,7 +151,7 @@ class _DocumentEditorViewState extends ConsumerState<_DocumentEditorView> {
     setState(() => _isSaving = true);
     try {
       final title = _titleController.text.trim();
-      final content = _editorState.document.toJson();
+      final content = _editorState.document.toJsonWithId();
       final service = await ref.read(noteServiceProvider.future);
 
       if (_currentDocId == null) {
@@ -185,5 +185,24 @@ class _DocumentEditorViewState extends ConsumerState<_DocumentEditorView> {
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+}
+
+extension DocumentSerialization on flowy.Document {
+  /// 自定义序列化方法：强制包含 Block ID
+  Map<String, dynamic> toJsonWithId() {
+    return {
+      'document': _nodeToJson(root),
+    };
+  }
+
+  /// 递归转换节点
+  Map<String, dynamic> _nodeToJson(flowy.Node node) {
+    return {
+      'id': node.id,       // <--- 核心：显式写入内存中的 ID
+      'type': node.type,
+      'data': node.attributes, // 在 v6 中，Node 的内容数据存储在 attributes 属性里
+      'children': node.children.map((child) => _nodeToJson(child)).toList(),
+    };
   }
 }

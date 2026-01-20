@@ -14,7 +14,6 @@ abstract class DocumentDto with _$DocumentDto implements CocPayload {
     required String id,
     required String title,
     required Map<String, dynamic> content,
-    required String plainText,
     required DocumentStatus status,
     // --- audit ---
     required int createdAt,

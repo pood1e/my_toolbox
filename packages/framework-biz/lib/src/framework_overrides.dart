@@ -1,3 +1,4 @@
+import 'package:ai_biz/ai_biz.dart';
 import 'package:app_core/di.dart';
 import 'package:auth_biz/auth_biz.dart';
 import 'package:data_biz/data_biz.dart';
@@ -52,4 +53,7 @@ List<Override> frameworkOverrides = [
   // network-api
   serverTimeServiceProvider.overrideWith(NetworkApiOverride.serverTimeService),
   deviceIdServiceProvider.overrideWith(NetworkApiOverride.deviceIdService),
+
+  // ai-api
+  textEncoderProvider.overrideWith(AIApiOverride.textEncoder),
 ];

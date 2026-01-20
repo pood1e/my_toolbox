@@ -1,0 +1,41 @@
+name: ai_biz
+description: "ai-实现"
+resolution: workspace
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  json_annotation: ^4.9.0
+
+  app_core:
+    path: ../../app-core
+  common_ui:
+    path: ../common-ui
+  ai_api:
+    path: ../../api/ai-api
+  onnxruntime: any
+  ml_linalg: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  # test
+  mockito: any
+  http_mock_adapter: any
+  # riverpod
+  riverpod_generator: any
+  #  custom_lint: any
+  riverpod_lint: any
+  # freezed
+  freezed: any
+  json_serializable: any
+
+
+flutter:
+  assets:
+    - assets/models/model_quantized.onnx
+    - assets/models/vocab.txt

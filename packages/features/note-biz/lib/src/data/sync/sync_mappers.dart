@@ -8,7 +8,6 @@ extension DocumentDtoToCompanion on DocumentDto {
     return DocumentsCompanion(
       id: Value(id),
       title: Value(title),
-      plainText: Value(plainText),
       content: Value(content),
       status: Value(status),
       createdAt: Value(createdAt),
@@ -28,7 +27,6 @@ extension DocumentEntityToDto on DocumentEntity {
       id: id,
       title: title,
       content: content,
-      plainText: plainText,
       status: status,
       createdAt: createdAt,
       version: version,

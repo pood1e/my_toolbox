@@ -36,5 +36,3 @@ dev_dependencies:
   freezed: any
   json_serializable: any
   drift_dev: any
-
-

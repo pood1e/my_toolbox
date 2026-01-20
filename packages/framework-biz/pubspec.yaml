@@ -28,6 +28,9 @@ dependencies:
     path: ../infra/network-biz
   shell_biz:
     path: ../infra/shell-biz
+  ai_biz:
+    path: ../infra/ai-biz
+
 
 dev_dependencies:
   flutter_test:

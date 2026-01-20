@@ -3,6 +3,7 @@ import 'package:app_core/route.dart';
 
 import 'ui/page/document_editor_page.dart';
 import 'ui/page/inbox_page.dart';
+import 'ui/page/search_page.dart';
 
 part 'note_routes.g.dart';
 
@@ -10,6 +11,8 @@ part 'note_routes.g.dart';
 List<RouteBase> noteRoutes(Ref ref) {
   return [
     GoRoute(path: '/note/inbox', builder: (_, _) => InboxPage()),
+    GoRoute(path: '/note/search', builder: (_, _) => SearchPage()),
+
     GoRoute(
       path: '/note/document/:id',
       builder: (context, state) {

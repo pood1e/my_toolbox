@@ -60,6 +60,8 @@ dependencies:
   geolocator: ^14.0.2
   collection: ^1.19.1
   appflowy_editor: ^6.2.0
+  onnxruntime: ^1.4.1
+  ml_linalg: ^13.12.7
 
 
 dev_dependencies:
@@ -83,6 +85,7 @@ workspace:
   - packages/api/data-api
   - packages/api/sync-api
   - packages/api/network-api
+  - packages/api/ai-api
   - packages/framework-api
   - packages/infra/common-ui
   - packages/infra/auth-biz
@@ -91,6 +94,7 @@ workspace:
   - packages/infra/theme-biz
   - packages/infra/network-biz
   - packages/infra/shell-biz
+  - packages/infra/ai-biz
   - packages/framework-biz
   - packages/features/smart-lifeflow
   - packages/features/event-api

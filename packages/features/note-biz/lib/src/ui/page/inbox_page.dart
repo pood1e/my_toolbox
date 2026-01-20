@@ -32,6 +32,14 @@ class InboxPage extends ConsumerWidget {
             // 即使向上滚动，也会保留一个最小高度的 AppBar
             backgroundColor: context.colorScheme.surface,
             surfaceTintColor: context.colorScheme.surfaceTint,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  context.push('/note/search');
+                },
+                icon: Icon(Icons.search),
+              ),
+            ],
           ),
 
           // 2. Document List
