@@ -16,6 +16,13 @@ mixin LwwTableMixin
         CursorSyncTableMixin,
         UpdatedAtTableMixin {}
 
+abstract class StandardLwwTable extends Table
+    with
+        IsDirtySyncTableMixin,
+        CursorSyncTableMixin,
+        UpdatedAtTableMixin,
+        LwwTableMixin {}
+
 mixin LwwDaoSyncMixin<
   DB extends GeneratedDatabase,
   T extends Table,

@@ -24,8 +24,6 @@ abstract class LwwSyncHandler<
         > {
   P fromEntity(E entity);
 
-  Insertable<E> fromServerPayload(P payload);
-
   S fromPayload(P payload);
 
   ACK fromJsonACK(Map<String, dynamic> json);
