@@ -33,4 +33,10 @@ final List<AppDefinition> kExampleApps = [
     icon: Icons.stream,
     route: '/lifeflow',
   ),
+  const AppDefinition(
+    id: 'block',
+    name: '块测试',
+    icon: Icons.square,
+    route: '/node',
+  ),
 ];

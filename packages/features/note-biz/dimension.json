@@ -1,0 +1,30 @@
+[
+    {
+        "id": "complete_status",
+        "name": "完成状态",
+        "type": "bool",
+        "valueConfig": [
+            "完成",
+            "代办"
+        ],
+        "isTag": true,
+        "indexType": "nonNull"
+    },
+    {
+        "id": "protein_content",
+        "name": "蛋白质含量",
+        "type": "status",
+        "values": [
+            {
+                "value": "low",
+                "name": "低"
+            },
+            {
+                "value": "high",
+                "name": "高"
+            }
+        ],
+        "isTag": true,
+        "indexType": "none"
+    }
+]
