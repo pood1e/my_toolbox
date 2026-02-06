@@ -15,8 +15,7 @@ abstract class StoredConfig with _$StoredConfig {
     @Default(true) bool affectValue,
   }) = _StoredConfig;
 
-  factory StoredConfig.simple({required String config}) =>
-      StoredConfig(config: config);
+  factory StoredConfig.simple({String? config}) => StoredConfig(config: config);
 
   factory StoredConfig.keyed({
     required String configKey,

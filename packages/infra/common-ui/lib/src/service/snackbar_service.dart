@@ -51,7 +51,7 @@ class SnackbarService {
         backgroundColor: backgroundColor,
         elevation: 6.0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
         // 四周留白
         content: Row(
           children: [

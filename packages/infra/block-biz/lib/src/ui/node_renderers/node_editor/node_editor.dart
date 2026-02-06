@@ -3,7 +3,6 @@ import 'package:app_core/logger.dart';
 import 'package:common_ui/component.dart';
 import 'package:common_ui/message.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../../../supports/property_def_registry.dart';
 import 'node_editor_controller.dart';
@@ -37,7 +36,7 @@ class NodeEditor extends ConsumerWidget {
         .map(
           (descriptor) => FloatingActionButton.small(
             heroTag: null,
-            child: const Icon(Symbols.id_card),
+            child: Icon(descriptor.icon),
             onPressed: () {
               _addDefaultPropertyAction(
                 notifier.createWithDefaultConfig,

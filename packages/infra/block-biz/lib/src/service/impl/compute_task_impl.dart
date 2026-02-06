@@ -32,18 +32,29 @@ class ComputeTaskImpl implements ComputeTask {
         config.configs,
       );
       dynamic result = await _ctx.descriptor.engine.compute(actualConfig);
-      final property = _ctx.descriptor.valueConverter.encode(result);
+      final property = NormalStoredValue(
+        value: _ctx.descriptor.valueConverter.encode(result),
+        storageType: _ctx.descriptor.storageType,
+      );
       await _ctx.saveProperty(property);
       return true;
     } on DependencyDirtyException {
+      logger.i('detect dirty dependencies');
       // 按照正常调度应该不会进入该逻辑中
       // 应该重新构建局部依赖图了
     } on DependencyErrorException {
+      logger.i('detect error dependencies');
       await _ctx.markAsRefError();
     } on NoConfigException {
+      logger.i('detect config removed');
       await _ctx.markDownstreamDirty();
       await _ctx.deleteProperty();
-    } catch (e) {
+    } catch (e, stack) {
+      logger.i(
+        'detect compute error: ${e.toString()}',
+        error: e,
+        stackTrace: stack,
+      );
       await _ctx.markAsConfigError();
     }
     return false;

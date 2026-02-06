@@ -1,15 +1,17 @@
+import 'package:flutter/material.dart';
+
 import 'type_descriptor.dart';
 
 /// property -> valueType
 /// valueType hardcode
 /// property expanded
-abstract class PropertyDescriptor<C,T> {
+abstract class PropertyDescriptor<C, T> {
   /// unique
   String get propertyId;
 
   String get name;
 
-  TypeDescriptor<C,T> get typeDescriptor;
+  TypeDescriptor<C, T> get typeDescriptor;
 
   // typeRender
 
@@ -17,8 +19,10 @@ abstract class PropertyDescriptor<C,T> {
 }
 
 /// 拥有默认值
-abstract class PropertyDefaultConfig<C> {
+abstract class PropertyDefaultEditConfig<C> {
   String get propertyId;
 
   C get defaultConfig;
+
+  IconData get icon;
 }

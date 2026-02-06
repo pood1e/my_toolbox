@@ -1,22 +1,25 @@
 import 'package:app_core/di.dart';
 
 import '../domain/property_descriptor.dart';
+import 'properties/icon_property.dart';
 import 'properties/name_property.dart';
 
 part 'property_def_registry.g.dart';
 
 @Riverpod(keepAlive: true)
 List<PropertyDescriptor> availablePropertyDefs(Ref ref) => <PropertyDescriptor>[
-  NamePropertyDescriptor(),
+  NameProperty(),
+  IconProperty(),
 ];
 
 @riverpod
-List<PropertyDefaultConfig> defaultConfigPropertyDefs(Ref ref) => [
-  NamePropertyDescriptor(),
+List<PropertyDefaultEditConfig> defaultConfigPropertyDefs(Ref ref) => [
+  NameProperty(),
+  IconProperty(),
 ];
 
 @riverpod
-PropertyDefaultConfig defaultConfigPropertyDef(Ref ref, String propertyId) =>
+PropertyDefaultEditConfig defaultConfigPropertyDef(Ref ref, String propertyId) =>
     ref
         .read(defaultConfigPropertyDefsProvider)
         .where((def) => def.propertyId == propertyId)

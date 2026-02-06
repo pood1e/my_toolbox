@@ -1,9 +1,13 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/icon_data.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
 import '../../domain/property_descriptor.dart';
 import '../../domain/type_descriptor.dart';
 import '../value_types/simple_text_type.dart';
 
-class NamePropertyDescriptor extends PropertyDescriptor<String, String>
-    implements PropertyDefaultConfig<String> {
+class NameProperty extends PropertyDescriptor<String, String>
+    implements PropertyDefaultEditConfig<String> {
   @override
   String get propertyId => '_name';
 
@@ -16,4 +20,7 @@ class NamePropertyDescriptor extends PropertyDescriptor<String, String>
   @override
   TypeDescriptor<String, String> get typeDescriptor =>
       SimpleTextTypeDescriptor();
+
+  @override
+  IconData get icon => Symbols.id_card;
 }
