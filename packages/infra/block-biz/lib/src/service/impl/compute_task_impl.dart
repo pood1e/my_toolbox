@@ -1,12 +1,13 @@
 import 'package:app_core/logger.dart';
 
-import '../../data/daos/compute_property_dao.dart';
-import '../../data/mappers.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
 import '../../domain/property_descriptor.dart';
+import '../../domain/stored_value.dart';
+import '../../domain/type_descriptor.dart';
+import '../../repository/property_compute_repository.dart';
+import '../compute_engine_context.dart';
 import '../compute_task_scheduler.dart';
-import '../evalutor.dart';
 
 class ComputeTaskImpl implements ComputeTask {
   final ComputeContext _ctx;
@@ -23,18 +24,15 @@ class ComputeTaskImpl implements ComputeTask {
 
   Future<bool> _compute() async {
     try {
-      final propertyConfig = await _ctx.getConfig();
-      if (propertyConfig == null) {
+      final config = await _ctx.getConfig();
+      if (config == null) {
         throw NoConfigException();
       }
-      final actualConfig = _ctx.descriptor.configDescriptor.decode(
-        propertyConfig.records,
+      final actualConfig = _ctx.descriptor.configConverter.decode(
+        config.configs,
       );
-      dynamic result = await _ctx.descriptor.evalutor.eval(
-        _ctx.evalutorContext,
-        actualConfig,
-      );
-      final property = _ctx.descriptor.valueDescriptor.encode(result);
+      dynamic result = await _ctx.descriptor.engine.compute(actualConfig);
+      final property = _ctx.descriptor.valueConverter.encode(result);
       await _ctx.saveProperty(property);
       return true;
     } on DependencyDirtyException {
@@ -53,93 +51,75 @@ class ComputeTaskImpl implements ComputeTask {
 }
 
 class ComputeContextImpl implements ComputeContext {
-  final ComputePropertyDao _dao;
+  final PropertyComputeRepository _repo;
   final PropertyKey _key;
   @override
-  final PropertyDescriptor descriptor;
+  final TypeDescriptor descriptor;
 
   @override
-  final EvalutorContext evalutorContext;
+  final ComputeEngineContext engineCtx;
 
   ComputeContextImpl({
-    required ComputePropertyDao dao,
+    required PropertyComputeRepository repo,
     required PropertyKey key,
     required this.descriptor,
-    required this.evalutorContext,
-  }) : _dao = dao,
+    required this.engineCtx,
+  }) : _repo = repo,
        _key = key;
 
   @override
-  Future<void> saveProperty(PropertyValue value) async {
-    await _dao.saveProperty(
-      Property(
-        key: PropertyStorageKey(
-          nodeId: _key.nodeId,
-          defId: _key.defId,
-          type: descriptor.valueDescriptor.storageType,
-        ),
-        value: value,
-      ).toCompanion(),
-    );
-  }
+  Future<void> saveProperty(StoredValue value) =>
+      _repo.saveProperty(Property(key: _key, value: value));
 
   @override
-  Future<void> deleteProperty() async {
-    await _dao.deleteProperty(_key);
-  }
+  Future<void> deleteProperty() async => await _repo.deleteProperty(_key);
 
   @override
-  Future<PropertyConfig?> getConfig() async {
-    final result = await _dao.getConfig(_key);
-    if (result.isEmpty) {
-      return null;
-    }
-    return result.toDomain(_key);
-  }
+  Future<PropertyConfig?> getConfig() async => await _repo.getConfig(_key);
 
   @override
-  Future<void> markDownstreamDirty() async {
-    await _dao.markOnlyDownstreamDirty({_key});
-  }
+  Future<void> markDownstreamDirty() =>
+      _repo.markDirtyRecursive(rootKeys: {_key}, includeSelf: false);
 
   @override
-  Future<void> markAsConfigError() async {
-    await _dao.markAsConfigError({_key});
-  }
+  Future<void> markAsConfigError() => _repo.markErrorRecursive(
+    rootKeys: {_key},
+    rootError: ValueError.configInvalid,
+  );
 
   @override
-  Future<void> markAsRefError() async {
-    await _dao.markAsRefError({_key});
-  }
+  Future<void> markAsRefError() => _repo.markErrorRecursive(
+    rootKeys: {_key},
+    rootError: ValueError.referenceInvalid,
+  );
 
   @override
-  Future<T> transcation<T>(Future<T> Function() action) {
-    return _dao.transaction(action);
-  }
+  Future<T> transcation<T>(Future<T> Function() action) =>
+      _repo.transcation(action);
 }
 
 class ComputeTaskFactoryImpl implements ComputeTaskFactory {
   final Map<String, PropertyDescriptor> _descriptorMap;
-  final ComputePropertyDao _dao;
-  final EvalutorContext _evalutorContext;
+  final PropertyComputeRepository _repo;
+  final ComputeEngineContext _engineCtx;
 
   ComputeTaskFactoryImpl({
     required Map<String, PropertyDescriptor> descriptorMap,
-    required ComputePropertyDao dao,
-    required EvalutorContext evalutorContext,
+    required PropertyComputeRepository repo,
+    required ComputeEngineContext engineCtx,
   }) : _descriptorMap = descriptorMap,
-       _dao = dao,
-       _evalutorContext = evalutorContext;
+       _repo = repo,
+       _engineCtx = engineCtx;
 
   @override
   ComputeTask create(PropertyKey key) {
     logger.d('create compute task @$key');
     return ComputeTaskImpl(
       ctx: ComputeContextImpl(
-        dao: _dao,
+        repo: _repo,
         key: key,
-        descriptor: _descriptorMap[key.defId]!,
-        evalutorContext: _evalutorContext,
+        descriptor: _descriptorMap[key.defId]!.typeDescriptor,
+        engineCtx: _engineCtx,
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:app_core/object.dart';
 
-import '../../domain/property.dart';
+import '../../domain/stored_value.dart';
 
 part 'property_state.freezed.dart';
 
@@ -14,10 +14,7 @@ sealed class PropertyState<T> with _$PropertyState<T> {
   const factory PropertyState.calculating({T? oldValue}) = Calculating<T>;
 
   /// 状态 3: 计算出错
-  const factory PropertyState.error({
-    required ComputeError errorType,
-    String? message,
-  }) = Error<T>;
+  const factory PropertyState.error({required ValueError errorType}) = Error<T>;
 
   /// 状态 4: 未初始化或无数据
   /// 比如一个新节点还没有任何属性时

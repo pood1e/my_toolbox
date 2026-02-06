@@ -41,7 +41,7 @@ class NodeEditor extends ConsumerWidget {
             onPressed: () {
               _addDefaultPropertyAction(
                 notifier.createWithDefaultConfig,
-                descriptor.defId,
+                descriptor.propertyId,
               );
             },
           ),
@@ -52,7 +52,7 @@ class NodeEditor extends ConsumerWidget {
         openButtonBuilder: RotateFloatingActionButtonBuilder(
           child: const Icon(Icons.add),
         ),
-        overlayStyle: ExpandableFabOverlayStyle(blur: 5.0),
+        overlayStyle: const ExpandableFabOverlayStyle(blur: 5.0),
         children: fabBtns,
       );
     } else {

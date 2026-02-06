@@ -1,14 +1,15 @@
 import '../../data/daos/property_dao.dart';
-import '../../data/mappers.dart';
-import '../evalutor.dart';
 import '../../domain/property.dart';
 import '../../domain/property_descriptor.dart';
+import '../../domain/stored_value.dart';
+import '../../mappers/property_mapper.dart';
+import '../compute_engine_context.dart';
 
-class EvalutorContextImpl extends EvalutorContext {
+class ComputeEngineContextImpl extends ComputeEngineContext {
   final PropertyDao _dao;
   final Map<String, PropertyDescriptor> _descriptorMap;
 
-  EvalutorContextImpl({
+  ComputeEngineContextImpl({
     required PropertyDao dao,
     required Map<String, PropertyDescriptor> descriptorMap,
   }) : _dao = dao,
@@ -18,21 +19,11 @@ class EvalutorContextImpl extends EvalutorContext {
   Future<Map<PropertyKey, Property>> getProperties(
     Set<PropertyKey> keys,
   ) async {
-    final propertyEntities = await _dao.getProperties(
-      keys
-          .map(
-            (key) => PropertyStorageKey(
-              nodeId: key.nodeId,
-              defId: key.defId,
-              type: _descriptorMap[key.defId]!.valueDescriptor.storageType,
-            ),
-          )
-          .toSet(),
-    );
+    final propertyEntities = await _dao.getProperties(keys);
     final result = <PropertyKey, Property>{};
     for (final entity in propertyEntities) {
       final descriptor = _descriptorMap[entity.defId]!;
-      final property = entity.toDomain(descriptor.valueDescriptor.storageType);
+      final property = entity.toDomain(descriptor.typeDescriptor.storageType);
       result[PropertyKey(nodeId: entity.nodeId, defId: entity.defId)] =
           property;
     }
@@ -46,10 +37,8 @@ class EvalutorContextImpl extends EvalutorContext {
   }
 
   @override
-  Future<T> convertValue<T>(PropertyKey key, Property value) async {
+  Future<T> convertValue<T>(PropertyKey key, NormalStoredValue value) async {
     final descriptor = _descriptorMap[key.defId]!;
-    return descriptor.valueDescriptor.decode(value.value);
+    return descriptor.typeDescriptor.valueConverter.decode(value.value);
   }
 }
-
-

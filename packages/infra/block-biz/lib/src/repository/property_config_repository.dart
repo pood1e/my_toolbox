@@ -1,8 +1,8 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 
+import '../data/daos/complex_compute_dao.dart';
 import '../data/daos/property_atom_config_dao.dart';
-import '../data/daos/property_dao.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
 import 'impl/property_config_repo_impl.dart';
@@ -67,6 +67,6 @@ abstract class PropertyConfigRepository {
 @riverpod
 Future<PropertyConfigRepository> propertyConfigRepo(Ref ref) async {
   final dao = await ref.watch(propertyAtomConfigDaoProvider.future);
-  final propertyDao = await ref.watch(propertyDaoProvider.future);
-  return PropertyConfigRepoImpl(dao: dao, propertyDao: propertyDao);
+  final computeDao = await ref.watch(complexComputeDaoProvider.future);
+  return PropertyConfigRepoImpl(dao: dao, computeDao: computeDao);
 }

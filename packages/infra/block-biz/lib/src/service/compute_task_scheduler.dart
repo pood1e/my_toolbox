@@ -1,13 +1,14 @@
-import 'evalutor.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
-import '../domain/property_descriptor.dart';
+import '../domain/stored_value.dart';
+import '../domain/type_descriptor.dart';
+import 'compute_engine_context.dart';
 
 /// Worker 执行结果状态
 enum WorkerResult {
-  idle,        // 没有脏数据，任务结束
-  completed,   // 所有任务执行完毕
-  retry,       // 需要重新查库建图
+  idle, // 没有脏数据，任务结束
+  completed, // 所有任务执行完毕
+  retry, // 需要重新查库建图
 }
 
 // 调度, 启动worker, 监听watchHasDirty
@@ -22,6 +23,7 @@ abstract class PropertyWatchCounter {
   void subscribe(PropertyKey key);
 
   void unsubscribe(PropertyKey key);
+
   Map<PropertyKey, int> get snapshot; // 获取当前快照用于计算
   int get version;
 }
@@ -41,9 +43,9 @@ abstract class ComputeTaskFactory {
 }
 
 abstract class ComputeContext {
-  PropertyDescriptor get descriptor;
+  TypeDescriptor get descriptor;
 
-  EvalutorContext get evalutorContext;
+  ComputeEngineContext get engineCtx;
 
   Future<T> transcation<T>(Future<T> Function() action);
 
@@ -55,7 +57,7 @@ abstract class ComputeContext {
 
   Future<void> markAsConfigError();
 
-  Future<void> saveProperty(PropertyValue property);
+  Future<void> saveProperty(StoredValue value);
 
   // 用于配置为空时进行删除
   Future<void> deleteProperty();

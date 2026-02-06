@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../../domain/property.dart';
+import '../../domain/stored_value.dart';
 import 'nodes.dart';
 
 /// 属性值表
@@ -26,7 +26,7 @@ class Properties extends Table {
   IntColumn get valueStatus =>
       intEnum<ValueStatus>().withDefault(Constant(ValueStatus.normal.index))();
 
-  IntColumn get errorType => intEnum<ComputeError>().nullable()();
+  IntColumn get errorType => intEnum<ValueError>().nullable()();
 
   @override
   Set<Column> get primaryKey => {nodeId, defId};

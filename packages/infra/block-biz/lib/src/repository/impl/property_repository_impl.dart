@@ -1,6 +1,7 @@
 import '../../data/daos/property_dao.dart';
-import '../../data/mappers.dart';
 import '../../domain/property.dart';
+import '../../domain/stored_value.dart';
+import '../../mappers/property_mapper.dart';
 import '../property_repository.dart';
 
 class PropertyRepositoryImpl implements PropertyRepository {
@@ -9,31 +10,24 @@ class PropertyRepositoryImpl implements PropertyRepository {
   PropertyRepositoryImpl({required PropertyDao dao}) : _dao = dao;
 
   @override
-  Stream<Property?> watchSingle(PropertyStorageKey key) {
-    return _dao
-        .watchProperty(key)
-        .map((property) => property.toDomain(key.type));
-  }
+  Stream<Property?> watchSingle(PropertyKey key, StorageType type) =>
+      _dao.watchProperty(key).map((property) => property.toDomain(type));
 
   @override
-  Stream<List<Property>> watchProperties(List<PropertyStorageKey> keys) {
-    final typeMap = {
-      for (final key in keys)
-        PropertyKey(nodeId: key.nodeId, defId: key.defId): key.type,
-    };
-    return _dao
-        .watchProperties(keys.toSet())
-        .map(
-          (properties) => properties
-              .map(
-                (property) => property.toDomain(
-                  typeMap[PropertyKey(
-                    nodeId: property.nodeId,
-                    defId: property.defId,
-                  )]!,
-                ),
-              )
-              .toList(),
-        );
-  }
+  Stream<List<Property>> watchProperties(
+    Map<PropertyKey, StorageType> typeMap,
+  ) => _dao
+      .watchProperties(typeMap.keys.toSet())
+      .map(
+        (properties) => properties
+            .map(
+              (property) => property.toDomain(
+                typeMap[PropertyKey(
+                  nodeId: property.nodeId,
+                  defId: property.defId,
+                )]!,
+              ),
+            )
+            .toList(),
+      );
 }

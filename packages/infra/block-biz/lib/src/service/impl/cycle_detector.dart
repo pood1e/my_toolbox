@@ -1,9 +1,10 @@
-import '../../data/daos/compute_property_dao.dart';
 import '../../domain/property.dart';
+import '../../domain/stored_value.dart';
+import '../../repository/property_compute_repository.dart';
 
 class CycleDetector {
   /// 核心入口
-  static Map<PropertyKey, ComputeError> analyzeErrors(
+  static Map<PropertyKey, ValueError> analyzeErrors(
     List<PropertyKey> allDirties,
     List<DependencyEdge> edges,
   ) {
@@ -70,7 +71,7 @@ class CycleDetector {
     final sccs = _findSCCs(badNodes, badNodeSet, graph);
 
     // 5. 标记结果
-    final Map<PropertyKey, ComputeError> result = {};
+    final Map<PropertyKey, ValueError> result = {};
 
     for (var scc in sccs) {
       bool isCycle = false;
@@ -87,7 +88,9 @@ class CycleDetector {
         }
       }
 
-      final errorType = isCycle ? ComputeError.cycle : ComputeError.ref;
+      final errorType = isCycle
+          ? ValueError.cycleDependencies
+          : ValueError.referenceInvalid;
       for (var node in scc) {
         result[node] = errorType;
       }

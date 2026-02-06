@@ -1,46 +1,41 @@
 import 'package:drift/drift.dart';
 
+import '../../data/daos/complex_compute_dao.dart';
 import '../../data/daos/property_atom_config_dao.dart';
-import '../../data/daos/property_dao.dart';
-import '../../data/mappers.dart';
 import '../../data/node_database.dart';
 import '../../data/tables/property_config.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
+import '../../mappers/property_config_mapper.dart';
 import '../property_config_repository.dart';
 
 class PropertyConfigRepoImpl extends PropertyConfigRepository {
   final PropertyAtomConfigDao _dao;
-  final PropertyDao _propertyDao;
+  final ComplexComputeDao _computeDao;
 
   PropertyConfigRepoImpl({
     required PropertyAtomConfigDao dao,
-    required PropertyDao propertyDao,
+    required ComplexComputeDao computeDao,
   }) : _dao = dao,
-       _propertyDao = propertyDao;
+       _computeDao = computeDao;
 
   @override
-  Stream<PropertyConfig> watchConfig(PropertyKey key) {
-    return _dao
-        .watchByKey(key)
-        .map((rows) => rows.toDomain(key)); // 使用 Extension 1
-  }
+  Stream<PropertyConfig> watchConfig(PropertyKey key) =>
+      _dao.watchByKey(key).map((rows) => rows.toDomain(key));
 
   @override
-  Future<void> fullUpdate(PropertyConfig config) async {
-    return _dao.transaction(() async {
-      // 1. 查 DB 现状
-      final currentRows = await _dao.getByKey(config.key);
+  Future<void> fullUpdate(PropertyConfig config) => _dao.transaction(() async {
+    // 1. 查 DB 现状
+    final currentRows = await _dao.getByKey(config.key);
 
-      // 2. Diff 计算 (使用 Extension 1 转 Record，Extension 2 做 Diff)
-      final changes = config.diff(currentRows.toRecords());
+    // 2. Diff 计算 (使用 Extension 1 转 Record，Extension 2 做 Diff)
+    final changes = config.diff(currentRows.toRecords());
 
-      // 3. 执行
-      if (changes.isNotEmpty) {
-        await batchUpdate(changes);
-      }
-    });
-  }
+    // 3. 执行
+    if (changes.isNotEmpty) {
+      await batchUpdate(changes);
+    }
+  });
 
   @override
   Future<void> batchUpdate(List<ParticalConfigChange> changes) async {
@@ -141,12 +136,10 @@ class PropertyConfigRepoImpl extends PropertyConfigRepository {
     return isDirty ? propKey : null;
   }
 
-  Future<void> _notifyAffectedKeys(Set<PropertyKey> keys) async {
-    await _propertyDao.markTransitiveDirty(keys);
-  }
+  Future<void> _notifyAffectedKeys(Set<PropertyKey> keys) =>
+      _computeDao.markDirtyRecursive(rootKeys: keys);
 
   @override
-  Stream<List<PropertyKey>> watchNodeKeys(String nodeId) {
-    return _dao.watchNode(nodeId);
-  }
+  Stream<List<PropertyKey>> watchNodeKeys(String nodeId) =>
+      _dao.watchNode(nodeId);
 }

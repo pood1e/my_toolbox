@@ -6,30 +6,28 @@ import 'properties/name_property.dart';
 part 'property_def_registry.g.dart';
 
 @Riverpod(keepAlive: true)
-List<PropertyDescriptor> availablePropertyDefs(Ref ref) {
-  return <PropertyDescriptor>[NamePropertyDescriptor()];
-}
+List<PropertyDescriptor> availablePropertyDefs(Ref ref) => <PropertyDescriptor>[
+  NamePropertyDescriptor(),
+];
 
 @riverpod
-List<PropertyDefaultConfig> defaultConfigPropertyDefs(Ref ref) {
-  return [NamePropertyDescriptor()];
-}
+List<PropertyDefaultConfig> defaultConfigPropertyDefs(Ref ref) => [
+  NamePropertyDescriptor(),
+];
 
 @riverpod
-PropertyDefaultConfig defaultConfigPropertyDef(Ref ref, String defId) {
-  return ref
-      .read(defaultConfigPropertyDefsProvider)
-      .where((def) => def.defId == defId)
-      .first;
-}
+PropertyDefaultConfig defaultConfigPropertyDef(Ref ref, String propertyId) =>
+    ref
+        .read(defaultConfigPropertyDefsProvider)
+        .where((def) => def.propertyId == propertyId)
+        .first;
 
 @riverpod
 Map<String, PropertyDescriptor> propertyDefRegistry(Ref ref) {
   final propertyDefs = ref.read(availablePropertyDefsProvider);
-  return {for (final p in propertyDefs) p.defId: p};
+  return {for (final p in propertyDefs) p.propertyId: p};
 }
 
 @riverpod
-PropertyDescriptor propertyDescriptor(Ref ref, String defId) {
-  return ref.read(propertyDefRegistryProvider)[defId]!;
-}
+PropertyDescriptor propertyDescriptor(Ref ref, String defId) =>
+    ref.read(propertyDefRegistryProvider)[defId]!;

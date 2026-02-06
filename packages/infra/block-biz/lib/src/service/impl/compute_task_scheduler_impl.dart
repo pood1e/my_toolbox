@@ -2,14 +2,15 @@ import 'dart:async';
 
 import 'package:app_core/logger.dart';
 
-import '../../data/daos/compute_property_dao.dart';
 import '../../domain/property.dart';
+import '../../repository/property_compute_repository.dart';
 import '../compute_task_scheduler.dart';
 
 // File: impl/compute_task_scheduler_impl.dart
 
-class ComputeTaskSchedulerImpl implements ComputeTaskScheduler, PropertyWatchCounter {
-  final ComputePropertyDao _dao;
+class ComputeTaskSchedulerImpl
+    implements ComputeTaskScheduler, PropertyWatchCounter {
+  final PropertyComputeRepository _repo;
   final ComputeTaskWorker _worker;
 
   // UI 关注度状态
@@ -22,15 +23,16 @@ class ComputeTaskSchedulerImpl implements ComputeTaskScheduler, PropertyWatchCou
   StreamSubscription? _subscription;
 
   ComputeTaskSchedulerImpl({
-    required ComputePropertyDao dao,
+    required PropertyComputeRepository repo,
     required ComputeTaskWorker worker,
-  }) : _dao = dao, _worker = worker;
+  }) : _repo = repo,
+       _worker = worker;
 
   @override
   void start() {
     if (_subscription != null) return;
     // 监听 DB 脏标记
-    _subscription = _dao.watchHasDirty().listen((hasDirty) {
+    _subscription = _repo.watchHasDirty().listen((hasDirty) {
       _hasDbDirty = hasDirty;
       logger.d('hasDirty changed: $hasDirty');
       // 只有当前未运行时才触发调度，防止递归调用
@@ -60,14 +62,14 @@ class ComputeTaskSchedulerImpl implements ComputeTaskScheduler, PropertyWatchCou
 
         switch (result) {
           case WorkerResult.idle:
-          // 没活干了，标记 DB 干净，退出循环
+            // 没活干了，标记 DB 干净，退出循环
             _hasDbDirty = false;
             break;
           case WorkerResult.completed:
-          // 这一批做完了，循环继续，再次检查 _hasDbDirty 确认是否有新产生的脏数据
+            // 这一批做完了，循环继续，再次检查 _hasDbDirty 确认是否有新产生的脏数据
             break;
           case WorkerResult.retry:
-          // 遇到结构错误，立即重试（循环继续，Worker 会重新查库）
+            // 遇到结构错误，立即重试（循环继续，Worker 会重新查库）
             break;
         }
       }

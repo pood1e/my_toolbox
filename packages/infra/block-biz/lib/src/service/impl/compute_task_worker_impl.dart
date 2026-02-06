@@ -1,18 +1,19 @@
 import 'package:app_core/logger.dart';
 
-import '../../data/daos/compute_property_dao.dart';
 import '../../domain/property.dart';
+import '../../domain/stored_value.dart';
+import '../../repository/property_compute_repository.dart';
 import '../compute_task_scheduler.dart';
 import 'cycle_detector.dart';
 
 class ComputeTaskWorkerImpl implements ComputeTaskWorker {
-  final ComputePropertyDao _dao;
+  final PropertyComputeRepository _repo;
   final ComputeTaskFactory _contextFactory;
 
   ComputeTaskWorkerImpl({
-    required ComputePropertyDao dao,
+    required PropertyComputeRepository repo,
     required ComputeTaskFactory contextFactory,
-  }) : _dao = dao,
+  }) : _repo = repo,
        _contextFactory = contextFactory;
 
   /// work 方法不再直接处理中断，而是通过返回值请求重试
@@ -25,17 +26,28 @@ class ComputeTaskWorkerImpl implements ComputeTaskWorker {
     logger.i('compute worker started');
 
     // 1. 获取所有脏节点
-    List<PropertyKey> dirties = await _dao.getDirtyProperties();
+    List<PropertyKey> dirties = await _repo.getDirties();
     if (dirties.isEmpty) return WorkerResult.idle;
 
     // 2. 获取依赖边
-    List<DependencyEdge> allEdges = await _dao.getDirtyDependencyEdges(dirties);
+    List<DependencyEdge> allEdges = await _repo.getDirtyDependencyEdges(
+      dirties,
+    );
 
     // 3. 静态环检测 (标记死循环节点)
     final errors = CycleDetector.analyzeErrors(dirties, allEdges);
     if (errors.isNotEmpty) {
-      await _dao.markPropertiesError(errors);
-      dirties.removeWhere((k) => errors.containsKey(k));
+      await _repo.saveProperties(
+        errors.entries
+            .map(
+              (e) => Property(
+                key: e.key,
+                value: StoredValue.error(error: e.value),
+              ),
+            )
+            .toList(),
+      );
+      dirties.removeWhere(errors.containsKey);
       if (dirties.isEmpty) return WorkerResult.completed;
     }
 

@@ -1,48 +1,50 @@
 import 'package:app_core/di.dart';
 
-import '../data/daos/compute_property_dao.dart';
 import '../data/daos/property_dao.dart';
+import '../repository/property_compute_repository.dart';
 import '../supports/property_def_registry.dart';
+import 'compute_engine_context.dart';
 import 'compute_task_scheduler.dart';
-import 'evalutor.dart';
+import 'impl/compute_engine_context_impl.dart';
 import 'impl/compute_task_impl.dart';
 import 'impl/compute_task_scheduler_impl.dart';
 import 'impl/compute_task_worker_impl.dart';
-import 'impl/evalutor_context_impl.dart';
 
 part 'service_providers.g.dart';
 
 @riverpod
-Future<EvalutorContext> evalutorContext(Ref ref) async {
+Future<ComputeEngineContext> computeEngineContext(Ref ref) async {
   final dao = await ref.watch(propertyDaoProvider.future);
   final descriptorMap = ref.read(propertyDefRegistryProvider);
-  return EvalutorContextImpl(dao: dao, descriptorMap: descriptorMap);
+  return ComputeEngineContextImpl(dao: dao, descriptorMap: descriptorMap);
 }
 
 @riverpod
 Future<ComputeTaskFactory> computeTaskFactory(Ref ref) async {
-  final dao = await ref.watch(computePropertyDaoProvider.future);
+  final repo = await ref.watch(propertyComputeRepositoryProvider.future);
   final descriptorMap = ref.read(propertyDefRegistryProvider);
-  final evalutorContext = await ref.read(evalutorContextProvider.future);
+  final computeEngineContext = await ref.read(
+    computeEngineContextProvider.future,
+  );
   return ComputeTaskFactoryImpl(
     descriptorMap: descriptorMap,
-    dao: dao,
-    evalutorContext: evalutorContext,
+    repo: repo,
+    engineCtx: computeEngineContext,
   );
 }
 
 @riverpod
 Future<ComputeTaskWorker> computeTaskWorker(Ref ref) async {
-  final dao = await ref.watch(computePropertyDaoProvider.future);
+  final repo = await ref.watch(propertyComputeRepositoryProvider.future);
   final factory = await ref.watch(computeTaskFactoryProvider.future);
-  return ComputeTaskWorkerImpl(dao: dao, contextFactory: factory);
+  return ComputeTaskWorkerImpl(repo: repo, contextFactory: factory);
 }
 
 @riverpod
 Future<ComputeTaskScheduler> computeTaskScheduler(Ref ref) async {
-  final dao = await ref.watch(computePropertyDaoProvider.future);
+  final repo = await ref.watch(propertyComputeRepositoryProvider.future);
   final worker = await ref.watch(computeTaskWorkerProvider.future);
-  return ComputeTaskSchedulerImpl(dao: dao, worker: worker);
+  return ComputeTaskSchedulerImpl(repo: repo, worker: worker);
 }
 
 @riverpod
