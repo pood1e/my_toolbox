@@ -1,70 +1,51 @@
 import 'package:app_core/di.dart';
-import 'package:nanoid/nanoid.dart';
 
-import '../../../domain/shared.dart';
-import '../../../models/models.dart';
-import '../../../repository/trait_repository.dart';
-import '../../dispatchor/dispatchor_controller.dart';
+import '../../../data/mappers.dart';
+import '../../../domain/property.dart';
+import '../../../domain/property_config.dart';
+import '../../../repository/property_config_repository.dart';
+import '../../../repository/property_repository.dart';
+import '../../../supports/property_def_registry.dart';
+import '../../state/property_state.dart';
 
 part 'node_editor_controller.g.dart';
 
 @riverpod
 class NodeEditorController extends _$NodeEditorController {
   @override
-  Future<List<Trait>> build(String nodeId) async {
-    return await ref.watch(nodeTraitsStreamProvider(nodeId).future);
+  Stream<List<PropertyKey>> build(String nodeId) async* {
+    // watch
+    final repo = await ref.watch(propertyConfigRepoProvider.future);
+    yield* repo.watchNodeKeys(nodeId);
   }
 
-  Future<void> createDefaultNameTrait() async {
-    final traitId = nanoid();
-    final defaultValue = 'unnamed';
-    final repo = await ref.read(traitRepositoryProvider.future);
-    await repo.installTrait(
-      trait: Trait(
-        id: traitId,
-        traitType: TraitType.name,
-        nodeId: nodeId,
-        isValid: true,
-      ),
-      fields: [
-        Field(
-          id: nanoid(),
-          traitId: traitId,
-          valueType: ValueType.string,
-          traitType: TraitType.name,
-          traitKey: null,
-          hasRef: false,
-          cacheable: true,
-          isValid: true,
-          config: {'data': defaultValue},
-          data: defaultValue,
-        ),
-      ],
-    );
-  }
+  Future<void> createWithDefaultConfig(String defId) async {
+    final defaultConfig = ref
+        .read(defaultConfigPropertyDefProvider(defId))
+        .defaultConfig;
+    final configRepo = await ref.read(propertyConfigRepoProvider.future);
+    final descriptor = ref.read(propertyDescriptorProvider(defId));
 
-  Future<void> createDefaultIconTrait() async {
-    final traitId = nanoid();
-    final repo = await ref.read(traitRepositoryProvider.future);
-    await repo.installTrait(
-      trait: Trait(
-        id: traitId,
-        traitType: TraitType.icon,
-        nodeId: nodeId,
-        isValid: false,
+    await configRepo.fullUpdate(
+      PropertyConfig(
+        key: PropertyKey(nodeId: nodeId, defId: defId),
+        records: descriptor.configDescriptor.encode(defaultConfig),
       ),
-      fields: [
-        Field(
-          id: nanoid(),
-          traitId: traitId,
-          valueType: ValueType.json,
-          traitType: TraitType.icon,
-          traitKey: null,
-          hasRef: false,
-          cacheable: true,
-          isValid: false,
-        ),
-      ],
     );
   }
+}
+
+@riverpod
+Stream<PropertyState> watchProperty(Ref ref, PropertyKey key) async* {
+  final descriptor = ref.read(propertyDescriptorProvider(key.defId));
+  final repo = await ref.watch(propertyRepositoryProvider.future);
+  yield* repo
+      .watchSingle(
+        PropertyStorageKey(
+          nodeId: key.nodeId,
+          defId: key.defId,
+          type: descriptor.valueDescriptor.storageType,
+        ),
+      )
+      .map((p) => p.toState());
 }

@@ -3,23 +3,19 @@ import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
-import '../domain/shared.dart';
-import 'daos/field_dao.dart';
+import '../domain/property.dart';
 import 'daos/node_dao.dart';
-import 'daos/trait_dao.dart';
-import 'tables/field_refs.dart';
-import 'tables/fields.dart';
+import 'daos/property_atom_config_dao.dart';
+import 'daos/property_dao.dart';
 import 'tables/nodes.dart';
-import 'tables/role_refs.dart';
-import 'tables/role_uses.dart';
-import 'tables/roles.dart';
-import 'tables/traits.dart';
+import 'tables/properties.dart';
+import 'tables/property_config.dart';
 
 part 'node_database.g.dart';
 
 @DriftDatabase(
-  tables: [Nodes, Roles, Traits, RoleUses, RoleRefs, Fields, FieldRefs],
-  daos: [NodeDao, TraitDao, FieldDao],
+  tables: [Nodes, Properties, PropertyAtomConfigs],
+  daos: [NodeDao, PropertyAtomConfigDao, PropertyDao],
 )
 class NodeDatabase extends _$NodeDatabase {
   NodeDatabase(super.e);
@@ -33,11 +29,6 @@ class NodeDatabase extends _$NodeDatabase {
     onCreate: (m) async {
       // 1. 首先让 Drift 创建所有表
       await m.createAll();
-
-      /// 确保非模板node的trait唯一
-      await customStatement(
-        'CREATE UNIQUE INDEX idx_traits_instance_unique ON traits(trait_type, node_id) WHERE role_id IS NULL',
-      );
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

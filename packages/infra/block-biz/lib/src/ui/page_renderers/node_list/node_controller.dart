@@ -1,7 +1,7 @@
 import 'package:app_core/di.dart';
 import 'package:nanoid/nanoid.dart';
 
-import '../../../models/models.dart';
+import '../../../domain/node.dart';
 import '../../../repository/node_repository.dart';
 
 part 'node_controller.g.dart';

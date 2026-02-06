@@ -1,8 +1,7 @@
 import 'package:app_core/di.dart';
-import 'package:common_ui/component.dart';
 import 'package:flutter/material.dart';
 
-import 'dispatchor_controller.dart';
+import '../node_renderers/node_editor/node_editor_renderer.dart';
 
 /// 查询node的所有traits
 /// 如果有RendererTrait, 按照配置的顺序检查每个Renderer需要的traits是否合法
@@ -19,14 +18,6 @@ class _NodeRendererDispatchorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentRendererAsync = ref.watch(
-      currentNodeRendererControllerProvider(_nodeId),
-    );
-
-    return currentRendererAsync.whenUI(
-      data: (currentRenderer) {
-        return currentRenderer.render(_nodeId);
-      },
-    );
+    return NodeEditorRenderer().render(_nodeId);
   }
 }

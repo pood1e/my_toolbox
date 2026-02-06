@@ -2,7 +2,7 @@ import 'package:app_core/di.dart';
 
 import '../data/daos/node_dao.dart';
 import '../data/mappers.dart';
-import '../models/models.dart';
+import '../domain/node.dart';
 
 part 'node_repository.g.dart';
 
@@ -21,7 +21,6 @@ class NodeRepository {
     await _dao.insertNode(node.toCompanion());
   }
 
-  Future<void> deleteNode(String id) => _dao.deleteNode(id);
 }
 
 @riverpod

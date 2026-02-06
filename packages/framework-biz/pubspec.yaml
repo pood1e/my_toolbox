@@ -30,6 +30,8 @@ dependencies:
     path: ../infra/shell-biz
   ai_biz:
     path: ../infra/ai-biz
+  block_biz:
+    path: ../infra/block-biz
 
 
 dev_dependencies:
