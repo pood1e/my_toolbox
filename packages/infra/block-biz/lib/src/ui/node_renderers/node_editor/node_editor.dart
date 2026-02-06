@@ -4,9 +4,10 @@ import 'package:common_ui/component.dart';
 import 'package:common_ui/message.dart';
 import 'package:flutter/material.dart';
 
-import '../../../supports/property_def_registry.dart';
+import '../../../domain/property.dart';
 import 'node_editor_controller.dart';
 import 'property_edit_tile.dart';
+import 'property_editor_registry.dart';
 
 class NodeEditor extends ConsumerWidget {
   final String _nodeId;
@@ -17,7 +18,7 @@ class NodeEditor extends ConsumerWidget {
     Future<void> Function(String) action,
     String defId,
   ) async {
-    // todo: 用户体验, 滑动至新添加的位置
+    // todo: 用户体验, 滑动至新添加的位置 ,自动聚焦
     try {
       await action(defId);
       SnackbarService.showSuccess('add trait success');
@@ -27,12 +28,14 @@ class NodeEditor extends ConsumerWidget {
     }
   }
 
-  Widget _buildFab(WidgetRef ref) {
+  Widget? _buildFab(WidgetRef ref, List<PropertyKey> exist) {
     final notifier = ref.read(nodeEditorControllerProvider(_nodeId).notifier);
-    final defaultConfigDescriptors = ref.read(
-      defaultConfigPropertyDefsProvider,
-    );
-    final fabBtns = defaultConfigDescriptors
+    final supportEditors = ref.read(editorDescriptorsProvider);
+    final existProperties = exist.map((property) => property.defId).toSet();
+    final availableAppend = supportEditors
+        .where((descriptor) => !existProperties.contains(descriptor.propertyId))
+        .toList();
+    final fabBtns = availableAppend
         .map(
           (descriptor) => FloatingActionButton.small(
             heroTag: null,
@@ -55,37 +58,49 @@ class NodeEditor extends ConsumerWidget {
         children: fabBtns,
       );
     } else {
-      return fabBtns.first;
+      return fabBtns.firstOrNull;
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controllerAsync = ref.watch(nodeEditorControllerProvider(_nodeId));
-    final fab = _buildFab(ref);
-    return Scaffold(
-      appBar: AppBar(title: Text('Edit Node: $_nodeId')),
-      body: controllerAsync.whenUI(
-        data: (propertKeys) {
-          if (propertKeys.isEmpty) {
-            return const Center(child: Text('No traits attached.'));
-          }
-
-          return ListView.separated(
+    final supportKeys = ref
+        .read(editorDescriptorsProvider)
+        .map((descriptor) => descriptor.propertyId)
+        .toSet();
+    return controllerAsync.whenUI(
+      data: (propertKeys) {
+        final fab = _buildFab(ref, propertKeys);
+        Widget body;
+        final supportProperties = propertKeys
+            .where((key) => supportKeys.contains(key.defId))
+            .toList();
+        if (supportProperties.isEmpty) {
+          body = const Center(child: Text('no properties supports.'));
+        } else {
+          body = ListView.separated(
             padding: const EdgeInsets.all(16),
-            itemCount: propertKeys.length,
+            itemCount: supportProperties.length,
             separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (_, index) {
               final key = propertKeys[index];
-              return PropertyEditTile(propertyKey: key);
+              return PropertyEditTile(
+                propertyKey: key,
+                descriptor: ref.read(editorDescriptorProvider(key.defId)),
+              );
             },
           );
-        },
-      ),
-      floatingActionButtonLocation: fab is ExpandableFab
-          ? ExpandableFab.location
-          : null,
-      floatingActionButton: fab,
+        }
+        return Scaffold(
+          appBar: AppBar(title: Text('Edit Node: $_nodeId')),
+          body: body,
+          floatingActionButtonLocation: fab is ExpandableFab
+              ? ExpandableFab.location
+              : null,
+          floatingActionButton: fab,
+        );
+      },
     );
   }
 }

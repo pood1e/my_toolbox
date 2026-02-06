@@ -6,16 +6,9 @@ import '../compute_engines/direct_engine.dart';
 import '../converters/typed_json_converter.dart';
 import '../value_types/simple_json_type.dart';
 
-class IconProperty extends PropertyDescriptor<IconData, IconData>
-    implements PropertyDefaultEditConfig<IconData> {
+class IconProperty extends PropertyDescriptor<IconData, IconData> {
   @override
   String get propertyId => '_icon';
-
-  @override
-  IconData get defaultConfig => Icons.question_mark;
-
-  @override
-  String get name => 'icon';
 
   @override
   TypeDescriptor<IconData, IconData> get typeDescriptor =>
@@ -24,9 +17,6 @@ class IconProperty extends PropertyDescriptor<IconData, IconData>
         jsonValueConverter: IconDataConverter(),
         engine: DirectEngine<IconData>(),
       );
-
-  @override
-  IconData get icon => Icons.stars;
 }
 
 class IconDataConverter implements TypedJsonConverter<IconData> {

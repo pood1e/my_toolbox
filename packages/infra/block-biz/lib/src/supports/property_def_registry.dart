@@ -13,19 +13,6 @@ List<PropertyDescriptor> availablePropertyDefs(Ref ref) => <PropertyDescriptor>[
 ];
 
 @riverpod
-List<PropertyDefaultEditConfig> defaultConfigPropertyDefs(Ref ref) => [
-  NameProperty(),
-  IconProperty(),
-];
-
-@riverpod
-PropertyDefaultEditConfig defaultConfigPropertyDef(Ref ref, String propertyId) =>
-    ref
-        .read(defaultConfigPropertyDefsProvider)
-        .where((def) => def.propertyId == propertyId)
-        .first;
-
-@riverpod
 Map<String, PropertyDescriptor> propertyDefRegistry(Ref ref) {
   final propertyDefs = ref.read(availablePropertyDefsProvider);
   return {for (final p in propertyDefs) p.propertyId: p};

@@ -12,8 +12,12 @@ class PropertyAtomConfigDao extends DatabaseAccessor<NodeDatabase>
     with _$PropertyAtomConfigDaoMixin {
   PropertyAtomConfigDao(super.db);
 
+  Expression<bool> _eqKey(PropertyKey key) =>
+      propertyAtomConfigs.nodeId.equals(key.nodeId) &
+      propertyAtomConfigs.defId.equals(key.defId);
+
   SimpleSelectStatement<$PropertyAtomConfigsTable, PropertyAtomConfigEntity>
-  _selectStatement(List<PropertyKey> keys) {
+  _inKeys(Set<PropertyKey> keys) {
     final query = select(propertyAtomConfigs);
 
     if (keys.isEmpty) {
@@ -21,11 +25,7 @@ class PropertyAtomConfigDao extends DatabaseAccessor<NodeDatabase>
       return query;
     }
 
-    query.where(
-      (t) => keys
-          .map((key) => t.nodeId.equals(key.nodeId) & t.defId.equals(key.defId))
-          .reduce((a, b) => a | b),
-    );
+    query.where((t) => keys.map(_eqKey).reduce((a, b) => a | b));
 
     return query;
   }
@@ -46,21 +46,18 @@ class PropertyAtomConfigDao extends DatabaseAccessor<NodeDatabase>
     );
   }
 
-  Future<List<PropertyAtomConfigEntity>> getByKeys(
-    List<PropertyKey> keys,
-  ) async {
-    final query = _selectStatement(keys);
-    return query.get();
-  }
+  Future<List<PropertyAtomConfigEntity>> getByKeys(Set<PropertyKey> keys) =>
+      _inKeys(keys).get();
 
-  Future<List<PropertyAtomConfigEntity>> getByKey(PropertyKey key) async {
-    final query = _selectStatement([key]);
-    return query.get();
-  }
+  Future<List<PropertyAtomConfigEntity>> getByKey(PropertyKey key) =>
+      _inKeys({key}).get();
 
-  Stream<List<PropertyAtomConfigEntity>> watchByKey(PropertyKey key) {
-    final query = _selectStatement([key]);
-    return query.watch();
+  Stream<List<PropertyAtomConfigEntity>> watchByKey(PropertyKey key) =>
+      _inKeys({key}).watch();
+
+  Future<void> deleteConfig(PropertyKey key) async {
+    final query = delete(propertyAtomConfigs)..where((_) => _eqKey(key));
+    await query.go();
   }
 }
 

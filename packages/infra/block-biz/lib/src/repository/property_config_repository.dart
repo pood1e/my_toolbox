@@ -3,6 +3,7 @@ import 'package:app_core/object.dart';
 
 import '../data/daos/complex_compute_dao.dart';
 import '../data/daos/property_atom_config_dao.dart';
+import '../data/daos/property_dao.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
 import 'impl/property_config_repo_impl.dart';
@@ -62,11 +63,18 @@ abstract class PropertyConfigRepository {
   Stream<PropertyConfig> watchConfig(PropertyKey key);
 
   Stream<List<PropertyKey>> watchNodeKeys(String nodeId);
+
+  Future<void> deleteConfig(PropertyKey key);
 }
 
 @riverpod
 Future<PropertyConfigRepository> propertyConfigRepo(Ref ref) async {
   final dao = await ref.watch(propertyAtomConfigDaoProvider.future);
   final computeDao = await ref.watch(complexComputeDaoProvider.future);
-  return PropertyConfigRepoImpl(dao: dao, computeDao: computeDao);
+  final propertyDao = await ref.watch(propertyDaoProvider.future);
+  return PropertyConfigRepoImpl(
+    dao: dao,
+    computeDao: computeDao,
+    propertyDao: propertyDao,
+  );
 }

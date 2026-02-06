@@ -38,4 +38,10 @@ extension PropertyStateWidget<T> on PropertyState<T> {
     Uninitialized<dynamic>() =>
       uninitialized ?? const DefaultErrorWidget(error: 'empty'),
   };
+
+  T? getValue({bool acceptOld = false}) => switch (this) {
+    Idle<T>(:final value) => value,
+    Calculating<T>(:final oldValue) => acceptOld ? oldValue : null,
+    _ => null,
+  };
 }

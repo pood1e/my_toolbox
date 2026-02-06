@@ -66,10 +66,13 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
     markTablesUpdated({properties});
   }
 
-  /// 通用错误递归标记
+  /// 通用错误递归标记 (Error)
+  /// [includeSelf] 为 true 时，rootKeys 也会被标记为 rootError。
+  /// [includeSelf] 为 false 时，只标记 rootKeys 的下游依赖为 ReferenceInvalid，跳过 rootKeys 本身。
   Future<void> markErrorRecursive({
     required Set<PropertyKey> rootKeys,
-    required ValueError rootError,
+    ValueError? rootError,
+    bool includeSelf = true,
   }) async {
     if (rootKeys.isEmpty) return;
 
@@ -86,11 +89,12 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
     }
 
     final refErrorIndex = ValueError.referenceInvalid.index;
-    final rootErrorIndex = rootError.index;
+    final rootErrorIndex = rootError?.index;
     final errorStatusIndex = ValueStatus.error.index;
 
-    // SQL 逻辑变化：
-    // 在 WHERE 子句中增加了状态检查
+    // 根据 includeSelf 决定深度过滤条件
+    final depthCondition = includeSelf ? 'd.depth >= 0' : 'd.depth > 0';
+
     final sql =
         '''
       WITH RECURSIVE downstream(node_id, def_id, depth) AS (
@@ -106,7 +110,7 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
           error_type = CASE 
               WHEN d.depth = 0 THEN $rootErrorIndex 
               ELSE $refErrorIndex 
-          END
+          END,
           val_bool = NULL,
           val_int = NULL,
           val_real = NULL,
@@ -115,6 +119,7 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
       FROM downstream d
       WHERE properties.node_id = d.node_id 
         AND properties.def_id = d.def_id
+        AND $depthCondition
         AND (
           d.depth = 0  
           OR

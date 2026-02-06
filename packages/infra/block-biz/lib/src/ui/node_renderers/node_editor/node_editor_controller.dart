@@ -2,11 +2,9 @@ import 'package:app_core/di.dart';
 
 import '../../../domain/property.dart';
 import '../../../domain/property_config.dart';
-import '../../../mappers/property_mapper.dart';
 import '../../../repository/property_config_repository.dart';
-import '../../../repository/property_repository.dart';
 import '../../../supports/property_def_registry.dart';
-import '../../state/property_state.dart';
+import 'property_editor_registry.dart';
 
 part 'node_editor_controller.g.dart';
 
@@ -21,7 +19,7 @@ class NodeEditorController extends _$NodeEditorController {
 
   Future<void> createWithDefaultConfig(String defId) async {
     final defaultConfig = ref
-        .read(defaultConfigPropertyDefProvider(defId))
+        .read(editorDescriptorProvider(defId))
         .defaultConfig;
     final configRepo = await ref.read(propertyConfigRepoProvider.future);
     final descriptor = ref.read(propertyDescriptorProvider(defId));
@@ -35,15 +33,19 @@ class NodeEditorController extends _$NodeEditorController {
       ),
     );
   }
+
+  Future<void> deleteProperty(String defId) async {
+    final configRepo = await ref.read(propertyConfigRepoProvider.future);
+    await configRepo.deleteConfig(PropertyKey(nodeId: nodeId, defId: defId));
+  }
 }
 
 @riverpod
-Stream<PropertyState> watchProperty(Ref ref, PropertyKey key) async* {
-  final descriptor = ref
-      .read(propertyDescriptorProvider(key.defId))
-      .typeDescriptor;
-  final repo = await ref.watch(propertyRepositoryProvider.future);
-  yield* repo
-      .watchSingle(key, descriptor.storageType)
-      .map((p) => p.toState(descriptor.valueConverter));
+class NodeEditorModeController extends _$NodeEditorModeController {
+  @override
+  bool build(PropertyKey key) => false;
+
+  void toggle() {
+    state = !state;
+  }
 }

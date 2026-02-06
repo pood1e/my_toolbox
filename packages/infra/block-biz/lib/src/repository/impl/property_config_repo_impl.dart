@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../data/daos/complex_compute_dao.dart';
 import '../../data/daos/property_atom_config_dao.dart';
+import '../../data/daos/property_dao.dart';
 import '../../data/node_database.dart';
 import '../../data/tables/property_config.dart';
 import '../../domain/property.dart';
@@ -12,12 +13,15 @@ import '../property_config_repository.dart';
 class PropertyConfigRepoImpl extends PropertyConfigRepository {
   final PropertyAtomConfigDao _dao;
   final ComplexComputeDao _computeDao;
+  final PropertyDao _propertyDao;
 
   PropertyConfigRepoImpl({
     required PropertyAtomConfigDao dao,
     required ComplexComputeDao computeDao,
+    required PropertyDao propertyDao,
   }) : _dao = dao,
-       _computeDao = computeDao;
+       _computeDao = computeDao,
+       _propertyDao = propertyDao;
 
   @override
   Stream<PropertyConfig> watchConfig(PropertyKey key) =>
@@ -142,4 +146,14 @@ class PropertyConfigRepoImpl extends PropertyConfigRepository {
   @override
   Stream<List<PropertyKey>> watchNodeKeys(String nodeId) =>
       _dao.watchNode(nodeId);
+
+  @override
+  Future<void> deleteConfig(PropertyKey key) => _dao.transaction(() async {
+    // mark
+    await _computeDao.markErrorRecursive(rootKeys: {key}, includeSelf: false);
+    // delete config
+    await _dao.deleteConfig(key);
+    // delete property
+    await _propertyDao.deleteProperty(key);
+  });
 }
