@@ -1,3 +1,4 @@
+import 'property.dart';
 import 'stored_config.dart';
 import 'stored_value.dart';
 
@@ -41,5 +42,19 @@ class ValueConvertException implements Exception {}
 /// 计算引擎
 /// 从配置到值的计算
 abstract class ComputeEngine<C, T> {
-  Future<T> compute(C config);
+  Future<T> compute(C config, ComputeEngineContext ctx);
 }
+
+abstract class ComputeEngineContext {
+  Future<Map<PropertyKey, Property>> getProperties(Set<PropertyKey> keys);
+
+  Future<Property?> getProperty(PropertyKey key);
+
+  Future<T> convertValue<T>(PropertyKey key, NormalStoredValue value);
+}
+
+sealed class ComputeException implements Exception {}
+
+class DependencyDirtyException extends ComputeException {}
+
+class DependencyErrorException extends ComputeException {}

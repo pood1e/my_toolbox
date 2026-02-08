@@ -6,7 +6,6 @@ import '../../domain/property_descriptor.dart';
 import '../../domain/stored_value.dart';
 import '../../domain/type_descriptor.dart';
 import '../../repository/property_compute_repository.dart';
-import '../compute_engine_context.dart';
 import '../compute_task_scheduler.dart';
 
 class ComputeTaskImpl implements ComputeTask {
@@ -31,7 +30,10 @@ class ComputeTaskImpl implements ComputeTask {
       final actualConfig = _ctx.descriptor.configConverter.decode(
         config.configs,
       );
-      dynamic result = await _ctx.descriptor.engine.compute(actualConfig);
+      dynamic result = await _ctx.descriptor.engine.compute(
+        actualConfig,
+        _ctx.engineCtx,
+      );
       final property = NormalStoredValue(
         value: _ctx.descriptor.valueConverter.encode(result),
         storageType: _ctx.descriptor.storageType,
