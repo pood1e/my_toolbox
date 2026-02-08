@@ -19,7 +19,7 @@ class NodeEditorController extends _$NodeEditorController {
 
   Future<void> createWithDefaultConfig(String defId) async {
     final defaultConfig = ref
-        .read(editorDescriptorProvider(defId))
+        .read(propertyEditorDescriptorProvider(defId))
         .defaultConfig;
     final configRepo = await ref.read(propertyConfigRepoProvider.future);
     final descriptor = ref.read(propertyDescriptorProvider(defId));

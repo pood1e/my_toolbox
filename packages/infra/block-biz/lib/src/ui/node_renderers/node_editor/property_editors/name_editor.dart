@@ -4,34 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../../domain/property.dart';
-import '../../../../supports/property_def_registry.dart';
 import '../../../common_property_controller.dart';
 import '../../../state/property_state.dart';
-import '../node_editor_controller.dart';
-import '../property_edit_support.dart';
+import '../property_editor_controller.dart';
+import '../property_editor_descriptor.dart';
 import '../property_editor_registry.dart';
 
-class NameEditor extends EditorDescriptor<String, String> {
-  @override
-  String get propertyId => '_name';
-
-  @override
-  String get name => 'name';
-
-  @override
-  IconData get icon => Symbols.id_card;
-
-  @override
-  String get defaultConfig => 'unnamed';
-
-  @override
-  Widget Function(PropertyKey) get configWidgetBuilder =>
-      (key) => _NameEditorWidget(propertyKey: key);
-
-  @override
-  Widget Function(PropertyKey)? get valueWidgetBuilder =>
-      (key) => _NameViewerWidget(propertyKey: key);
-}
+final nameEditor = InlineEditorDescriptor<String>(
+  propertyId: '_name',
+  name: 'Name',
+  icon: Symbols.id_card,
+  defaultConfig: 'unnamed',
+  savePolicy: SavePolicy.manual,
+  viewerBuilder: (key) => _NameViewerWidget(propertyKey: key),
+  editorBuilder: (key) => _NameEditorWidget(propertyKey: key),
+  validator: (value) {
+    if (value.isEmpty) {
+      return 'Name cannot be empty'; // 返回错误信息
+    }
+    return null; // 返回 null 表示校验通过
+  },
+);
 
 class _NameViewerWidget extends ConsumerWidget {
   final PropertyKey _propertyKey;
@@ -41,100 +34,48 @@ class _NameViewerWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final descriptor = ref.read(editorDescriptorProvider(_propertyKey.defId));
+    final descriptor = ref.read(
+      propertyEditorDescriptorProvider(_propertyKey.defId),
+    );
     return ref
         .watch(watchPropertyProvider(_propertyKey))
         .whenUI(
-          data: (state) => ListTile(
-            title: Text(state.getValue() ?? descriptor.defaultConfig),
-          ),
+          data: (state) => Text(state.getValue() ?? descriptor.defaultConfig),
         );
   }
 }
 
-class _NameEditorWidget extends ConsumerStatefulWidget {
-  final PropertyKey propertyKey;
+class _NameEditorWidget extends ConsumerWidget {
+  final PropertyKey _propertyKey;
 
-  const _NameEditorWidget({required this.propertyKey});
-
-  @override
-  ConsumerState<_NameEditorWidget> createState() => _NameEditorWidgetState();
-}
-
-class _NameEditorWidgetState extends ConsumerState<_NameEditorWidget> {
-  late final TextEditingController _controller;
-
-  bool _isInitialized = false;
+  const _NameEditorWidget({required PropertyKey propertyKey})
+    : _propertyKey = propertyKey;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    _controller.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final controllerAsync = ref.watch(
-      commonConfigControllerProvider(widget.propertyKey),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stateAsync = ref.watch(
+      propertyEditorControllerProvider(_propertyKey),
+    );
+    final controller = ref.read(
+      propertyEditorControllerProvider(_propertyKey).notifier,
     );
 
-    final descriptor = ref.read(
-      propertyDescriptorProvider(widget.propertyKey.defId),
-    );
-
-    return controllerAsync.whenUI(
-      data: (config) {
-        final currentValue =
-            descriptor.typeDescriptor.configConverter.decode(config.configs)
-                as String;
-
-        if (!_isInitialized) {
-          _controller.text = currentValue;
-          _isInitialized = true;
-        }
-
-        return Card(
-          child: ListTile(
-            title: TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                hintText: 'Enter name',
-                border: InputBorder.none,
-              ),
-            ),
-            trailing:
-                _controller.text.isNotEmpty && _controller.text != currentValue
-                ? IconButton(
-                    onPressed: () async {
-                      final notifier = ref.read(
-                        commonConfigControllerProvider(
-                          widget.propertyKey,
-                        ).notifier,
-                      );
-                      await notifier.fullUpdate(_controller.text);
-                      ref
-                          .read(
-                            nodeEditorModeControllerProvider(
-                              widget.propertyKey,
-                            ).notifier,
-                          )
-                          .toggle();
-                    },
-                    icon: const Icon(Icons.check),
-                  )
-                : null,
-          ),
-        );
-      },
+    return stateAsync.when(
+      data: (state) => TextFormField(
+        initialValue: state.current,
+        autofocus: true,
+        decoration: InputDecoration(
+          hintText: 'Enter name',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+          isDense: true,
+          errorText: state.validationError, // 显示校验错误
+        ),
+        // 更新草稿
+        onChanged: controller.updateDraft,
+      ),
+      loading: () => const LinearProgressIndicator(),
+      error: (err, _) => Text('Error: $err'),
     );
   }
 }

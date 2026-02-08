@@ -23,11 +23,13 @@ class ComputeTaskWorkerImpl implements ComputeTaskWorker {
     // ====================================================
     // Phase 1: IO 密集型 (获取数据与静态结构)
     // ====================================================
-    logger.d('compute worker started');
+
 
     // 1. 获取所有脏节点
     List<PropertyKey> dirties = await _repo.getDirties();
     if (dirties.isEmpty) return WorkerResult.idle;
+
+    logger.d('compute worker started');
 
     // 2. 获取依赖边
     List<DependencyEdge> allEdges = await _repo.getDirtyDependencyEdges(

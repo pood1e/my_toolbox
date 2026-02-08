@@ -11,11 +11,22 @@ import 'state/property_state.dart';
 part 'common_property_controller.g.dart';
 
 @riverpod
+Stream<PropertyConfig> propertyConfig(Ref ref, PropertyKey key) async* {
+  final repo = await ref.watch(propertyConfigRepoProvider.future);
+  yield* repo.watchConfig(key);
+}
+
+// self state
+@riverpod
 class CommonConfigController extends _$CommonConfigController {
   @override
-  Stream<PropertyConfig> build(PropertyKey key) async* {
-    final repo = await ref.watch(propertyConfigRepoProvider.future);
-    yield* repo.watchConfig(key);
+  Future<Object> build(PropertyKey key) async {
+    final descriptor = ref
+        .read(propertyDescriptorProvider(key.defId))
+        .typeDescriptor;
+
+    final result = await ref.watch(propertyConfigProvider(key).future);
+    return descriptor.configConverter.decode(result.configs);
   }
 
   Future<void> batchUpdate(List<ParticalConfigChange> changes) async {
@@ -51,4 +62,3 @@ Stream<PropertyState> watchProperty(Ref ref, PropertyKey key) async* {
       .watchSingle(key, descriptor.storageType)
       .map((p) => p.toState(descriptor.valueConverter));
 }
-
