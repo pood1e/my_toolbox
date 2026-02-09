@@ -79,9 +79,9 @@ class PropertyEditorController extends _$PropertyEditorController {
       // 注意：这里不需要手动设置 state，因为 Repo 的 update 会触发 watchConfig 的流更新
       // 我们依赖 Stream 回调来更新 remote 字段
     } catch (e) {
-      state = AsyncValue.data(
-        state.value!.copyWith(isSaving: false, error: e.toString()),
-      );
+      state = AsyncValue.data(state.value!.copyWith(error: e.toString()));
+    } finally {
+      state = AsyncValue.data(state.value!.copyWith(isSaving: false));
     }
   }
 }

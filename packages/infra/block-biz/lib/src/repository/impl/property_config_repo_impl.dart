@@ -37,8 +37,8 @@ class PropertyConfigRepoImpl extends PropertyConfigRepository {
       );
 
   @override
-  Stream<List<PropertyKey>> watchNodeKeys(String nodeId) =>
-      _dao.watchNode(nodeId);
+  Stream<Set<PropertyKey>> watchNodeKeys(String nodeId) =>
+      _dao.watchNode(nodeId).map((list) => list.toSet());
 
   // --- Write Operations ---
 

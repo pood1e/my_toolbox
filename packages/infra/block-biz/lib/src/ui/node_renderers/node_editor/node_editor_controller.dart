@@ -9,7 +9,7 @@ part 'node_editor_controller.g.dart';
 @riverpod
 class NodeEditorController extends _$NodeEditorController {
   @override
-  Stream<List<PropertyKey>> build(String nodeId) async* {
+  Stream<Set<PropertyKey>> build(String nodeId) async* {
     // watch
     final repo = await ref.watch(propertyConfigRepoProvider.future);
     yield* repo.watchNodeKeys(nodeId);
@@ -40,15 +40,5 @@ class NodeEditorController extends _$NodeEditorController {
   Future<void> deleteProperty(String defId) async {
     final configRepo = await ref.read(propertyConfigRepoProvider.future);
     await configRepo.deleteConfig(PropertyKey(nodeId: nodeId, defId: defId));
-  }
-}
-
-@riverpod
-class NodeEditorModeController extends _$NodeEditorModeController {
-  @override
-  bool build(PropertyKey key) => false;
-
-  void toggle() {
-    state = !state;
   }
 }

@@ -62,7 +62,7 @@ abstract class PropertyConfigRepository {
   // 给ui使用
   Stream<PropertyConfig> watchConfig(PropertyKey key);
 
-  Stream<List<PropertyKey>> watchNodeKeys(String nodeId);
+  Stream<Set<PropertyKey>> watchNodeKeys(String nodeId);
 
   Future<void> deleteConfig(PropertyKey key);
 }

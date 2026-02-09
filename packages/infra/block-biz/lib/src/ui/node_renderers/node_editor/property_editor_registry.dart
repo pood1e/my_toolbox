@@ -1,6 +1,7 @@
 import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 
+import '../../../supports/value_types/icon_data_type.dart';
 import 'property_editor_descriptor.dart';
 
 part 'property_editor_registry.g.dart';
@@ -31,6 +32,7 @@ List<PropertyEditorDescriptor> propertyEditorDescriptors(Ref ref) => [
         label: 'Pick Icon',
         icon: Icons.grid_view,
         processorId: 'direct_icon', // 对应 IconPickerEditor
+        defaultRawData: {'data': Icons.question_mark.toJson()},
       ),
       RefModeSpec(
         label: 'Use Reference',

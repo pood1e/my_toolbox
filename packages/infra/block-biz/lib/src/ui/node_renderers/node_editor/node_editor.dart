@@ -41,7 +41,7 @@ class NodeEditor extends ConsumerWidget {
   Widget? _buildFab(
     BuildContext context,
     WidgetRef ref,
-    List<PropertyKey> exist,
+    Set<PropertyKey> exist,
   ) {
     final notifier = ref.read(nodeEditorControllerProvider(_nodeId).notifier);
     final supportEditors = ref.read(propertyEditorDescriptorsProvider);
@@ -115,7 +115,7 @@ class NodeEditor extends ConsumerWidget {
             itemCount: supportProperties.length,
             separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (_, index) {
-              final key = propertKeys[index];
+              final key = supportProperties[index];
               return PropertyEditTile(
                 propertyKey: key,
               );

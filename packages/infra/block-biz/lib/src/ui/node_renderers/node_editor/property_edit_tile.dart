@@ -91,8 +91,7 @@ class PropertyEditTile extends ConsumerWidget {
               isDense: true,
               underline: const SizedBox(),
               icon: const Icon(Icons.more_vert, size: 18),
-              items: descriptor.supportedModes.map((spec) {
-                return DropdownMenuItem(
+              items: descriptor.supportedModes.map((spec) => DropdownMenuItem(
                   value: spec,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -102,8 +101,7 @@ class PropertyEditTile extends ConsumerWidget {
                       Text(spec.label, style: const TextStyle(fontSize: 13)),
                     ],
                   ),
-                );
-              }).toList(),
+                )).toList(),
               onChanged: (newSpec) {
                 if (newSpec != null && newSpec != activeSpec) {
                   controller.switchMode(newSpec);
