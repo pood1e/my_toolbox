@@ -1,116 +1,183 @@
+import 'dart:convert';
+
 import '../data/node_database.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
 import '../domain/stored_config.dart';
 import '../repository/property_config_repository.dart';
 
-extension PropertyConfigEntityToDomain on List<PropertyAtomConfigEntity> {
-  List<StoredConfig> toRecords() {
-    return map((r) => r.toStoredConfig()).toList();
-  }
-
-  PropertyConfig toDomain(PropertyKey key) {
-    return PropertyConfig(key: key, configs: toRecords());
-  }
+extension PropertyConfigEntityMapper on PropertyAtomConfigEntity {
+  /// DB Entity -> Domain StoredConfig
+  StoredConfig toStoredConfig() => StoredConfig(
+    configKey: ConfigKey.values.byName(configKey!),
+    mapKey: mapKey,
+    targetNodeId: targetNodeId,
+    targetDefId: targetDefId,
+    config: config ?? '',
+    affectValue: affectValue,
+  );
 }
 
-extension PropertyAtomConfigEntityToStoredConfig on PropertyAtomConfigEntity {
-  StoredConfig toStoredConfig() {
-    return StoredConfig(
-      configKey: configKey,
-      mapKey: mapKey,
-      targetNodeId: targetNodeId,
-      targetDefId: targetDefId,
-      config: config,
-      affectValue: affectValue,
+extension PropertyConfigFlattening on PropertyConfig {
+  /// 将多态的 Config 转换为扁平的存储记录列表
+  /// 这是 Full Update 的核心：Domain -> DB Records
+  List<StoredConfig> toStoredConfigs() {
+    final records = <StoredConfig>[];
+
+    // 1. 总是记录 Mode
+    records.add(
+      StoredConfig(
+        configKey: ConfigKey.mode,
+        config: map(
+          singleStatic: (_) => SourceMode.singleStatic.name,
+          singleRef: (_) => SourceMode.singleRef.name,
+          multiStatic: (_) => SourceMode.multiStatic.name,
+          multiRef: (_) => SourceMode.multiRef.name,
+          hybrid: (_) => SourceMode.hybrid.name,
+        ),
+      ),
     );
+
+    // 2. 根据模式生成具体记录
+    map(
+      singleStatic: (c) {
+        records.add(
+          StoredConfig(
+            configKey: ConfigKey.source,
+            // 假设 StaticSourceConfig 有 toJson()
+            config: jsonEncode(c.source.toJson()),
+            affectValue: true,
+          ),
+        );
+      },
+      singleRef: (c) {
+        records.add(
+          StoredConfig(
+            configKey: ConfigKey.source,
+            targetNodeId: c.target?.nodeId,
+            targetDefId: c.target?.defId,
+            // 假设 TransformerConfig 有 toJson()
+            config: jsonEncode(c.transformer.toJson()),
+            affectValue: true,
+          ),
+        );
+      },
+      multiStatic: (c) {
+        records.add(
+          StoredConfig(
+            configKey: ConfigKey.aggregate,
+            config: jsonEncode(c.aggregator.toJson()),
+          ),
+        );
+        c.sources.forEach((mapKey, source) {
+          records.add(
+            StoredConfig(
+              configKey: ConfigKey.source,
+              mapKey: mapKey,
+              config: jsonEncode(source.toJson()),
+            ),
+          );
+        });
+      },
+      multiRef: (c) {
+        records.add(
+          StoredConfig(
+            configKey: ConfigKey.aggregate,
+            config: jsonEncode(c.aggregator.toJson()),
+          ),
+        );
+        c.sources.forEach((mapKey, val) {
+          records.add(
+            StoredConfig(
+              configKey: ConfigKey.source,
+              mapKey: mapKey,
+              targetNodeId: val.target?.nodeId,
+              targetDefId: val.target?.defId,
+              config: jsonEncode(val.transformer.toJson()),
+            ),
+          );
+        });
+      },
+      hybrid: (c) {
+        // Hybrid 实现逻辑类似...
+        records.add(
+          StoredConfig(
+            configKey: ConfigKey.aggregate,
+            config: jsonEncode(c.aggregator.toJson()),
+          ),
+        );
+        // ... 添加 staticSources 和 refSources
+      },
+    );
+
+    return records;
   }
 }
 
-extension PropertyConfigDiff on PropertyConfig {
-  /// 对比旧记录，计算变更集
-  List<ParticalConfigChange> diff(List<StoredConfig> oldConfigs) {
+extension ConfigListDiff on List<StoredConfig> {
+  /// 计算变更集
+  /// [key]: 当前属性的 Key (用于构建 PartitionKey)
+  /// [other]: 新的配置列表 (New State)
+  /// 返回: 需要执行的 Insert/Update/Delete 操作列表
+  List<ParticalConfigChange> diffTo(
+    PropertyKey key,
+    List<StoredConfig> newConfigs,
+  ) {
     final changes = <ParticalConfigChange>[];
 
     // 建立索引: (configKey, mapKey) -> Record
-    final oldMap = {for (final r in oldConfigs) (r.configKey, r.mapKey): r};
-    final newMap = {for (final r in configs) (r.configKey, r.mapKey): r};
+    //以此作为唯一标识
+    String id(StoredConfig c) => '${c.configKey.name}#${c.mapKey ?? ""}';
 
-    // 1. Insert & Update
+    final oldMap = {for (final r in this) id(r): r};
+    final newMap = {for (final r in newConfigs) id(r): r};
+
+    // 1. 找出 Insert 和 Update
     for (final entry in newMap.entries) {
-      final id = entry.key;
-      final newRecord = entry.value;
-      final oldRecord = oldMap[id];
+      final configId = entry.key;
+      final newRec = entry.value;
+      final oldRec = oldMap[configId];
 
-      final partialKey = ParticialUpdateConfigKey(
+      final updateKey = ParticialUpdateConfigKey(
         nodeId: key.nodeId,
         refId: key.defId,
-        configKey: id.$1,
-        mapKey: id.$2,
+        configKey: newRec.configKey.name, // 枚举转字符串
+        mapKey: newRec.mapKey,
       );
 
-      final partialRecord = ParticalUpdateConfigRecord(
-        targetNodeId: newRecord.targetNodeId,
-        targetDefId: newRecord.targetDefId,
-        config: newRecord.config,
-        affectValue: newRecord.affectValue,
+      final updateRecord = ParticalUpdateConfigRecord(
+        targetNodeId: newRec.targetNodeId,
+        targetDefId: newRec.targetDefId,
+        config: newRec.config,
+        affectValue: newRec.affectValue,
       );
 
-      if (oldRecord == null) {
-        changes.add(ParticalConfigChange.insert(partialKey, partialRecord));
-      } else if (newRecord != oldRecord) {
-        changes.add(ParticalConfigChange.update(partialKey, partialRecord));
+      if (oldRec == null) {
+        // 新增
+        changes.add(ParticalConfigChange.insert(updateKey, updateRecord));
+      } else if (oldRec != newRec) {
+        // 变更 (利用 Freezed 的 == 重载进行深度比较)
+        changes.add(ParticalConfigChange.update(updateKey, updateRecord));
       }
     }
 
-    // 2. Delete
+    // 2. 找出 Delete
     for (final entry in oldMap.entries) {
       if (!newMap.containsKey(entry.key)) {
+        final oldRec = entry.value;
         changes.add(
           ParticalConfigChange.delete(
             ParticialUpdateConfigKey(
               nodeId: key.nodeId,
               refId: key.defId,
-              configKey: entry.key.$1,
-              mapKey: entry.key.$2,
+              configKey: oldRec.configKey.name,
+              mapKey: oldRec.mapKey,
             ),
           ),
         );
       }
     }
-    return changes;
-  }
-}
 
-/// 3. 业务逻辑: 判断是否脏 (Affect Value Logic)
-extension PariticalConfigDirtyCheck on ParticalConfigChange {
-  /// 根据数据库中的旧 affectValue 判断是否产生影响
-  /// [oldAffectValue]:
-  /// - Insert 时传 null
-  /// - Update/Delete 时传 DB 中的旧值
-  bool isDirty(bool? oldAffectValue) {
-    return map(
-      insert: (c) {
-        // Insert: 只有新值为 true 时影响
-        // old(null) -> new(true) : Dirty
-        // old(null) -> new(false): Clean
-        return c.record.affectValue;
-      },
-      update: (c) {
-        // Update: 只要有一方为 true，就可能涉及值的改变或状态切换
-        // old(true)  -> new(true)  : Dirty (值可能变)
-        // old(false) -> new(true)  : Dirty (激活)
-        // old(true)  -> new(false) : Dirty (失活)
-        // old(false) -> new(false) : Clean
-        final newAffect = c.record.affectValue;
-        return (oldAffectValue == true) || newAffect;
-      },
-      delete: (c) {
-        // Delete: 只有旧值为 true 时影响
-        // old(true)  -> delete : Dirty
-        // old(false) -> delete : Clean
-        return oldAffectValue == true;
-      },
-    );
+    return changes;
   }
 }

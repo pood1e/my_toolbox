@@ -1,12 +1,18 @@
-import '../../domain/property_descriptor.dart';
-import '../../domain/type_descriptor.dart';
-import '../value_types/simple_text_type.dart';
+import '../../domain/property_definition.dart';
+import '../../domain/source_definition.dart';
 
-class NameProperty extends PropertyDescriptor<String, String> {
+class NameProperty extends PropertyDefinition<String> {
   @override
   String get propertyId => '_name';
 
   @override
-  TypeDescriptor<String, String> get typeDescriptor =>
-      SimpleTextTypeDescriptor();
+  String get dateTypeId => 'text';
+
+  @override
+  List<SourceDefinition> get sourceDefinitions => [
+    const SourceDefinition.singleStatic(
+      name: 'simple',
+      processorId: 'direct_text',
+    ),
+  ];
 }

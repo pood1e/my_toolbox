@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../data/daos/complex_compute_dao.dart';
 import '../../data/daos/property_atom_config_dao.dart';
 import '../../data/daos/property_dao.dart';
+import '../../domain/data_type.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
 import '../../domain/stored_value.dart';
@@ -30,7 +31,13 @@ class PropertyComputeRepositoryImpl implements PropertyComputeRepository {
   @override
   Future<PropertyConfig?> getConfig(PropertyKey key) async {
     final entities = await _configDao.getByKey(key);
-    return entities.toDomain(key);
+    if (entities.isEmpty) {
+      return null;
+    }
+    return PropertyConfig.parse(
+      key,
+      entities.map((entity) => entity.toStoredConfig()).toList(),
+    );
   }
 
   @override
@@ -76,6 +83,24 @@ class PropertyComputeRepositoryImpl implements PropertyComputeRepository {
 
   @override
   Stream<bool> watchHasDirty() => _computeDao.watchHasDirty();
+
+  @override
+  Future<Map<PropertyKey, Property>> getProperties(
+    Map<PropertyKey, DataTypeDefinition> keyMap,
+  ) async {
+    final propertyEntities = await _propertyDao.getProperties(
+      keyMap.keys.toSet(),
+    );
+    final result = <PropertyKey, Property>{};
+    for (final entity in propertyEntities) {
+      final dataType =
+          keyMap[PropertyKey(nodeId: entity.nodeId, defId: entity.defId)]!;
+      final property = entity.toDomain(dataType.storageType);
+      result[PropertyKey(nodeId: entity.nodeId, defId: entity.defId)] =
+          property;
+    }
+    return result;
+  }
 }
 
 extension RowToDependencyEdge on QueryRow {

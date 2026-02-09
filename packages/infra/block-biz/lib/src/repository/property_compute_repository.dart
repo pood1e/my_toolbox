@@ -3,6 +3,7 @@ import 'package:app_core/di.dart';
 import '../data/daos/complex_compute_dao.dart';
 import '../data/daos/property_atom_config_dao.dart';
 import '../data/daos/property_dao.dart';
+import '../domain/data_type.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
 import '../domain/stored_value.dart';
@@ -20,6 +21,8 @@ abstract class PropertyComputeRepository {
   Stream<bool> watchHasDirty();
 
   Future<void> saveProperties(List<Property> properties);
+
+  Future<Map<PropertyKey, Property>> getProperties(Map<PropertyKey, DataTypeDefinition> keyMap);
 
   Future<void> saveProperty(Property property);
 

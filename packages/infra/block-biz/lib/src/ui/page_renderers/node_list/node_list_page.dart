@@ -21,7 +21,10 @@ class NodeListPage extends ConsumerWidget {
           return ListView.builder(
             itemCount: nodes.length,
             itemBuilder: (context, index) {
-              return NodeTile(node: nodes[index]);
+              return NodeTile(
+                key: ValueKey(nodes[index].id),
+                node: nodes[index],
+              );
             },
           );
         },

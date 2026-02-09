@@ -1,9 +1,7 @@
 import 'package:app_core/di.dart';
 
 import '../../../domain/property.dart';
-import '../../../domain/property_config.dart';
 import '../../../repository/property_config_repository.dart';
-import '../../../supports/property_def_registry.dart';
 import 'property_editor_registry.dart';
 
 part 'node_editor_controller.g.dart';
@@ -17,21 +15,26 @@ class NodeEditorController extends _$NodeEditorController {
     yield* repo.watchNodeKeys(nodeId);
   }
 
-  Future<void> createWithDefaultConfig(String defId) async {
-    final defaultConfig = ref
-        .read(propertyEditorDescriptorProvider(defId))
-        .defaultConfig;
-    final configRepo = await ref.read(propertyConfigRepoProvider.future);
-    final descriptor = ref.read(propertyDescriptorProvider(defId));
+  // File: ui/node_renderers/node_editor/node_editor_controller.dart
 
-    await configRepo.fullUpdate(
-      PropertyConfig(
-        key: PropertyKey(nodeId: nodeId, defId: defId),
-        configs: descriptor.typeDescriptor.configConverter.encode(
-          defaultConfig,
-        ),
-      ),
-    );
+  Future<void> createWithDefaultConfig(String defId) async {
+    // 1. 获取 UI 描述符 (PropertyEditorDescriptor)
+    final descriptor = ref.read(propertyEditorDescriptorProvider(defId));
+
+    // 2. 获取该属性的默认模式规范 (EditorModeSpec)
+    // 通常是 supportedModes 的第一个，例如 StaticModeSpec
+    final defaultSpec = descriptor.defaultMode;
+
+    // 3. 构造 PropertyKey
+    final key = PropertyKey(nodeId: nodeId, defId: defId);
+
+    // 4. 使用 Spec 的工厂方法生成默认的 Domain Configuration 对象
+    // 这会返回 PropertyConfig.singleStatic(...) 或其他子类
+    final newConfig = defaultSpec.createDefaultConfig(key);
+
+    // 5. 调用 Repo 进行全量更新
+    final configRepo = await ref.read(propertyConfigRepoProvider.future);
+    await configRepo.fullUpdate(newConfig);
   }
 
   Future<void> deleteProperty(String defId) async {

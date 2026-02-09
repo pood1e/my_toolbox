@@ -1,11 +1,9 @@
 import 'package:app_core/di.dart';
 
-import '../data/daos/property_dao.dart';
-import '../domain/type_descriptor.dart';
 import '../repository/property_compute_repository.dart';
-import '../supports/property_def_registry.dart';
+import '../supports/compute_engines/compute_engine_registry.dart';
+import '../supports/property_descriptor_registry.dart';
 import 'compute_task_scheduler.dart';
-import 'impl/compute_engine_context_impl.dart';
 import 'impl/compute_task_impl.dart';
 import 'impl/compute_task_scheduler_impl.dart';
 import 'impl/compute_task_worker_impl.dart';
@@ -13,23 +11,15 @@ import 'impl/compute_task_worker_impl.dart';
 part 'service_providers.g.dart';
 
 @riverpod
-Future<ComputeEngineContext> computeEngineContext(Ref ref) async {
-  final dao = await ref.watch(propertyDaoProvider.future);
-  final descriptorMap = ref.read(propertyDefRegistryProvider);
-  return ComputeEngineContextImpl(dao: dao, descriptorMap: descriptorMap);
-}
-
-@riverpod
 Future<ComputeTaskFactory> computeTaskFactory(Ref ref) async {
   final repo = await ref.watch(propertyComputeRepositoryProvider.future);
-  final descriptorMap = ref.read(propertyDefRegistryProvider);
-  final computeEngineContext = await ref.read(
-    computeEngineContextProvider.future,
-  );
+  final descriptorMap = ref.read(propertyDescriptorRegistryProvider);
   return ComputeTaskFactoryImpl(
     descriptorMap: descriptorMap,
     repo: repo,
-    engineCtx: computeEngineContext,
+    aggregatorRegistry: ref.read(aggregatorRegistryProvider),
+    processorRegistry: ref.read(processorRegistryProvider),
+    transformerRegistry: ref.read(transformerRegistryProvider),
   );
 }
 

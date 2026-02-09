@@ -1,108 +1,95 @@
-import 'package:app_core/di.dart';
+// File: ui/node_renderers/node_editor/property_editor_descriptor.dart
+
 import 'package:flutter/material.dart';
 
 import '../../../domain/property.dart';
+import '../../../domain/property_config.dart';
+import '../../../domain/stored_config.dart';
 
-// --- Enums ---
-enum PropertyViewLayout { vertical, horizontal }
-
-enum SavePolicy { immediate, debounce, manual }
-
-// --- Base Descriptor ---
-sealed class PropertyEditorDescriptor<T> {
-  // 公共字段定义在基类，子类不再重复定义
+/// 1. 顶层描述符：定义一个属性支持的所有能力
+class PropertyEditorDescriptor {
   final String propertyId;
   final String name;
   final IconData icon;
-  final T defaultConfig;
-  final PropertyViewLayout viewLayout;
 
-  /// 校验器：返回 null 表示通过，返回错误字符串表示失败
-  final String? Function(T value)? validator;
+  /// 支持的模式列表
+  final List<EditorModeSpec> supportedModes;
 
-  /// 头部操作栏插槽
-  final List<Widget> Function(BuildContext, WidgetRef, PropertyKey)?
-  actionsBuilder;
-
-  const PropertyEditorDescriptor({
+  PropertyEditorDescriptor({
     required this.propertyId,
     required this.name,
     required this.icon,
-    required this.defaultConfig,
-    this.viewLayout = PropertyViewLayout.horizontal,
-    this.validator,
-    this.actionsBuilder,
+    required this.supportedModes,
   });
 
-  /// 获取保存策略 (子类必须实现或覆盖)
-  SavePolicy get savePolicy;
+  EditorModeSpec get defaultMode => supportedModes.first;
 }
 
-// --- Subclasses ---
+/// 2. 模式规格说明 (Specification)
+/// 这是一个 Sealed Class，用于描述不同模式的元数据
+sealed class EditorModeSpec {
+  SourceMode get mode;
+  String get label;
+  IconData get icon;
 
-/// 1. Inline: 原地编辑
-final class InlineEditorDescriptor<T> extends PropertyEditorDescriptor<T> {
-  final PropertyViewLayout? _editLayout;
+  /// 工厂方法：生成该模式下的【默认配置】
+  /// 当用户点击切换模式时调用
+  PropertyConfig createDefaultConfig(PropertyKey key);
+}
 
-  PropertyViewLayout get editLayout => _editLayout ?? viewLayout;
+// --- 具体实现 ---
 
+class StaticModeSpec extends EditorModeSpec {
   @override
-  final SavePolicy savePolicy;
+  final SourceMode mode = SourceMode.singleStatic;
+  @override
+  final String label;
+  @override
+  final IconData icon;
 
-  final Widget Function(PropertyKey key) viewerBuilder;
-  final Widget Function(PropertyKey key) editorBuilder;
+  final String processorId;
+  final Map<String, dynamic> defaultRawData;
 
-  const InlineEditorDescriptor({
-    required super.propertyId,
-    required super.name,
-    required super.icon,
-    required super.defaultConfig,
-    required this.viewerBuilder,
-    required this.editorBuilder,
-    super.viewLayout, // 默认 horizontal
-    super.validator,
-    super.actionsBuilder,
-    PropertyViewLayout? editLayout,
-    this.savePolicy = SavePolicy.manual,
-  }) : _editLayout = editLayout;
-}
-
-/// 2. Modal: 弹窗编辑
-final class ModalEditorDescriptor<T> extends PropertyEditorDescriptor<T> {
-  final Widget Function(PropertyKey key) viewerBuilder;
-  final Future<T?> Function(BuildContext, WidgetRef) onEdit;
-
-  const ModalEditorDescriptor({
-    required super.propertyId,
-    required super.name,
-    required super.icon,
-    required super.defaultConfig,
-    required this.viewerBuilder,
-    required this.onEdit,
-    super.viewLayout,
-    super.validator,
-    super.actionsBuilder,
+  StaticModeSpec({
+    this.label = 'Manual',
+    this.icon = Icons.edit,
+    required this.processorId,
+    this.defaultRawData = const {}, // 默认值，如 {'data': ''}
   });
 
   @override
-  SavePolicy get savePolicy => SavePolicy.manual;
+  PropertyConfig createDefaultConfig(PropertyKey key) => PropertyConfig.singleStatic(
+      key: key,
+      source: StaticSourceConfig(
+        processorId: processorId,
+        raw: defaultRawData,
+      ),
+    );
 }
 
-/// 3. Direct: 直接交互
-final class DirectEditorDescriptor<T> extends PropertyEditorDescriptor<T> {
-  final Widget Function(PropertyKey key) widgetBuilder;
+class RefModeSpec extends EditorModeSpec {
+  @override
+  final SourceMode mode = SourceMode.singleRef;
+  @override
+  final String label;
+  @override
+  final IconData icon;
 
-  const DirectEditorDescriptor({
-    required super.propertyId,
-    required super.name,
-    required super.icon,
-    required super.defaultConfig,
-    required this.widgetBuilder,
-    super.viewLayout,
-    super.validator,
-    super.actionsBuilder,
+  final String defaultTransformerId;
+
+  RefModeSpec({
+    this.label = 'Reference',
+    this.icon = Icons.link,
+    required this.defaultTransformerId,
   });
 
   @override
-  SavePolicy get savePolicy => SavePolicy.immediate;
+  PropertyConfig createDefaultConfig(PropertyKey key) => PropertyConfig.singleRef(
+      key: key,
+      target: null, // 默认未选中
+      transformer: TransformerConfig(
+        transformerId: defaultTransformerId,
+        raw: {},
+      ),
+    );
 }

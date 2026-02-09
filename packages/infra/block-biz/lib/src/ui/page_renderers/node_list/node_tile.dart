@@ -17,9 +17,19 @@ class NodeTile extends ConsumerWidget {
     final nodeStateAsync = ref.watch(nodeStateProvider(_node.id));
     return nodeStateAsync.whenUI(
       data: (nodeState) => ListTile(
-        leading: nodeState.icon.toWidget(
-          data: Icon.new,
-          uninitialized: const Icon(Icons.question_mark),
+        // [修复] 限制 leading 的尺寸，并确保切换时 RenderObject 树结构相对稳定
+        leading: SizedBox(
+          width: 24,
+          height: 24,
+          child: nodeState.icon.toWidget(
+            data: Icon.new,
+            // 确保 loading 时也是一个 24x24 的组件
+            uninitialized: const SizedBox(
+              width: 24,
+              height: 24,
+              child: Icon(Icons.question_mark, size: 20),
+            ),
+          ),
         ),
         title: nodeState.name.toWidget(
           data: Text.new,

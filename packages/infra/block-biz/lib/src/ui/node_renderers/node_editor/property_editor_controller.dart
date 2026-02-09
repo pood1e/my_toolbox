@@ -1,166 +1,86 @@
+// File: ui/node_renderers/node_editor/property_editor_controller.dart
+
 import 'dart:async';
 
 import 'package:app_core/di.dart';
 
 import '../../../domain/property.dart';
 import '../../../domain/property_config.dart';
-import '../../../domain/type_descriptor.dart';
 import '../../../repository/property_config_repository.dart';
-import '../../../supports/property_def_registry.dart';
 import 'property_editor_descriptor.dart';
-import 'property_editor_registry.dart';
 import 'property_editor_state.dart';
 
 part 'property_editor_controller.g.dart';
 
 @riverpod
-class PropertyEditorController<T> extends _$PropertyEditorController<T> {
-  late final PropertyEditorDescriptor<T> _descriptor;
-  late final ConfigConverter<T> _converter;
+class PropertyEditorController extends _$PropertyEditorController {
   Timer? _debounceTimer;
 
   @override
-  Stream<PropertyEditorState<T>> build(PropertyKey key) async* {
-    _descriptor =
-        ref.read(propertyEditorDescriptorProvider(key.defId))
-            as PropertyEditorDescriptor<T>;
-    _converter =
-        ref
-                .read(propertyDescriptorProvider(key.defId))
-                .typeDescriptor
-                .configConverter
-            as ConfigConverter<T>;
-
+  Stream<PropertyEditorState> build(PropertyKey key) async* {
     final repo = await ref.watch(propertyConfigRepoProvider.future);
 
-    PropertyEditorState<T>? currentState;
+    // 监听远程变更
+    await for (final remoteConfig in repo.watchConfig(key)) {
+      final current = state.value;
 
-    // 监听 Repo 的实时数据流
-    await for (final remoteValue
-        in repo
-            .watchConfig(key)
-            .map((config) => _converter.decode(config.configs))) {
-      if (currentState == null) {
-        // --- 1. 初始状态 ---
-        currentState = PropertyEditorState<T>(
-          current: remoteValue,
-          remote: remoteValue,
-        );
+      if (current == null) {
+        // 初始化
+        yield PropertyEditorState(remote: remoteConfig, draft: remoteConfig);
+      } else if (!current.isDirty) {
+        // 如果当前没有未保存的草稿，自动跟进远程变更
+        yield current.copyWith(remote: remoteConfig, draft: remoteConfig);
       } else {
-        // --- 2. 后续更新 (来自 Sync) ---
-        if (currentState.isDirty) {
-          // A. 冲突！用户正在编辑，但远程数据变了
-          // 策略：保留用户的草稿 (current)，更新远程基准 (remote)，并标记为 Stale
-          currentState = currentState.copyWith(
-            remote: remoteValue,
-            isStale: true,
-          );
-        } else {
-          // B. 正常同步。用户没有未保存的修改
-          // 策略：直接更新草稿和远程基准，保持一致
-          currentState = currentState.copyWith(
-            current: remoteValue,
-            remote: remoteValue,
-            isStale: false, // 冲突已解决
-            validationError: null, // 假设远程数据总是合法的
-          );
-        }
-      }
-      yield currentState;
-    }
-  }
-
-  /// [UI 调用] 更新草稿
-  void updateDraft(T newDraft, {SavePolicy? policyOverride}) {
-    final oldState = state.value;
-    if (oldState == null) return;
-
-    String? errorMsg;
-    final rawValidator = (_descriptor as dynamic).validator;
-    if (rawValidator != null) {
-      try {
-        errorMsg = rawValidator(newDraft);
-      } catch (e) {
-        errorMsg = 'Type mismatch: ${e.toString()}';
+        // 如果有冲突（用户正在改，远程变了），通常保留用户的 Draft，更新 Remote 基准
+        // 并可以在 UI 提示 "Someone else edited this"
+        yield current.copyWith(remote: remoteConfig);
       }
     }
-
-    // 2. 乐观更新内存状态
-    state = AsyncValue.data(
-      oldState.copyWith(current: newDraft, validationError: errorMsg),
-    );
-
-    // 3. 清理旧的防抖计时器
-    _debounceTimer?.cancel();
-
-    // 如果校验失败，则**绝不**触发任何保存逻辑
-    if (errorMsg != null) {
-      return;
-    }
-
-    // 4. 根据策略决定是否自动保存
-    final policy = policyOverride ?? _descriptor.savePolicy;
-    if (policy == SavePolicy.immediate) {
-      save();
-    } else if (policy == SavePolicy.debounce) {
-      _debounceTimer = Timer(const Duration(milliseconds: 800), save);
-    }
   }
 
-  /// [UI 调用] 放弃修改 (Cancel 按钮)
-  void cancelChanges() {
-    final oldState = state.value;
-    if (oldState == null) return;
+  /// 切换模式 (Mode Switch)
+  /// 这是一个结构性变更，通常立即保存
+  Future<void> switchMode(EditorModeSpec spec) async {
+    final current = state.value;
+    if (current == null) return;
 
-    // 将草稿 (current) 回滚到最新的远程基准 (remote)
-    // 这样做同时清除了 isDirty 和 isStale 状态
-    state = AsyncValue.data(
-      oldState.copyWith(
-        current: oldState.remote,
-        isStale: false,
-        validationError: null,
-      ),
-    );
-    _debounceTimer?.cancel();
+    // 1. 生成新模式的默认配置
+    final newConfig = spec.createDefaultConfig(key);
+
+    // 2. 立即更新 Draft 并保存
+    // (结构性变更通常不防抖，防止 UI 渲染错误的编辑器)
+    state = AsyncValue.data(current.copyWith(draft: newConfig));
+    await _performSave(newConfig);
   }
 
-  /// [UI 调用] 保存修改 (Save 按钮 或 自动触发)
-  Future<void> save() async {
-    final currentState = state.value;
-    if (currentState == null || !currentState.canSave) {
-      return; // 如果状态不允许保存，直接返回
-    }
+  /// 更新 Draft (用户输入)
+  /// 这是一个值变更，通常防抖保存
+  void updateDraft(PropertyConfig newDraft) {
+    final current = state.value;
+    if (current == null) return;
 
-    state = AsyncValue.data(currentState.copyWith(isSaving: true));
+    // 1. 乐观更新
+    state = AsyncValue.data(current.copyWith(draft: newDraft));
 
+    // 2. 防抖保存
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _performSave(newDraft);
+    });
+  }
+
+  Future<void> _performSave(PropertyConfig configToSave) async {
+    state = AsyncValue.data(state.value!.copyWith(isSaving: true));
     try {
       final repo = await ref.read(propertyConfigRepoProvider.future);
+      await repo.fullUpdate(configToSave); // Repo 内部会做 Diff
 
-      await repo.fullUpdate(
-        PropertyConfig(
-          key: key,
-          configs: _converter.encode(currentState.current),
-        ),
-      );
-
-      // 保存成功后，乐观地更新状态。
-      // 新的 remote 基准就是我们刚刚提交的 current 值。
-      // isDirty 和 isStale 状态也随之解除。
-      state = AsyncValue.data(
-        currentState.copyWith(
-          isSaving: false,
-          remote: currentState.current,
-          isStale: false,
-        ),
-      );
+      // 保存成功后，Remote 追上 Draft
+      // 注意：这里不需要手动设置 state，因为 Repo 的 update 会触发 watchConfig 的流更新
+      // 我们依赖 Stream 回调来更新 remote 字段
     } catch (e) {
-      // 保存失败
       state = AsyncValue.data(
-        currentState.copyWith(
-          isSaving: false,
-          // 可以将保存错误也显示在 validationError 字段
-          validationError: 'Failed to save: ${e.toString()}',
-        ),
+        state.value!.copyWith(isSaving: false, error: e.toString()),
       );
     }
   }

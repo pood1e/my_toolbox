@@ -1,0 +1,46 @@
+// 基础配置接口
+abstract class Configurable<C> {
+  C fromDb(Map<String, dynamic> value);
+
+  Map<String, dynamic> toDb(C value);
+
+  String? validate(C value);
+}
+
+abstract class Processor<C, T> extends Configurable<C> {
+  String get id;
+
+  String get typeId;
+
+  Future<T> process(C config);
+}
+
+abstract class Transformer<S, C, T> extends Configurable<C> {
+  String get id;
+
+  String get sTypeId;
+
+  String get tTypeId;
+
+  Future<T> transform(S source, C config);
+}
+
+abstract class Aggregator<C, T> extends Configurable<C> {
+  String get id;
+
+  String get typeId;
+
+  Future<T> aggregate(Map<String, T> tMap, C config);
+}
+
+sealed class ComputeException implements Exception {}
+
+class ProcessorException extends ComputeException {}
+
+class TransformerException extends ComputeException {}
+
+class DependencyDirtyException extends TransformerException {}
+class DependencyErrorException extends TransformerException {}
+
+
+class AggregatorException extends ComputeException {}

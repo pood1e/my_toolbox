@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 
 import '../data/node_database.dart';
+import '../domain/data_type.dart';
 import '../domain/property.dart';
 import '../domain/stored_value.dart';
-import '../domain/type_descriptor.dart';
 import '../ui/state/property_state.dart';
 
 extension PropertiesCompanions on PropertiesCompanion {
@@ -118,7 +118,7 @@ extension PropertyEntityToDomain on PropertyEntity {
 }
 
 extension PropertyDomainToState on Property? {
-  PropertyState<T> toState<T>(ValueConverter<T> converter) {
+  PropertyState<T> toState<T>(DataTypeDefinition<T> converter) {
     if (this == null) {
       return PropertyState.uninitialized();
     }
@@ -126,10 +126,10 @@ extension PropertyDomainToState on Property? {
       ErrorStoredValue(:final error) => PropertyState.error(errorType: error),
 
       NormalStoredValue(:final value) => PropertyState.idle(
-        value: converter.decode(value),
+        value: converter.fromDb(value),
       ),
       DirtyStoredValue(:final value) => PropertyState.calculating(
-        oldValue: converter.decode(value),
+        oldValue: converter.fromDb(value),
       ),
     };
   }

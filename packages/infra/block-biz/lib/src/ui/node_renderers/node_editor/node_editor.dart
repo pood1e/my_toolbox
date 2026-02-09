@@ -118,9 +118,6 @@ class NodeEditor extends ConsumerWidget {
               final key = propertKeys[index];
               return PropertyEditTile(
                 propertyKey: key,
-                descriptor: ref.read(
-                  propertyEditorDescriptorProvider(key.defId),
-                ),
               );
             },
           );

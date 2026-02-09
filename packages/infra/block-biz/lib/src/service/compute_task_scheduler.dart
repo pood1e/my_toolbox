@@ -1,8 +1,8 @@
+import '../domain/compute_engine.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
+import '../domain/property_definition.dart';
 import '../domain/stored_value.dart';
-import '../domain/type_descriptor.dart';
-import 'compute_engine_context.dart';
 
 /// Worker 执行结果状态
 enum WorkerResult {
@@ -43,13 +43,23 @@ abstract class ComputeTaskFactory {
 }
 
 abstract class ComputeContext {
-  TypeDescriptor get descriptor;
+  PropertyDescriptor get descriptor;
 
-  ComputeEngineContext get engineCtx;
+  Map<String, Processor> get processorRegistry;
+
+  Map<String, Transformer> get transformerRegistry;
+
+  Map<String, Aggregator> get aggregatorRegistry;
+
+  // ComputeEngineContext get engineCtx;
 
   Future<T> transcation<T>(Future<T> Function() action);
 
   Future<PropertyConfig?> getConfig();
+
+  Future<Map<PropertyKey, Property>> getProperties(Set<PropertyKey> keys);
+
+  Future<Property?> getProperty(PropertyKey key);
 
   Future<void> markDownstreamDirty();
 
