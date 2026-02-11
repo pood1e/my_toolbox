@@ -1,17 +1,31 @@
 import 'package:app_core/di.dart';
+import 'package:flutter/material.dart';
 
 import '../domain/config_spec.dart';
 import '../domain/property_config.dart';
 import 'compute_engines/compute_engine_registry.dart';
-import 'properties/icon_property.dart';
-import 'properties/name_property.dart';
+import 'processor/simple_text_processor.dart';
 
 part 'config_spec_registry.g.dart';
 
 @Riverpod(keepAlive: true)
 List<ConfigSpecDefinition> configSpecDefinitions(Ref ref) => [
-  nameConfigSpec,
-  iconConfigSpec,
+  ConfigSpecDefinition.singleStatic(
+    id: 'name_config',
+    processSpecs: {
+      'simple_text': ComponentSpec(
+        createDefault: () => const SimpleText(data: 'unnamed'),
+      ),
+    },
+    defaultProcessor: 'simple_text',
+  ),
+  ConfigSpecDefinition.singleStatic(
+    id: 'icon_config',
+    processSpecs: {
+      'simple_icon': ComponentSpec(createDefault: () => Icons.question_mark),
+    },
+    defaultProcessor: 'simple_icon',
+  ),
 ];
 
 @Riverpod(keepAlive: true)

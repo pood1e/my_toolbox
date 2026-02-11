@@ -42,6 +42,11 @@ class SimpleTextEditor extends StatelessWidget {
       onChanged: (newVal) {
         _onChanged(SimpleText(data: newVal));
       },
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        isDense: true,
+        contentPadding: EdgeInsets.zero,
+      ),
     ),
   );
 }

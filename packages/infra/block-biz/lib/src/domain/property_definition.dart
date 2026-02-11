@@ -1,13 +1,17 @@
+import 'package:app_core/object.dart';
+
 import 'config_spec.dart';
 import 'data_type.dart';
 
-abstract class PropertyDefinition<T> {
-  /// unique
-  String get propertyId;
+part 'property_definition.freezed.dart';
 
-  String get dateTypeId;
-
-  List<String> get conficSpecDefinitions;
+@freezed
+abstract class PropertyDefinition with _$PropertyDefinition {
+  const factory PropertyDefinition({
+    required String propertyId,
+    required String dateTypeId,
+    required List<String> conficSpecDefinitions,
+  }) = _PropertyDefinition;
 }
 
 class PropertyDescriptor<T> {

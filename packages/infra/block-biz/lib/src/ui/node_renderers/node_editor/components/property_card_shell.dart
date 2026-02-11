@@ -23,60 +23,76 @@ class PropertyCardShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isHorizontal = layout == PropertyViewLayout.horizontal;
-
+    List<Widget> acs = actions;
+    if (onDelete != null) {
+      acs = [
+        ...actions,
+        IconButton(
+          icon: const Icon(Icons.delete_outline),
+          onPressed: onDelete,
+          color: Theme.of(context).colorScheme.error,
+        ),
+      ];
+    }
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(12),
-      ),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 8,
           children: [
             // Row 1: Header + (Optional Content) + Actions
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 8,
               children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  name,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                // Horizontal Content Area
-                if (isHorizontal) Expanded(child: content) else const Spacer(),
-
-                // Actions
-                ...actions,
-                const SizedBox(width: 4),
-                if (onDelete != null) ...[
-                  const SizedBox(width: 4),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 18),
-                    onPressed: onDelete,
-                    tooltip: 'Delete property',
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ],
+                _PropertyBasicInfo(name: name, icon: icon),
+                Expanded(child: isHorizontal ? content : const Spacer()),
+                _PropertyActions(actions: acs),
               ],
             ),
-
-            if (!isHorizontal) ...[const SizedBox(height: 8), content],
+            if (!isHorizontal) content,
           ],
         ),
       ),
     );
   }
+}
+
+class _PropertyBasicInfo extends StatelessWidget {
+  final String _name;
+  final IconData _icon;
+
+  const _PropertyBasicInfo({required String name, required IconData icon})
+    : _name = name,
+      _icon = icon;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: 8,
+    direction: Axis.horizontal,
+    children: [
+      Icon(_icon, color: Theme.of(context).colorScheme.primary),
+      Text(
+        _name,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    ],
+  );
+}
+
+class _PropertyActions extends StatelessWidget {
+  final List<Widget> _actions;
+
+  const _PropertyActions({required List<Widget> actions}) : _actions = actions;
+
+  @override
+  Widget build(BuildContext context) =>
+      Wrap(spacing: 8, direction: Axis.horizontal, children: _actions);
 }

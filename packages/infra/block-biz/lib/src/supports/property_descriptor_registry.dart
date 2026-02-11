@@ -2,16 +2,22 @@ import 'package:app_core/di.dart';
 
 import '../domain/property_definition.dart';
 import 'config_spec_registry.dart';
-import 'properties/icon_property.dart';
-import 'properties/name_property.dart';
 import 'value_types/data_type_registry.dart';
 
 part 'property_descriptor_registry.g.dart';
 
 @Riverpod(keepAlive: true)
 List<PropertyDefinition> propertyDefinitions(Ref ref) => [
-  NameProperty(),
-  IconProperty(),
+  const PropertyDefinition(
+    propertyId: '_name',
+    dateTypeId: 'text',
+    conficSpecDefinitions: ['name_config'],
+  ),
+  const PropertyDefinition(
+    propertyId: '_icon',
+    dateTypeId: 'icon',
+    conficSpecDefinitions: ['icon_config'],
+  ),
 ];
 
 @Riverpod(keepAlive: true)
