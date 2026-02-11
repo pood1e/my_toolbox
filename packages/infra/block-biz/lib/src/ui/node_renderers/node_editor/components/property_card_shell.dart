@@ -16,7 +16,7 @@ class PropertyCardShell extends ConsumerWidget {
   const PropertyCardShell({
     super.key,
     required PropertyKey propertyKey,
-    required PropertyViewLayout layout,
+    PropertyViewLayout layout = PropertyViewLayout.horizontal,
     required PropertyEditorDefinition definition,
     required Widget child,
     List<Widget> actions = const <Widget>[],

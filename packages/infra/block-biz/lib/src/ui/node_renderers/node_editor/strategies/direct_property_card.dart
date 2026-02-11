@@ -1,12 +1,11 @@
 import 'package:app_core/di.dart';
+import 'package:common_ui/component.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../domain/property.dart';
 import '../../../property_draft/draft_controller.dart';
 import '../components/edit_container.dart';
 import '../components/property_card_shell.dart';
-import '../components/property_error_card.dart';
-import '../components/property_loading_card.dart';
 import '../property_editor_definition.dart';
 
 class DirectPropertyCard extends ConsumerWidget {
@@ -25,9 +24,11 @@ class DirectPropertyCard extends ConsumerWidget {
       propertyDraftControllerProvider(propertyKey),
     );
 
-    return draftStateAsync.when(
+    return draftStateAsync.whenUI(
       data: (draftState) {
-        final layout = definition.onSpecOrEditChanged(0);
+        final layout = definition.onSpecOrEditChanged == null
+            ? PropertyViewLayout.horizontal
+            : definition.onSpecOrEditChanged!(draftState.currentSpec);
 
         return PropertyCardShell(
           definition: definition,
@@ -40,9 +41,6 @@ class DirectPropertyCard extends ConsumerWidget {
           ),
         );
       },
-      loading: () => PropertyLoadingCard(name: definition.name),
-      error: (e, s) =>
-          PropertyErrorCard(name: definition.name, error: e.toString()),
     );
   }
 }

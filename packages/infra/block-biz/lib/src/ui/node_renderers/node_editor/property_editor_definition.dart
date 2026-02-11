@@ -45,13 +45,13 @@ class InlineEditorDefinition extends PropertyEditorDefinition
   @override
   final Widget Function(PropertyState<dynamic> state) readBuilder;
 
-  final PropertyViewLayout Function(int, bool) onSpecOrEditChanged;
+  final PropertyViewLayout Function(String, bool)? onSpecOrEditChanged;
 
   InlineEditorDefinition({
     required super.name,
     required super.icon,
     required this.readBuilder,
-    required this.onSpecOrEditChanged,
+    this.onSpecOrEditChanged,
     required super.propertyId,
   });
 }
@@ -85,12 +85,12 @@ class ActionsEditorDefinition extends PropertyEditorDefinition
 }
 
 class DirectEditorDefinition extends PropertyEditorDefinition {
-  final PropertyViewLayout Function(int) onSpecOrEditChanged;
+  final PropertyViewLayout Function(String)? onSpecOrEditChanged;
 
   DirectEditorDefinition({
     required super.name,
     required super.icon,
-    required this.onSpecOrEditChanged,
+    this.onSpecOrEditChanged,
     required super.propertyId,
   });
 }
