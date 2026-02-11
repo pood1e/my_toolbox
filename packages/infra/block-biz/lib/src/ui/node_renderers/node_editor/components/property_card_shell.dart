@@ -1,35 +1,49 @@
+import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../domain/property.dart';
+import '../node_editor_controller.dart';
 import '../property_editor_definition.dart';
 
-class PropertyCardShell extends StatelessWidget {
-  final IconData icon;
-  final String name;
-  final PropertyViewLayout layout;
-  final Widget content;
-  final List<Widget> actions;
-  final VoidCallback? onDelete;
+class PropertyCardShell extends ConsumerWidget {
+  final PropertyKey _propertyKey;
+  final PropertyViewLayout _layout;
+  final PropertyEditorDefinition _definition;
+  final Widget _child;
+  final List<Widget> _actions;
+  final bool _showDelete;
 
   const PropertyCardShell({
     super.key,
-    required this.icon,
-    required this.name,
-    required this.layout,
-    required this.content,
-    required this.actions,
-    this.onDelete,
-  });
+    required PropertyKey propertyKey,
+    required PropertyViewLayout layout,
+    required PropertyEditorDefinition definition,
+    required Widget child,
+    List<Widget> actions = const <Widget>[],
+    bool showDelete = true,
+  }) : _propertyKey = propertyKey,
+       _layout = layout,
+       _definition = definition,
+       _child = child,
+       _actions = actions,
+       _showDelete = showDelete;
 
   @override
-  Widget build(BuildContext context) {
-    final isHorizontal = layout == PropertyViewLayout.horizontal;
-    List<Widget> acs = actions;
-    if (onDelete != null) {
-      acs = [
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHorizontal = _layout == PropertyViewLayout.horizontal;
+    List<Widget> actions = _actions;
+    if (_showDelete) {
+      actions = [
         ...actions,
         IconButton(
           icon: const Icon(Icons.delete_outline),
-          onPressed: onDelete,
+          onPressed: () async {
+            await ref
+                .read(
+                  nodeEditorControllerProvider(_propertyKey.nodeId).notifier,
+                )
+                .deleteProperty(_propertyKey.defId);
+          },
           color: Theme.of(context).colorScheme.error,
         ),
       ];
@@ -38,7 +52,7 @@ class PropertyCardShell extends StatelessWidget {
       elevation: 0,
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,12 +63,15 @@ class PropertyCardShell extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               spacing: 8,
               children: [
-                _PropertyBasicInfo(name: name, icon: icon),
-                Expanded(child: isHorizontal ? content : const Spacer()),
-                _PropertyActions(actions: acs),
+                _PropertyBasicInfo(
+                  name: _definition.name,
+                  icon: _definition.icon,
+                ),
+                Expanded(child: isHorizontal ? _child : const Spacer()),
+                _PropertyActions(actions: actions),
               ],
             ),
-            if (!isHorizontal) content,
+            if (!isHorizontal) _child,
           ],
         ),
       ),
@@ -74,6 +91,7 @@ class _PropertyBasicInfo extends StatelessWidget {
   Widget build(BuildContext context) => Wrap(
     spacing: 8,
     direction: Axis.horizontal,
+    crossAxisAlignment: WrapCrossAlignment.center,
     children: [
       Icon(_icon, color: Theme.of(context).colorScheme.primary),
       Text(
@@ -93,6 +111,10 @@ class _PropertyActions extends StatelessWidget {
   const _PropertyActions({required List<Widget> actions}) : _actions = actions;
 
   @override
-  Widget build(BuildContext context) =>
-      Wrap(spacing: 8, direction: Axis.horizontal, children: _actions);
+  Widget build(BuildContext context) => Wrap(
+    spacing: 8,
+    direction: Axis.horizontal,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    children: _actions,
+  );
 }

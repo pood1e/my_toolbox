@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../../../../domain/property.dart';
 import '../components/property_card_shell.dart';
 import '../components/read_container.dart';
-import '../node_editor_controller.dart';
 import '../property_editor_definition.dart';
 
 class ModalPropertyCard extends ConsumerWidget {
@@ -19,14 +18,7 @@ class ModalPropertyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => PropertyCardShell(
-    icon: definition.icon,
-    name: definition.name,
     layout: PropertyViewLayout.horizontal,
-    // Modal 通常只显示 ReadValue，默认水平即可
-    content: ReadContainer(
-      propertyKey: propertyKey,
-      builder: definition.readBuilder,
-    ),
     actions: [
       IconButton(
         icon: const Icon(Icons.edit, size: 18),
@@ -34,10 +26,12 @@ class ModalPropertyCard extends ConsumerWidget {
         tooltip: 'Open',
       ),
     ],
-    onDelete: () async {
-      await ref
-          .read(nodeEditorControllerProvider(propertyKey.nodeId).notifier)
-          .deleteProperty(propertyKey.defId);
-    },
+    propertyKey: propertyKey,
+    definition: definition,
+    // Modal 通常只显示 ReadValue，默认水平即可
+    child: ReadContainer(
+      propertyKey: propertyKey,
+      builder: definition.readBuilder,
+    ),
   );
 }

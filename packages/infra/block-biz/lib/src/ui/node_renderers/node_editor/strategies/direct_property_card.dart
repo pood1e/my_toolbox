@@ -7,7 +7,6 @@ import '../components/edit_container.dart';
 import '../components/property_card_shell.dart';
 import '../components/property_error_card.dart';
 import '../components/property_loading_card.dart';
-import '../node_editor_controller.dart';
 import '../property_editor_definition.dart';
 
 class DirectPropertyCard extends ConsumerWidget {
@@ -31,20 +30,14 @@ class DirectPropertyCard extends ConsumerWidget {
         final layout = definition.onSpecOrEditChanged(0);
 
         return PropertyCardShell(
-          icon: definition.icon,
-          name: definition.name,
+          definition: definition,
           layout: layout,
-          content: EditorContainer(
+          actions: const [],
+          propertyKey: propertyKey,
+          child: EditorContainer(
             propertyKey: propertyKey,
             specId: draftState.currentSpec,
           ),
-          actions: const [],
-          // Direct 模式通常直接交互，不需要额外 Action
-          onDelete: () async {
-            await ref
-                .read(nodeEditorControllerProvider(propertyKey.nodeId).notifier)
-                .deleteProperty(propertyKey.defId);
-          },
         );
       },
       loading: () => PropertyLoadingCard(name: definition.name),
