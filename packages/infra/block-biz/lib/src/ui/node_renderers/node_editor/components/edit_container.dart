@@ -10,11 +10,13 @@ import '../../../spec_renderers/spec_renderer_registry.dart';
 class EditorContainer extends ConsumerWidget {
   final PropertyKey propertyKey;
   final String specId;
+  final VoidCallback? onExit;
 
   const EditorContainer({
     super.key,
     required this.propertyKey,
     required this.specId,
+    this.onExit,
   });
 
   @override
@@ -42,7 +44,14 @@ class EditorContainer extends ConsumerWidget {
           draft: state.draft,
           onValueChanged: draftController.updateDraft,
           onFocusChanged: draftController.setFocus,
-          onSubmit: draftController.performSave,
+          onSubmit: () async {
+            await draftController.performSave();
+            if (onExit != null) onExit!();
+          },
+          onCancel: () async {
+            draftController.undo();
+            if (onExit != null) onExit!();
+          },
           currentSpec: state.currentSpec,
           currentKey: propertyKey,
         );

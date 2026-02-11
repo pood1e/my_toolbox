@@ -10,7 +10,7 @@ abstract class DataTypeDefinition<T> {
   StorageType get storageType;
 
   // 编解码逻辑 (Codec)
-  T fromDb(dynamic value);
+  T? fromDb(dynamic value);
 
   dynamic toDb(T value);
 }

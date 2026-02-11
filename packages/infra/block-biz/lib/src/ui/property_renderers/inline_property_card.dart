@@ -74,10 +74,7 @@ class _InlinePropertyCardState extends ConsumerState<InlinePropertyCard> {
         final canSave = isDirty && !hasError && !isSaving;
         final layout = renderer.whenSpecAndEdit == null
             ? PropertyViewLayout.horizontal
-            : renderer.whenSpecAndEdit!(
-                draftState.currentSpec,
-                _isEditing,
-              );
+            : renderer.whenSpecAndEdit!(draftState.currentSpec, _isEditing);
 
         return PropertyCardShell(
           layout: layout,
@@ -104,8 +101,8 @@ class _InlinePropertyCardState extends ConsumerState<InlinePropertyCard> {
                   ),
                   onPressed: canSave ? _handleSave : null,
                 ),
-              // todo: add spec group segment
 
+              // todo: add spec group segment
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: isSaving ? null : _handleCancel,
@@ -123,6 +120,7 @@ class _InlinePropertyCardState extends ConsumerState<InlinePropertyCard> {
               ? EditorContainer(
                   propertyKey: propertyKey,
                   specId: draftState.currentSpec,
+                  onExit: _exitEditMode,
                 )
               : ReadContainer(
                   propertyKey: propertyKey,

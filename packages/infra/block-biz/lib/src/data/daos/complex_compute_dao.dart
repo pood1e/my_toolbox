@@ -27,33 +27,28 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
     int i = 0;
     for (final key in rootKeys) {
       if (i > 0) buffer.write(',');
-      // 这里的 0 是初始深度
+      // 0 代表根节点
       buffer.write('(?${i * 2 + 1}, ?${i * 2 + 2}, 0)');
       args.add(key.nodeId);
       args.add(key.defId);
       i++;
     }
 
-    // 根据 includeSelf 决定过滤条件
-    // includeSelf = true  -> depth >= 0 (包含初始节点)
-    // includeSelf = false -> depth > 0  (排除初始节点)
     final depthCondition = includeSelf ? 'depth >= 0' : 'depth > 0';
 
-    final sql =
-        '''
+    final sql = '''
       WITH RECURSIVE downstream(node_id, def_id, depth) AS (
         -- Base Case: 注入参数，深度设为 0
         VALUES ${buffer.toString()}
         
         UNION
         
-        -- Recursive Step: 查找引用者，深度 + 1
-        SELECT c.node_id, c.def_id, d.depth + 1
+        -- Recursive Step: 查找引用者
+        SELECT c.node_id, c.def_id, 1
         FROM property_atom_configs c
         JOIN downstream d ON c.target_node_id = d.node_id AND c.target_def_id = d.def_id 
         WHERE c.affect_value = 1
       )
-      -- 核心修改：尝试插入，如果冲突则更新
       INSERT INTO properties (node_id, def_id, value_status, error_type)
       SELECT node_id, def_id, ${ValueStatus.dirty.index}, NULL
       FROM downstream 
@@ -67,8 +62,6 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
   }
 
   /// 通用错误递归标记 (Error)
-  /// [includeSelf] 为 true 时，rootKeys 也会被标记为 rootError。
-  /// [includeSelf] 为 false 时，只标记 rootKeys 的下游依赖为 ReferenceInvalid，跳过 rootKeys 本身。
   Future<void> markErrorRecursive({
     required Set<PropertyKey> rootKeys,
     ValueError? rootError,
@@ -92,15 +85,14 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
     final rootErrorIndex = rootError?.index;
     final errorStatusIndex = ValueStatus.error.index;
 
-    // 根据 includeSelf 决定深度过滤条件
+    // 0 是根，1 是所有下游
     final depthCondition = includeSelf ? 'd.depth >= 0' : 'd.depth > 0';
 
-    final sql =
-        '''
+    final sql = '''
       WITH RECURSIVE downstream(node_id, def_id, depth) AS (
         VALUES ${buffer.toString()}
         UNION
-        SELECT c.node_id, c.def_id, d.depth + 1
+        SELECT c.node_id, c.def_id, 1
         FROM property_atom_configs c
         JOIN downstream d ON c.target_node_id = d.node_id AND c.target_def_id = d.def_id 
         WHERE c.affect_value = 1

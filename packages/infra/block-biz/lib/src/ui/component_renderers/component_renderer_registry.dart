@@ -13,12 +13,13 @@ part 'component_renderer_registry.g.dart';
 List<ComponentRenderer> processorRenderers(Ref ref) => [
   ProcessorWidget(
     id: 'simple_text',
-    builder: (config, onValueChanged, onFocusChanged, onSubmit) =>
+    builder: (config, onValueChanged, onFocusChanged, onSubmit, onCancel) =>
         SimpleTextEditor(
           text: config,
           onChanged: onValueChanged,
           onFocusChanged: onFocusChanged,
           onSumbit: onSubmit,
+          onCancel: onCancel,
         ),
   ),
   ProcessorDialog(

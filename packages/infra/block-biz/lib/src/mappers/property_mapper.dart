@@ -126,7 +126,7 @@ extension PropertyDomainToState on Property? {
       ErrorStoredValue(:final error) => PropertyState.error(errorType: error),
 
       NormalStoredValue(:final value) => PropertyState.idle(
-        value: converter.fromDb(value),
+        value: converter.fromDb(value) as T,
       ),
       DirtyStoredValue(:final value) => PropertyState.calculating(
         oldValue: converter.fromDb(value),

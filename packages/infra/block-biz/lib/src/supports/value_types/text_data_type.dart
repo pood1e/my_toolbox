@@ -3,7 +3,7 @@ import '../../domain/stored_value.dart';
 
 class TextDataType implements DataTypeDefinition<String> {
   @override
-  String fromDb(value) => value;
+  String? fromDb(value) => value;
 
   @override
   String get id => 'text';

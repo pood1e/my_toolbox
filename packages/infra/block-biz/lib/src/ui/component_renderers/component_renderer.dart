@@ -21,6 +21,7 @@ class ProcessorWidget extends ComponentRenderer {
     ValueChanged<dynamic> onValueChanged,
     ValueChanged<bool> onFocusChanged,
     VoidCallback onSubmit,
+    VoidCallback onCancel,
   )
   builder;
 

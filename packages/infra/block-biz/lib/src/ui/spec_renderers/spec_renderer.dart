@@ -49,6 +49,7 @@ abstract class ContentSpecRendererDefinition extends SpecRendererDefinition {
     required ValueChanged<PropertyConfigBody> onValueChanged,
     required ValueChanged<bool> onFocusChanged,
     required VoidCallback onSubmit,
+    required VoidCallback onCancel
   });
 
   ContentSpecRendererDefinition({required this.specId, required this.icon});
@@ -89,6 +90,7 @@ class SingleStaticSpecContent extends ContentSpecRendererDefinition {
     required ValueChanged<PropertyConfigBody> onValueChanged,
     required ValueChanged<bool> onFocusChanged,
     required VoidCallback onSubmit,
+    required VoidCallback onCancel
   }) {
     final cfg = draft as SingleStaticPropertyConfig;
     final renderer =
@@ -105,6 +107,7 @@ class SingleStaticSpecContent extends ContentSpecRendererDefinition {
       },
       onFocusChanged,
       onSubmit,
+      onCancel
     );
   }
 }
