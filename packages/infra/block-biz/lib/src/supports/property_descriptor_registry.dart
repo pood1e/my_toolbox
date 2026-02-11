@@ -16,7 +16,7 @@ List<PropertyDefinition> propertyDefinitions(Ref ref) => [
   const PropertyDefinition(
     propertyId: '_icon',
     dateTypeId: 'icon',
-    conficSpecDefinitions: ['icon_config'],
+    conficSpecDefinitions: ['icon_config', 'icon_ref_config'],
   ),
 ];
 

@@ -1,14 +1,14 @@
 import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../domain/property.dart';
-import '../node_editor_controller.dart';
-import '../property_editor_definition.dart';
+import '../../domain/property.dart';
+import '../node_renderers/node_editor/node_editor_controller.dart';
+import 'property_renderer.dart';
 
 class PropertyCardShell extends ConsumerWidget {
   final PropertyKey _propertyKey;
   final PropertyViewLayout _layout;
-  final PropertyEditorDefinition _definition;
+  final PropertyRenderer _renderer;
   final Widget _child;
   final List<Widget> _actions;
   final bool _showDelete;
@@ -17,13 +17,13 @@ class PropertyCardShell extends ConsumerWidget {
     super.key,
     required PropertyKey propertyKey,
     PropertyViewLayout layout = PropertyViewLayout.horizontal,
-    required PropertyEditorDefinition definition,
+    required PropertyRenderer renderer,
     required Widget child,
     List<Widget> actions = const <Widget>[],
     bool showDelete = true,
   }) : _propertyKey = propertyKey,
        _layout = layout,
-       _definition = definition,
+       _renderer = renderer,
        _child = child,
        _actions = actions,
        _showDelete = showDelete;
@@ -63,10 +63,7 @@ class PropertyCardShell extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               spacing: 8,
               children: [
-                _PropertyBasicInfo(
-                  name: _definition.name,
-                  icon: _definition.icon,
-                ),
+                _PropertyBasicInfo(name: _renderer.name, icon: _renderer.icon),
                 Expanded(child: isHorizontal ? _child : const Spacer()),
                 _PropertyActions(actions: actions),
               ],

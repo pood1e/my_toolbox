@@ -6,7 +6,7 @@ abstract class Configurable<C> {
 
   Map<String, dynamic> toDb(C value);
 
-  String? validate(C value);
+  String? validate(C config);
 }
 
 abstract class Processor<C, T> extends Configurable<C> {

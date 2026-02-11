@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../domain/property.dart';
 import '../../../property_draft/draft_controller.dart';
+import '../../../spec_renderers/spec_renderer.dart';
 import '../../../spec_renderers/spec_renderer_registry.dart';
 
 class EditorContainer extends ConsumerWidget {
@@ -28,20 +29,22 @@ class EditorContainer extends ConsumerWidget {
     return draftStateAsync.whenUI(
       data: (state) {
         final specRenderer = ref.watch(specRendererRegistryProvider)[specId];
-
-        if (specRenderer == null) {
+        if (specRenderer == null || specRenderer is! ContentSpecRenderer) {
           return Text(
             'Missing renderer for spec: $specId',
             style: const TextStyle(color: Colors.red),
           );
         }
-
-        return specRenderer.definition.build(
-          specRenderer,
-          state.draft,
-          draftController.updateDraft,
-          draftController.setFocus,
-          draftController.performSave,
+        final definition =
+            specRenderer.definition as ContentSpecRendererDefinition;
+        return definition.build(
+          specRenderer: specRenderer,
+          draft: state.draft,
+          onValueChanged: draftController.updateDraft,
+          onFocusChanged: draftController.setFocus,
+          onSubmit: draftController.performSave,
+          currentSpec: state.currentSpec,
+          currentKey: propertyKey,
         );
       },
     );

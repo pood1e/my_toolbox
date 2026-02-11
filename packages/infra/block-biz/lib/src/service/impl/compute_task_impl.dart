@@ -216,7 +216,10 @@ class ComputeTaskImpl implements ComputeTask {
 
     try {
       // transform(S source, C config)
-      return await tc.component.transform(sourceValue, tc.raw);
+      return await tc.component.transform(
+        _ctx.descriptor.dateType.definition.fromDb(sourceValue),
+        tc.raw,
+      );
     } catch (e) {
       if (e is ComputeException) rethrow;
       throw TransformerException();

@@ -98,22 +98,28 @@ class PropertyDraftController extends _$PropertyDraftController {
     // 查看是否有草稿
     final existDraft = _specDraftMap[spec];
     if (existDraft != null) {
-      _updateSpec(spec, existDraft);
+      saveSpecAndValue(spec, existDraft);
       return;
     }
     // 默认构建
     final specDesc = ref.read(configSpecDescriptorProvider(spec))!;
-    final body = specDesc.createDefault();
-    _updateSpec(spec, body);
+    final defaultFunc = specDesc.createDefault;
+    if (defaultFunc == null) {
+      throw Exception('not found default fun');
+    }
+    final body = defaultFunc();
+    saveSpecAndValue(spec, body);
   }
 
   String? _validate(PropertyConfigBody body) {
     switch (body) {
       case SingleStaticPropertyConfig(:final processor):
         return processor.component.validate(processor.raw);
-      case SingleRefPropertyConfig():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+      case SingleRefPropertyConfig(:final transformer):
+        if (transformer.target == null) {
+          return 'target is empty';
+        }
+        return transformer.component.validate(transformer.raw);
       case MultiStaticPropertyConfig():
         // TODO: Handle this case.
         throw UnimplementedError();
@@ -124,7 +130,6 @@ class PropertyDraftController extends _$PropertyDraftController {
         // TODO: Handle this case.
         throw UnimplementedError();
     }
-    return null;
   }
 
   /// 更新草稿 (用户输入)
@@ -136,7 +141,7 @@ class PropertyDraftController extends _$PropertyDraftController {
     );
   }
 
-  void _updateSpec(String spec, PropertyConfigBody newDraft) {
+  void saveSpecAndValue(String spec, PropertyConfigBody newDraft) {
     final current = state.value;
     if (current == null) return;
     state = AsyncValue.data(

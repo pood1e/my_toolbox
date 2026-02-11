@@ -2,22 +2,22 @@ import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../../state/property_state.dart';
-import 'property_editor_definition.dart';
+import '../state/property_state.dart';
+import 'property_renderer.dart';
 
 part 'property_editor_registry.g.dart';
 
 @riverpod
-List<PropertyEditorDefinition> propertyEditorDefinitions(Ref ref) => [
-  InlineEditorDefinition(
+List<PropertyRenderer> propertyRenderers(Ref ref) => [
+  InlinePropertyRenderer(
     name: 'name',
     icon: Symbols.id_card,
     readBuilder: (state) =>
         state.toWidget(data: (data) => Text(data ?? 'unnamed')),
-    onSpecOrEditChanged: (_, _) => PropertyViewLayout.horizontal,
+    whenSpecAndEdit: (_, _) => PropertyViewLayout.horizontal,
     propertyId: '_name',
   ),
-  ActionsEditorDefinition(
+  ModalPropertyRenderer(
     name: 'icon',
     icon: Icons.stars,
     readBuilder: (state) => state.toWidget(
@@ -28,8 +28,7 @@ List<PropertyEditorDefinition> propertyEditorDefinitions(Ref ref) => [
 ];
 
 @riverpod
-PropertyEditorDefinition propertyEditorDefinition(Ref ref, String propertyId) =>
-    ref
-        .read(propertyEditorDefinitionsProvider)
-        .where((def) => def.propertyId == propertyId)
-        .first;
+PropertyRenderer propertyRenderer(Ref ref, String propertyId) => ref
+    .read(propertyRenderersProvider)
+    .where((def) => def.propertyId == propertyId)
+    .first;

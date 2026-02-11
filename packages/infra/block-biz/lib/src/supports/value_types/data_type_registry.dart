@@ -1,7 +1,7 @@
 import 'package:app_core/di.dart';
 
 import '../../domain/data_type.dart';
-import '../compute_engines/compute_engine_registry.dart';
+import '../component_registry.dart';
 import 'icon_data_type.dart';
 import 'text_data_type.dart';
 

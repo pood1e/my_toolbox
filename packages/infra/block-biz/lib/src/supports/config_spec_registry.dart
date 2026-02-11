@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/config_spec.dart';
 import '../domain/property_config.dart';
-import 'compute_engines/compute_engine_registry.dart';
+import 'component_registry.dart';
 import 'processor/simple_text_processor.dart';
 
 part 'config_spec_registry.g.dart';
@@ -17,14 +17,17 @@ List<ConfigSpecDefinition> configSpecDefinitions(Ref ref) => [
         createDefault: () => const SimpleText(data: 'unnamed'),
       ),
     },
-    defaultProcessor: 'simple_text',
   ),
   ConfigSpecDefinition.singleStatic(
     id: 'icon_config',
     processSpecs: {
       'simple_icon': ComponentSpec(createDefault: () => Icons.question_mark),
     },
-    defaultProcessor: 'simple_icon',
+  ),
+  ConfigSpecDefinition.singleRef(
+    id: 'icon_ref_config',
+    propertyIds: {'_icon'},
+    transformerSpecs: {'icon_direct': ComponentSpec(createDefault: () => null)},
   ),
 ];
 
@@ -36,10 +39,8 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
   final aggregatorMap = ref.read(aggregatorRegistryProvider);
   return definitions.map((definition) {
     switch (definition) {
-      case SingleStaticConfigSpecDefinition(
-        :final processSpecs,
-        :final defaultProcessor,
-      ):
+      case SingleStaticConfigSpecDefinition(:final processSpecs):
+        final defaultProcessor = processSpecs.keys.first;
         return SingleStaticConfigSpecDescriptor(
           id: definition.id,
           processorMap: {
@@ -53,10 +54,7 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
             ),
           ),
         );
-      case SingleRefConfigSpecDefinition(
-        :final transformerSpecs,
-        :final defaultTransformer,
-      ):
+      case SingleRefConfigSpecDefinition(:final transformerSpecs):
         return SingleRefConfigSpecDescriptor(
           id: definition.id,
           propertyIds: definition.propertyIds,
@@ -64,17 +62,10 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
             for (final id in transformerSpecs.keys) id: transformerMap[id]!,
           },
           transformerSpecs: transformerSpecs,
-          createDefault: () => PropertyConfigBody.singleRef(
-            transformer: TransformerComponent(
-              component: transformerMap[defaultTransformer]!,
-              raw: transformerSpecs[defaultTransformer]!.createDefault(),
-            ),
-          ),
         );
       case MultiStaticConfigSpecDefinition(
         :final processorSpecs,
         :final aggregatorSpecs,
-        :final defaultAggregator,
       ):
         return MultiStaticConfigSpecDescriptor(
           id: definition.id,
@@ -86,18 +77,10 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
           },
           processorSpecs: processorSpecs,
           aggregatorSpecs: aggregatorSpecs,
-          createDefault: () => PropertyConfigBody.multiStatic(
-            aggregator: AggregateComponent(
-              component: aggregatorMap[defaultAggregator]!,
-              raw: aggregatorSpecs[defaultAggregator]!.createDefault(),
-            ),
-            processorMap: {},
-          ),
         );
       case MultiRefConfigSpecDefinition(
         :final transformerSpecs,
         :final aggregatorSpecs,
-        :final defaultAggregator,
       ):
         return MultiRefConfigSpecDescriptor(
           id: definition.id,
@@ -110,19 +93,11 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
           propertyIds: definition.propertyIds,
           transformerSpecs: transformerSpecs,
           aggregatorSpecs: aggregatorSpecs,
-          createDefault: () => PropertyConfigBody.multiRef(
-            aggregator: AggregateComponent(
-              component: aggregatorMap[defaultAggregator]!,
-              raw: aggregatorSpecs[defaultAggregator]!.createDefault(),
-            ),
-            transformerMap: {},
-          ),
         );
       case HybridConfigSpecDefinition(
         :final transformerSpecs,
         :final aggregatorSpecs,
         :final processorSpecs,
-        :final defaultAggregator,
       ):
         return HybridConfigSpecDescriptor(
           id: definition.id,
@@ -139,14 +114,6 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
           processorSpecs: processorSpecs,
           transformerSpecs: transformerSpecs,
           aggregatorSpecs: aggregatorSpecs,
-          createDefault: () => PropertyConfigBody.hybrid(
-            aggregator: AggregateComponent(
-              component: aggregatorMap[defaultAggregator]!,
-              raw: aggregatorSpecs[defaultAggregator]!.createDefault(),
-            ),
-            transformerMap: {},
-            processorMap: {},
-          ),
         );
     }
   }).toList();
