@@ -10,15 +10,15 @@ sealed class ComponentRenderer {
   RendererType get type;
 }
 
-class ProcessorWidget<T> extends ComponentRenderer {
+class ProcessorWidget extends ComponentRenderer {
   @override
   final String id;
 
   @override
   RendererType get type => RendererType.widget;
   final Widget Function(
-    T config,
-    ValueChanged<T> onValueChanged,
+    dynamic config,
+    ValueChanged<dynamic> onValueChanged,
     ValueChanged<bool> onFocusChanged,
     VoidCallback onSubmit,
   )
@@ -27,7 +27,7 @@ class ProcessorWidget<T> extends ComponentRenderer {
   ProcessorWidget({required this.id, required this.builder});
 }
 
-class ProcessorDialog<T> extends ComponentRenderer {
+class ProcessorDialog extends ComponentRenderer {
   @override
   final String id;
 
@@ -40,7 +40,7 @@ class ProcessorDialog<T> extends ComponentRenderer {
   ProcessorDialog({required this.id, required this.showDialog});
 }
 
-class TransformerDialog<T> extends ComponentRenderer {
+class TransformerDialog extends ComponentRenderer {
   @override
   final String id;
 

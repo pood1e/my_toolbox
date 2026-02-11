@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/Models/configuration.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
-import '../../supports/processor/simple_text_processor.dart';
 import 'component_renderer.dart';
 import 'reference_searcher.dart';
 import 'simple_text_editor.dart';
@@ -12,7 +11,7 @@ part 'component_renderer_registry.g.dart';
 
 @Riverpod(keepAlive: true)
 List<ComponentRenderer> processorRenderers(Ref ref) => [
-  ProcessorWidget<SimpleText>(
+  ProcessorWidget(
     id: 'simple_text',
     builder: (config, onValueChanged, onFocusChanged, onSubmit) =>
         SimpleTextEditor(
@@ -22,7 +21,7 @@ List<ComponentRenderer> processorRenderers(Ref ref) => [
           onSumbit: onSubmit,
         ),
   ),
-  ProcessorDialog<IconData>(
+  ProcessorDialog(
     id: 'simple_icon',
     showDialog: (context, _) async {
       final icon = await showIconPicker(

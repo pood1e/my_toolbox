@@ -22,7 +22,9 @@ class ModalPropertyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(propertyDraftControllerProvider(propertyKey));
+    final controllerAsync = ref.watch(
+      propertyDraftControllerProvider(propertyKey),
+    );
     final notifier = ref.read(
       propertyDraftControllerProvider(propertyKey).notifier,
     );
@@ -34,7 +36,10 @@ class ModalPropertyCard extends ConsumerWidget {
         .map((desc) => ref.read(specRendererProvider(desc.id)))
         .whereType<IconSpecRenderer>()
         .map(
-          (iconSpec) => IconButton(
+          (iconSpec) => IconButton.filledTonal(
+            isSelected:
+                iconSpec.definition.specId ==
+                controllerAsync.value?.currentSpec,
             onPressed: () async {
               final result = await iconSpec.onTap(
                 SpecTapParam(
