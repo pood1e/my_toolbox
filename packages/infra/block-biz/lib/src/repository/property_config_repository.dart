@@ -6,6 +6,8 @@ import '../data/daos/property_atom_config_dao.dart';
 import '../data/daos/property_dao.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
+import '../domain/stored_config.dart';
+import '../supports/config_spec_registry.dart';
 import 'impl/property_config_repo_impl.dart';
 
 part 'property_config_repository.freezed.dart';
@@ -18,7 +20,7 @@ abstract class ParticialUpdateConfigKey with _$ParticialUpdateConfigKey {
   const factory ParticialUpdateConfigKey({
     required String nodeId,
     required String refId,
-    String? configKey,
+    required ConfigType configType,
     String? mapKey,
   }) = _ParticialUpdateConfigKey;
 }
@@ -60,7 +62,9 @@ abstract class PropertyConfigRepository {
       batchUpdate([change]);
 
   // 给ui使用
-  Stream<PropertyConfig> watchConfig(PropertyKey key);
+  Stream<PropertyConfig?> watchConfig(PropertyKey key);
+
+  Future<PropertyConfig?> getConfig(PropertyKey key);
 
   Stream<Set<PropertyKey>> watchNodeKeys(String nodeId);
 
@@ -72,9 +76,11 @@ Future<PropertyConfigRepository> propertyConfigRepo(Ref ref) async {
   final dao = await ref.watch(propertyAtomConfigDaoProvider.future);
   final computeDao = await ref.watch(complexComputeDaoProvider.future);
   final propertyDao = await ref.watch(propertyDaoProvider.future);
+  final descriptorMap = ref.read(configSpecDescriptorRegistryProvider);
   return PropertyConfigRepoImpl(
     dao: dao,
     computeDao: computeDao,
     propertyDao: propertyDao,
+    descriptorMap: descriptorMap,
   );
 }

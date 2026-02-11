@@ -5,6 +5,7 @@ import '../../data/daos/property_atom_config_dao.dart';
 import '../../data/daos/property_dao.dart';
 import '../../data/node_database.dart';
 import '../../data/tables/property_config.dart';
+import '../../domain/config_spec.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
 import '../../domain/stored_value.dart';
@@ -15,26 +16,27 @@ class PropertyConfigRepoImpl extends PropertyConfigRepository {
   final PropertyAtomConfigDao _dao;
   final ComplexComputeDao _computeDao;
   final PropertyDao _propertyDao;
+  final Map<String, ConfigSpecDescriptor> _descriptorMap;
 
   PropertyConfigRepoImpl({
     required PropertyAtomConfigDao dao,
     required ComplexComputeDao computeDao,
     required PropertyDao propertyDao,
+    required Map<String, ConfigSpecDescriptor> descriptorMap,
   }) : _dao = dao,
        _computeDao = computeDao,
-       _propertyDao = propertyDao;
+       _propertyDao = propertyDao,
+       _descriptorMap = descriptorMap;
 
   // --- Read Operations ---
 
   @override
-  Stream<PropertyConfig> watchConfig(PropertyKey key) => _dao
-      .watchByKey(key)
-      .map(
-        (rows) => PropertyConfig.parse(
-          key,
-          rows.map((row) => row.toStoredConfig()).toList(),
-        ),
-      );
+  Stream<PropertyConfig?> watchConfig(PropertyKey key) =>
+      _dao.watchByKey(key).map((rows) {
+        if (rows.isEmpty) return null;
+        final storedList = rows.toStoredList();
+        return PropertyConfigParser.parse(key, storedList, _descriptorMap);
+      });
 
   @override
   Stream<Set<PropertyKey>> watchNodeKeys(String nodeId) =>
@@ -125,11 +127,7 @@ class PropertyConfigRepoImpl extends PropertyConfigRepository {
       var expr =
           t.nodeId.equals(keyInfo.nodeId) & t.defId.equals(keyInfo.refId);
 
-      if (keyInfo.configKey != null) {
-        expr &= t.configKey.equals(keyInfo.configKey!);
-      } else {
-        expr &= t.configKey.isNull();
-      }
+      expr &= t.configType.equals(keyInfo.configType.name);
 
       if (keyInfo.mapKey != null) {
         expr &= t.mapKey.equals(keyInfo.mapKey!);
@@ -152,7 +150,7 @@ class PropertyConfigRepoImpl extends PropertyConfigRepository {
               PropertyAtomConfigsCompanion.insert(
                 nodeId: keyInfo.nodeId,
                 defId: keyInfo.refId,
-                configKey: Value(keyInfo.configKey),
+                configType: keyInfo.configType,
                 // Insert 时 key 不能为空，根据 schema 定义调整
                 mapKey: Value(keyInfo.mapKey),
                 targetNodeId: Value(c.record.targetNodeId),
@@ -198,4 +196,14 @@ class PropertyConfigRepoImpl extends PropertyConfigRepository {
     // 3. 删除缓存的值
     await _propertyDao.deleteProperty(key);
   });
+
+  @override
+  Future<PropertyConfig?> getConfig(PropertyKey key) async {
+    final entities = await _dao.getByKey(key);
+    if (entities.isEmpty) {
+      return null;
+    }
+    final storedList = entities.toStoredList();
+    return PropertyConfigParser.parse(key, storedList, _descriptorMap);
+  }
 }

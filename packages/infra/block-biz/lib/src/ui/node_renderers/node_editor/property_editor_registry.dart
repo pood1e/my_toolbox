@@ -1,51 +1,35 @@
 import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
-import '../../../supports/value_types/icon_data_type.dart';
-import 'property_editor_descriptor.dart';
+import '../../state/property_state.dart';
+import 'property_editor_definition.dart';
 
 part 'property_editor_registry.g.dart';
 
 @riverpod
-List<PropertyEditorDescriptor> propertyEditorDescriptors(Ref ref) => [
-  // 1. Name 属性：只允许手动输入
-  PropertyEditorDescriptor(
+List<PropertyEditorDefinition> propertyEditorDefinitions(Ref ref) => [
+  InlineEditorDefinition(
+    name: 'name',
+    icon: Symbols.id_card,
+    readBuilder: (state) =>
+        state.toWidget(data: (data) => Text(data ?? 'unnamed')),
+    onSpecOrEditChanged: (_, _) => PropertyViewLayout.horizontal,
     propertyId: '_name',
-    name: 'Name',
-    icon: Icons.badge,
-    supportedModes: [
-      StaticModeSpec(
-        label: 'Manual',
-        processorId: 'direct_text',
-        defaultRawData: {'data': 'New Node'},
-      ),
-    ],
   ),
-
-  // 2. Icon 属性：允许手动选，也允许引用
-  PropertyEditorDescriptor(
-    propertyId: '_icon',
-    name: 'Icon',
+  ActionsEditorDefinition(
+    name: 'icon',
     icon: Icons.stars,
-    supportedModes: [
-      StaticModeSpec(
-        label: 'Pick Icon',
-        icon: Icons.grid_view,
-        processorId: 'direct_icon', // 对应 IconPickerEditor
-        defaultRawData: {'data': Icons.question_mark.toJson()},
-      ),
-      RefModeSpec(
-        label: 'Use Reference',
-        icon: Icons.link,
-        defaultTransformerId: 'direct_icon', // 复用 Transformer
-      ),
-    ],
+    readBuilder: (state) => state.toWidget(
+      data: (data) => Wrap(children: [Icon(data ?? Icons.question_mark)]),
+    ),
+    propertyId: '_icon',
   ),
 ];
 
 @riverpod
-PropertyEditorDescriptor propertyEditorDescriptor(Ref ref, String propertyId) =>
+PropertyEditorDefinition propertyEditorDefinition(Ref ref, String propertyId) =>
     ref
-        .read(propertyEditorDescriptorsProvider)
+        .read(propertyEditorDefinitionsProvider)
         .where((def) => def.propertyId == propertyId)
         .first;

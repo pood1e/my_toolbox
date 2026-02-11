@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../data/daos/complex_compute_dao.dart';
 import '../../data/daos/property_atom_config_dao.dart';
 import '../../data/daos/property_dao.dart';
+import '../../domain/config_spec.dart';
 import '../../domain/data_type.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
@@ -15,14 +16,17 @@ class PropertyComputeRepositoryImpl implements PropertyComputeRepository {
   final PropertyAtomConfigDao _configDao;
   final PropertyDao _propertyDao;
   final ComplexComputeDao _computeDao;
+  final Map<String, ConfigSpecDescriptor> _descriptorMap;
 
   PropertyComputeRepositoryImpl({
     required PropertyAtomConfigDao configDao,
     required PropertyDao propertyDao,
     required ComplexComputeDao computeDao,
+    required Map<String, ConfigSpecDescriptor> descriptorMap,
   }) : _configDao = configDao,
        _propertyDao = propertyDao,
-       _computeDao = computeDao;
+       _computeDao = computeDao,
+       _descriptorMap = descriptorMap;
 
   @override
   Future<void> deleteProperty(PropertyKey key) =>
@@ -34,10 +38,8 @@ class PropertyComputeRepositoryImpl implements PropertyComputeRepository {
     if (entities.isEmpty) {
       return null;
     }
-    return PropertyConfig.parse(
-      key,
-      entities.map((entity) => entity.toStoredConfig()).toList(),
-    );
+    final storedList = entities.toStoredList();
+    return PropertyConfigParser.parse(key, storedList, _descriptorMap);
   }
 
   @override

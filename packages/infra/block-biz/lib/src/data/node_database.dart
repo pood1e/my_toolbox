@@ -3,6 +3,7 @@ import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
+import '../domain/stored_config.dart';
 import '../domain/stored_value.dart';
 import 'daos/node_dao.dart';
 import 'daos/property_atom_config_dao.dart';
@@ -10,7 +11,6 @@ import 'daos/property_dao.dart';
 import 'tables/nodes.dart';
 import 'tables/properties.dart';
 import 'tables/property_config.dart';
-
 
 part 'node_database.g.dart';
 
@@ -38,8 +38,6 @@ class NodeDatabase extends _$NodeDatabase {
 }
 
 @riverpod
-Future<NodeDatabase> nodeDatabase(Ref ref) async {
-  return await ref.watch(
-    userDbStoreProvider(DatabaseId('node', (e) => NodeDatabase(e))).future,
-  );
-}
+Future<NodeDatabase> nodeDatabase(Ref ref) async => await ref.watch(
+  userDbStoreProvider(const DatabaseId('node', NodeDatabase.new)).future,
+);

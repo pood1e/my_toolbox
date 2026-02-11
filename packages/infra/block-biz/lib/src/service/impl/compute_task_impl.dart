@@ -18,13 +18,15 @@ class ComputeTaskImpl implements ComputeTask {
     // 事务包裹计算逻辑
     final resultNormal = await _ctx.transcation(_compute);
     if (!resultNormal) {
+      // 这里的异常通常触发外部重试或状态重置
       throw StructureChangedException();
     }
   }
 
   /// 核心计算流程
   Future<bool> _compute() async {
-    // 1. 获取并解析配置 (假设 getConfig 返回的是解析好的 PropertyConfig Sealed Class)
+    // 1. 获取并解析配置
+    // 注意：getConfig 返回的配置中，component 已经是实例，raw 已经是解析后的对象
     final config = await _ctx.getConfig();
 
     if (config == null) {
@@ -35,9 +37,10 @@ class ComputeTaskImpl implements ComputeTask {
     }
 
     try {
-      // 2. 模式匹配执行 (利用 Freezed 的 map)
-      final result = await config.map(
-        singleStatic: _computeSingleStatic,
+      // 2. 模式匹配执行
+      // result 是业务值 (int, string, etc.)
+      final result = await config.body.map(
+        singleStatic: (c) => _runProcessor(c.processor),
         singleRef: _computeSingleRef,
         multiStatic: _computeMultiStatic,
         multiRef: _computeMultiRef,
@@ -53,10 +56,11 @@ class ComputeTaskImpl implements ComputeTask {
       await _ctx.saveProperty(property);
       return true;
     } on DependencyDirtyException {
-      logger.i('detect dirty dependencies, skipping save');
-      // 依赖脏了，调度器通常会重新调度，这里直接跳过
+      // 上游脏了，当前节点保持原样或标记为脏，等待重新调度
+      logger.d('detect dirty dependencies, skipping save');
+      // 可以在此处显式抛出中断，或返回 false，取决于调度器逻辑
     } on DependencyErrorException {
-      logger.i('detect error dependencies');
+      logger.w('detect error dependencies');
       await _ctx.markAsRefError();
     } catch (e, stack) {
       logger.e('detect compute error: $e', error: e, stackTrace: stack);
@@ -69,93 +73,73 @@ class ComputeTaskImpl implements ComputeTask {
   // 模式实现 (Mode Implementations)
   // ===========================================================================
 
-  Future<dynamic> _computeSingleStatic(SingleStaticPropertyConfig config) =>
-      _runProcessor(config.source);
-
   Future<dynamic> _computeSingleRef(SingleRefPropertyConfig config) async {
-    final key = config.target;
-    // 如果没有 target，视为 null 输入
-    final property = key != null ? await _ctx.getProperty(key) : null;
-    return _runTransformer(config.transformer, property);
+    final inputVal = await _resolveInput(config.transformer.target);
+    return _runTransformer(config.transformer, inputVal);
   }
 
   Future<dynamic> _computeMultiStatic(MultiStaticPropertyConfig config) async {
-    // 并行执行所有 Processor
-    final entries = await Future.wait(
-      config.sources.entries.map((e) async {
+    // 1. 并行执行 Processor
+    final inputs = await Future.wait(
+      config.processorMap.entries.map((e) async {
         final val = await _runProcessor(e.value);
         return MapEntry(e.key, val);
       }),
     );
 
-    final inputMap = Map.fromEntries(entries);
-    return _runAggregator(config.aggregator, inputMap);
+    // 2. 聚合
+    return _runAggregator(config.aggregator, Map.fromEntries(inputs));
   }
 
   Future<dynamic> _computeMultiRef(MultiRefPropertyConfig config) async {
-    // 1. 批量获取 (Batch Fetch) - 解决 N+1
-    final keysToFetch = config.sources.values
-        .map((e) => e.target)
-        .whereType<PropertyKey>()
-        .toSet();
+    // 1. 批量获取依赖
+    final propertyMap = await _fetchDependencies(config.transformerMap.values);
 
-    final propertyMap = await _ctx.getProperties(keysToFetch);
-
-    // 2. 并行转换 (Parallel Transform)
-    final entries = await Future.wait(
-      config.sources.entries.map((entry) async {
-        final sourceKey = entry.key;
-        final sourceConfig = entry.value;
-
-        final prop = sourceConfig.target != null
-            ? propertyMap[sourceConfig.target]
-            : null;
-
-        final val = await _runTransformer(sourceConfig.transformer, prop);
-        return MapEntry(sourceKey, val);
+    // 2. 并行转换
+    final inputs = await Future.wait(
+      config.transformerMap.entries.map((entry) async {
+        final component = entry.value;
+        // 解包 Property -> Value
+        final rawInput = _unwrapValue(propertyMap[component.target]);
+        final val = await _runTransformer(component, rawInput);
+        return MapEntry(entry.key, val);
       }),
     );
 
     // 3. 聚合
-    return _runAggregator(config.aggregator, Map.fromEntries(entries));
+    return _runAggregator(config.aggregator, Map.fromEntries(inputs));
   }
 
   Future<dynamic> _computeHybrid(HybridPropertyConfig config) async {
     // 1. Static 部分 (并行)
     final staticFuture = Future.wait(
-      config.staticSources.entries.map(
+      config.processorMap.entries.map(
         (e) async => MapEntry(e.key, await _runProcessor(e.value)),
       ),
     );
 
     // 2. Ref 部分 (批量获取 + 并行转换)
     final refFuture = (() async {
-      final keysToFetch = config.refSources.values
-          .map((e) => e.target)
-          .whereType<PropertyKey>()
-          .toSet();
-
-      final propertyMap = await _ctx.getProperties(keysToFetch);
+      final propertyMap = await _fetchDependencies(
+        config.transformerMap.values,
+      );
 
       return await Future.wait(
-        config.refSources.entries.map((entry) async {
-          final prop = entry.value.target != null
-              ? propertyMap[entry.value.target]
-              : null;
-          final val = await _runTransformer(entry.value.transformer, prop);
+        config.transformerMap.entries.map((entry) async {
+          final component = entry.value;
+          final rawInput = _unwrapValue(propertyMap[component.target]);
+          final val = await _runTransformer(component, rawInput);
           return MapEntry(entry.key, val);
         }),
       );
     })();
 
-    // 3. 等待两者完成并合并
+    // 3. 合并结果
     final results = await Future.wait([staticFuture, refFuture]);
-    final staticResults = results[0];
-    final refResults = results[1];
 
     final mergedInput = {
-      ...Map.fromEntries(staticResults),
-      ...Map.fromEntries(refResults),
+      ...Map.fromEntries(results[0]),
+      ...Map.fromEntries(results[1]),
     };
 
     // 4. 聚合
@@ -163,77 +147,96 @@ class ComputeTaskImpl implements ComputeTask {
   }
 
   // ===========================================================================
-  // 通用执行器 (Generic Executors) - 消除重复代码
+  // 辅助方法 (Helpers)
   // ===========================================================================
 
-  /// 执行 Processor (Static Source)
-  Future<dynamic> _runProcessor(StaticSourceConfig config) async {
-    final processor = _ctx.processorRegistry[config.processorId];
-    if (processor == null) {
-      throw ProcessorException();
-    }
-
-    dynamic cfg = processor.fromDb(config.raw);
-    final msg = processor.validate(cfg);
-    if (msg != null) {
-      logger.e('processor config error: $msg');
-      throw ProcessorException();
-    }
-
-    try {
-      return await processor.process(cfg);
-    } catch (e, s) {
-      logger.e('processor execution error', error: e, stackTrace: s);
-      throw ProcessorException();
-    }
-  }
-
-  /// 执行 Transformer (Ref Source)
-  Future<dynamic> _runTransformer(
-    TransformerConfig config,
-    Property? inputProperty,
+  /// 批量获取依赖属性
+  Future<Map<PropertyKey, Property>> _fetchDependencies(
+    Iterable<TransformerComponent> components,
   ) async {
-    final transformer = _ctx.transformerRegistry[config.transformerId];
-    if (transformer == null) {
-      throw TransformerException();
+    final keys = components
+        .map((c) => c.target)
+        .whereType<PropertyKey>()
+        .toSet();
+
+    if (keys.isEmpty) return {};
+    return await _ctx.getProperties(keys);
+  }
+
+  /// 获取单个依赖值 (包含解包逻辑)
+  Future<dynamic> _resolveInput(PropertyKey? key) async {
+    if (key == null) return null;
+    final prop = await _ctx.getProperty(key);
+    return _unwrapValue(prop);
+  }
+
+  /// 解包 StoredValue -> 真实业务值
+  /// 并处理依赖状态异常
+  dynamic _unwrapValue(Property? property) {
+    if (property == null) return null;
+
+    return switch (property.value) {
+      NormalStoredValue(value: var v) => v, // 返回解码后的值
+      DirtyStoredValue() => throw DependencyDirtyException(),
+      ErrorStoredValue() => throw DependencyErrorException(),
+    };
+  }
+
+  // ===========================================================================
+  // 组件执行器 (Component Executors)
+  // ===========================================================================
+
+  Future<dynamic> _runProcessor(ProcessorComponent pc) async {
+    // 校验 (如果 parse 阶段已经校验过，这里可以省略，或者作为双重保险)
+    final error = pc.component.validate(pc.raw);
+    if (error != null) {
+      logger.w('Processor validation failed: $error');
+      throw ProcessorException();
     }
 
-    dynamic cfg = transformer.fromDb(config.raw);
-    final msg = transformer.validate(cfg);
-    if (msg != null) {
-      logger.e('transformer config error: $msg');
+    try {
+      // 泛型 T 由 Processor 定义
+      return await pc.component.process(pc.raw);
+    } catch (e) {
+      // 包装未知异常
+      if (e is ComputeException) rethrow;
+      throw ProcessorException();
+    }
+  }
+
+  Future<dynamic> _runTransformer(
+    TransformerComponent tc,
+    dynamic sourceValue,
+  ) async {
+    final error = tc.component.validate(tc.raw);
+    if (error != null) {
+      logger.w('Transformer validation failed: $error');
       throw TransformerException();
     }
 
     try {
-      return await transformer.transform(inputProperty, cfg);
-    } catch (e, s) {
-      logger.e('transformer execution error', error: e, stackTrace: s);
+      // transform(S source, C config)
+      return await tc.component.transform(sourceValue, tc.raw);
+    } catch (e) {
+      if (e is ComputeException) rethrow;
       throw TransformerException();
     }
   }
 
-  /// 执行 Aggregator
   Future<dynamic> _runAggregator(
-    AggConfig config,
+    AggregateComponent ac,
     Map<String, dynamic> inputs,
   ) async {
-    final aggregator = _ctx.aggregatorRegistry[config.aggregatorId];
-    if (aggregator == null) {
-      throw AggregatorException();
-    }
-
-    dynamic cfg = aggregator.fromDb(config.raw);
-    final msg = aggregator.validate(cfg);
-    if (msg != null) {
-      logger.e('aggregator config error: $msg');
+    final error = ac.component.validate(ac.raw);
+    if (error != null) {
+      logger.w('Aggregator validation failed: $error');
       throw AggregatorException();
     }
 
     try {
-      return await aggregator.aggregate(inputs, cfg);
-    } catch (e, s) {
-      logger.e('aggregator execution error', error: e, stackTrace: s);
+      return await ac.component.aggregate(inputs, ac.raw);
+    } catch (e) {
+      if (e is ComputeException) rethrow;
       throw AggregatorException();
     }
   }

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/property.dart';
 import 'node_editor_controller.dart';
-import 'property_edit_tile.dart';
+import 'property_card.dart';
 import 'property_editor_registry.dart';
 
 class NodeEditor extends ConsumerWidget {
@@ -44,7 +44,7 @@ class NodeEditor extends ConsumerWidget {
     Set<PropertyKey> exist,
   ) {
     final notifier = ref.read(nodeEditorControllerProvider(_nodeId).notifier);
-    final supportEditors = ref.read(propertyEditorDescriptorsProvider);
+    final supportEditors = ref.read(propertyEditorDefinitionsProvider);
     final existProperties = exist.map((property) => property.defId).toSet();
 
     // 1. 筛选可用属性
@@ -97,7 +97,7 @@ class NodeEditor extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controllerAsync = ref.watch(nodeEditorControllerProvider(_nodeId));
     final supportKeys = ref
-        .read(propertyEditorDescriptorsProvider)
+        .read(propertyEditorDefinitionsProvider)
         .map((descriptor) => descriptor.propertyId)
         .toSet();
     return controllerAsync.whenUI(
@@ -116,9 +116,7 @@ class NodeEditor extends ConsumerWidget {
             separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (_, index) {
               final key = supportProperties[index];
-              return PropertyEditTile(
-                propertyKey: key,
-              );
+              return PropertyCard(propertyKey: key);
             },
           );
         }

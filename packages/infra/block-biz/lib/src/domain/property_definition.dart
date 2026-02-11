@@ -1,5 +1,5 @@
+import 'config_spec.dart';
 import 'data_type.dart';
-import 'source_definition.dart';
 
 abstract class PropertyDefinition<T> {
   /// unique
@@ -7,7 +7,7 @@ abstract class PropertyDefinition<T> {
 
   String get dateTypeId;
 
-  List<SourceDefinition> get sourceDefinitions;
+  List<String> get conficSpecDefinitions;
 }
 
 class PropertyDescriptor<T> {
@@ -15,11 +15,11 @@ class PropertyDescriptor<T> {
 
   final DataType<T> dateType;
 
-  final List<SourceDescriptor> sourceDescriptors;
+  final List<ConfigSpecDescriptor> configSpecDescriptors;
 
   PropertyDescriptor({
     required this.propertyId,
     required this.dateType,
-    required this.sourceDescriptors,
+    required this.configSpecDescriptors,
   });
 }

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../domain/stored_config.dart';
 import 'nodes.dart';
 
 /// 节点属性配置
@@ -12,8 +13,7 @@ class PropertyAtomConfigs extends Table {
   /// 属性定义id
   TextColumn get defId => text()();
 
-  /// 属性配置key
-  TextColumn get configKey => text().nullable()();
+  TextColumn get configType => textEnum<ConfigType>()();
 
   /// map/list 使用
   TextColumn get mapKey => text().nullable()();
@@ -30,7 +30,6 @@ class PropertyAtomConfigs extends Table {
   /// 具体配置
   TextColumn get config => text().nullable()();
 
-
   @override
-  Set<Column> get primaryKey => {nodeId, defId, configKey, mapKey};
+  Set<Column> get primaryKey => {nodeId, defId, configType, mapKey};
 }

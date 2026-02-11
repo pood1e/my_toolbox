@@ -1,5 +1,7 @@
 // 基础配置接口
 abstract class Configurable<C> {
+  String get id;
+
   C fromDb(Map<String, dynamic> value);
 
   Map<String, dynamic> toDb(C value);
@@ -8,16 +10,12 @@ abstract class Configurable<C> {
 }
 
 abstract class Processor<C, T> extends Configurable<C> {
-  String get id;
-
   String get typeId;
 
   Future<T> process(C config);
 }
 
 abstract class Transformer<S, C, T> extends Configurable<C> {
-  String get id;
-
   String get sTypeId;
 
   String get tTypeId;
@@ -26,8 +24,6 @@ abstract class Transformer<S, C, T> extends Configurable<C> {
 }
 
 abstract class Aggregator<C, T> extends Configurable<C> {
-  String get id;
-
   String get typeId;
 
   Future<T> aggregate(Map<String, T> tMap, C config);

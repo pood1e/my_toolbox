@@ -1,5 +1,6 @@
+import '../../domain/config_spec.dart';
 import '../../domain/property_definition.dart';
-import '../../domain/source_definition.dart';
+import '../processor/simple_text_processor.dart';
 
 class NameProperty extends PropertyDefinition<String> {
   @override
@@ -9,10 +10,15 @@ class NameProperty extends PropertyDefinition<String> {
   String get dateTypeId => 'text';
 
   @override
-  List<SourceDefinition> get sourceDefinitions => [
-    const SourceDefinition.singleStatic(
-      name: 'simple',
-      processorId: 'direct_text',
-    ),
-  ];
+  List<String> get conficSpecDefinitions => ['name_config'];
 }
+
+final nameConfigSpec = ConfigSpecDefinition.singleStatic(
+  id: 'name_config',
+  processSpecs: {
+    'simple_text': ComponentSpec(
+      createDefault: () => const SimpleText(data: 'unnamed'),
+    ),
+  },
+  defaultProcessor: 'simple_text',
+);

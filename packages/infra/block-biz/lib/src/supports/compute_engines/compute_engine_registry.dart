@@ -1,16 +1,15 @@
 import 'package:app_core/di.dart';
 
 import '../../domain/compute_engine.dart';
-import 'direct_icon_processor.dart';
-import 'direct_text_processor.dart';
-import 'direct_text_transformer.dart';
+import '../processor/simple_icon_processor.dart';
+import '../processor/simple_text_processor.dart';
 
 part 'compute_engine_registry.g.dart';
 
 @Riverpod(keepAlive: true)
 List<Processor> processors(Ref ref) => [
-  DirectTextProcessor(),
-  DirectIconProcessor(),
+  SimpleTextProcessor(),
+  SimpleIconProcessor(),
 ];
 
 @riverpod
@@ -24,7 +23,7 @@ Processor? processor(Ref ref, String id) =>
     ref.read(processorRegistryProvider)[id];
 
 @Riverpod(keepAlive: true)
-List<Transformer> transformers(Ref ref) => [DirectTextTransformer()];
+List<Transformer> transformers(Ref ref) => [];
 
 @riverpod
 Map<String, Transformer> transformerRegistry(Ref ref) {
