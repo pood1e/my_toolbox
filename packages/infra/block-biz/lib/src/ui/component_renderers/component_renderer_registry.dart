@@ -2,6 +2,7 @@ import 'package:app_core/di.dart';
 
 import 'component_renderer.dart';
 import 'icon_ref_picker.dart';
+import 'paragraph_editor.dart';
 import 'simple_icon_picker.dart';
 import 'simple_text_editor.dart';
 
@@ -11,6 +12,7 @@ part 'component_renderer_registry.g.dart';
 List<ComponentRenderer> processorRenderers(Ref ref) => [
   SimpleTextRenderer(),
   SimpleIconPicker(),
+  ParagraphRenderer()
 ];
 
 @Riverpod(keepAlive: true)

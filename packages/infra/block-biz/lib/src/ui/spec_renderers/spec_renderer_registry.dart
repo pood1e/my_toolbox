@@ -14,8 +14,13 @@ part 'spec_renderer_registry.g.dart';
 @Riverpod(keepAlive: true)
 List<SpecRendererDefinition> specRendererDefinitions(Ref ref) => [
   SingleStaticSpecContent(
-    specId: 'name_config',
+    specId: 'simple_text_config',
     proceesorRendererMap: {'simple_text': 'simple_text'},
+    icon: Symbols.id_card,
+  ),
+  SingleStaticSpecContent(
+    specId: 'paragraph_text_config',
+    proceesorRendererMap: {'simple_text': 'paragraph'},
     icon: Symbols.id_card,
   ),
   SingleStaticSpecIcon(

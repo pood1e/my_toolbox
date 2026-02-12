@@ -25,6 +25,14 @@ List<PropertyRenderer> propertyRenderers(Ref ref) => [
     ),
     propertyId: '_icon',
   ),
+  InlinePropertyRenderer(
+    name: 'description',
+    icon: Symbols.description,
+    readBuilder: (state) =>
+        state.toWidget(data: (data) => Text(data ?? 'no description')),
+    whenSpecAndEdit: (_, _) => PropertyViewLayout.vertical,
+    propertyId: '_description',
+  ),
 ];
 
 @riverpod

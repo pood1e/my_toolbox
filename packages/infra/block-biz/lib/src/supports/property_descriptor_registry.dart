@@ -11,12 +11,17 @@ List<PropertyDefinition> propertyDefinitions(Ref ref) => [
   const PropertyDefinition(
     propertyId: '_name',
     dateTypeId: 'text',
-    conficSpecDefinitions: ['name_config'],
+    conficSpecDefinitions: ['simple_text_config'],
   ),
   const PropertyDefinition(
     propertyId: '_icon',
     dateTypeId: 'icon',
     conficSpecDefinitions: ['icon_config', 'icon_ref_config'],
+  ),
+  const PropertyDefinition(
+    propertyId: '_description',
+    dateTypeId: 'text',
+    conficSpecDefinitions: ['paragraph_text_config'],
   ),
 ];
 

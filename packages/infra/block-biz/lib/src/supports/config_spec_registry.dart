@@ -11,10 +11,18 @@ part 'config_spec_registry.g.dart';
 @Riverpod(keepAlive: true)
 List<ConfigSpecDefinition> configSpecDefinitions(Ref ref) => [
   ConfigSpecDefinition.singleStatic(
-    id: 'name_config',
+    id: 'simple_text_config',
     processSpecs: {
       'simple_text': ComponentSpec(
-        createDefault: () => const SimpleText(data: 'unnamed'),
+        createDefault: () => const SimpleText(data: ''),
+      ),
+    },
+  ),
+  ConfigSpecDefinition.singleStatic(
+    id: 'paragraph_text_config',
+    processSpecs: {
+      'simple_text': ComponentSpec(
+        createDefault: () => const SimpleText(data: ''),
       ),
     },
   ),

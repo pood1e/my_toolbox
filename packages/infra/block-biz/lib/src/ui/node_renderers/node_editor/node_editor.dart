@@ -75,7 +75,7 @@ class NodeEditor extends ConsumerWidget {
     if (fabChildren.isNotEmpty) {
       // === 多按钮模式 (ExpandableFab) ===
       return ExpandableFab(
-        // 关键：给主按钮一个唯一的字符串 Tag，彻底切断与上一页 FAB 的联系
+        distance: fabChildren.length * 50 + 50,
         openButtonBuilder: RotateFloatingActionButtonBuilder(
           heroTag: null,
           child: const Icon(Icons.add),
@@ -99,21 +99,25 @@ class NodeEditor extends ConsumerWidget {
     final supportKeys = ref
         .read(propertyRenderersProvider)
         .map((descriptor) => descriptor.propertyId)
-        .toSet();
+        .toList();
     return controllerAsync.whenUI(
       data: (propertKeys) {
         final fab = _buildFab(context, ref, propertKeys);
         Widget body;
-        final supportProperties = propertKeys
-            .where((key) => supportKeys.contains(key.defId))
+        final propertyMap = {
+          for (final key in propertKeys) key.defId: key,
+        };
+
+        final supportProperties = supportKeys
+            .where(propertyMap.containsKey)
+            .map((id) => propertyMap[id]!)
             .toList();
         if (supportProperties.isEmpty) {
-          body = const Center(child: Text('no properties supports.'));
+          body = const Center(child: Text('no properties.'));
         } else {
-          body = ListView.separated(
+          body = ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: supportProperties.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (_, index) {
               final key = supportProperties[index];
               return PropertyCard(propertyKey: key);

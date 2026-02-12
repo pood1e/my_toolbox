@@ -1,4 +1,5 @@
 import 'package:app_core/di.dart';
+import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/property.dart';
@@ -49,22 +50,22 @@ class PropertyCardShell extends ConsumerWidget {
       ];
     }
     return Card(
-      elevation: 0,
-      clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(AppSpacings.m),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 8,
+          spacing: AppSpacings.s,
           children: [
             // Row 1: Header + (Optional Content) + Actions
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 8,
+              spacing: AppSpacings.l,
               children: [
                 _PropertyBasicInfo(name: _renderer.name, icon: _renderer.icon),
-                Expanded(child: isHorizontal ? _child : const Spacer()),
+                Expanded(
+                  child: isHorizontal ? _child : const SizedBox.shrink(),
+                ),
                 _PropertyActions(actions: actions),
               ],
             ),
@@ -86,7 +87,7 @@ class _PropertyBasicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Wrap(
-    spacing: 8,
+    spacing: AppSpacings.s,
     direction: Axis.horizontal,
     crossAxisAlignment: WrapCrossAlignment.center,
     children: [
@@ -109,7 +110,7 @@ class _PropertyActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Wrap(
-    spacing: 8,
+    spacing: AppSpacings.s,
     direction: Axis.horizontal,
     crossAxisAlignment: WrapCrossAlignment.center,
     children: _actions,

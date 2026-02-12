@@ -30,10 +30,5 @@ class SimpleTextProcessor implements Processor<SimpleText, String> {
   String get typeId => 'text';
 
   @override
-  String? validate(SimpleText value) {
-    if (value.data.isEmpty) {
-      return 'text should not be empty';
-    }
-    return null;
-  }
+  String? validate(SimpleText value) => null;
 }

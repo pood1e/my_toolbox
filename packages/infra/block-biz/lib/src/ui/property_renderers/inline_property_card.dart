@@ -97,7 +97,7 @@ class _InlinePropertyCardState extends ConsumerState<InlinePropertyCard> {
               else
                 IconButton(
                   icon: Icon(
-                    Icons.check_circle,
+                    Icons.check,
                     color: canSave ? Colors.green : Colors.grey,
                   ),
                   onPressed: canSave ? _handleSave : null,

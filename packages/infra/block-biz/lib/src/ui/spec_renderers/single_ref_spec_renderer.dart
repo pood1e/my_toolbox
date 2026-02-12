@@ -39,6 +39,7 @@ class SingleRefSpecIcon extends IconSpecRendererDefinition {
             ),
           ),
         );
+        onSubmit();
         return;
       }
     },
