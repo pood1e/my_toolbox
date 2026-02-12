@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../supports/processor/simple_text_processor.dart';
 import 'component_renderer.dart';
 
 class SimpleTextRenderer implements ContentRenderer {
@@ -12,7 +11,7 @@ class SimpleTextRenderer implements ContentRenderer {
     ValueChanged<bool> onFocusChanged,
     VoidCallback onSubmit,
     VoidCallback onCancel,
-  ) => SimpleTextEditor(
+  ) => StringEditor(
     text: config,
     onChanged: onValueChanged,
     onFocusChanged: onFocusChanged,
@@ -24,17 +23,17 @@ class SimpleTextRenderer implements ContentRenderer {
   String get id => 'simple_text';
 }
 
-class SimpleTextEditor extends StatelessWidget {
-  final SimpleText _text;
-  final ValueChanged<SimpleText> _onChanged;
+class StringEditor extends StatelessWidget {
+  final String _text;
+  final ValueChanged<String> _onChanged;
   final ValueChanged<bool> _onFocusChanged;
   final VoidCallback _onSumbit;
   final VoidCallback _onCancel;
 
-  const SimpleTextEditor({
+  const StringEditor({
     super.key,
-    required SimpleText text,
-    required ValueChanged<SimpleText> onChanged,
+    required String text,
+    required ValueChanged<String> onChanged,
     required ValueChanged<bool> onFocusChanged,
     required VoidCallback onSumbit,
     required VoidCallback onCancel,
@@ -56,10 +55,8 @@ class SimpleTextEditor extends StatelessWidget {
       return KeyEventResult.ignored;
     },
     child: TextFormField(
-      initialValue: _text.data,
-      onChanged: (newVal) {
-        _onChanged(SimpleText(data: newVal));
-      },
+      initialValue: _text,
+      onChanged: _onChanged,
       decoration: const InputDecoration(
         border: InputBorder.none,
         isDense: true,

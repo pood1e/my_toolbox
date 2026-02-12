@@ -19,6 +19,7 @@ extension PropertiesCompanions on PropertiesCompanion {
     valJson: Value(null),
     valReal: Value(null),
     valText: Value(null),
+    valStr: Value(null),
   );
 
   static PropertiesCompanion keyed(PropertyKey key) =>
@@ -33,6 +34,7 @@ extension PropertiesCompanions on PropertiesCompanion {
         valReal: other.valReal.present ? other.valReal : valReal,
         valText: other.valText.present ? other.valText : valText,
         valJson: other.valJson.present ? other.valJson : valJson,
+        valStr: other.valJson.present ? other.valStr : valStr,
         valueStatus: other.valueStatus.present
             ? other.valueStatus
             : valueStatus,
@@ -76,6 +78,7 @@ extension PropertyDomainToCompanion on Property {
       StorageType.real => statusCompanion.copyWith(valReal: Value(rawValue)),
       StorageType.text => statusCompanion.copyWith(valText: Value(rawValue)),
       StorageType.json => statusCompanion.copyWith(valJson: Value(rawValue)),
+      StorageType.str => statusCompanion.copyWith(valStr: Value(rawValue)),
     };
   }
 }
@@ -98,6 +101,7 @@ extension PropertyEntityToDomain on PropertyEntity {
       StorageType.real => valReal,
       StorageType.text => valText,
       StorageType.json => valJson,
+      StorageType.str => valStr,
     };
 
     return Property(

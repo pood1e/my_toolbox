@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../supports/processor/simple_text_processor.dart';
 import 'component_renderer.dart';
 
 class ParagraphRenderer implements ContentRenderer {
@@ -25,15 +24,15 @@ class ParagraphRenderer implements ContentRenderer {
 }
 
 class ParagraphEditor extends StatelessWidget {
-  final SimpleText _text;
-  final ValueChanged<SimpleText> _onChanged;
+  final String _text;
+  final ValueChanged<String> _onChanged;
   final ValueChanged<bool> _onFocusChanged;
   final VoidCallback _onCancel;
 
   const ParagraphEditor({
     super.key,
-    required SimpleText text,
-    required ValueChanged<SimpleText> onChanged,
+    required String text,
+    required ValueChanged<String> onChanged,
     required ValueChanged<bool> onFocusChanged,
     required VoidCallback onCancel,
   }) : _text = text,
@@ -55,15 +54,13 @@ class ParagraphEditor extends StatelessWidget {
     child: TextFormField(
       minLines: 1,
       maxLines: null,
-      initialValue: _text.data,
-      onChanged: (newVal) {
-        _onChanged(SimpleText(data: newVal));
-      },
+      initialValue: _text,
+      onChanged: _onChanged,
       decoration: const InputDecoration(
         border: InputBorder.none,
         isDense: true,
         contentPadding: EdgeInsets.zero,
-      )
+      ),
     ),
   );
 }

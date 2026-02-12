@@ -36,7 +36,7 @@ class ModalPropertyCard extends ConsumerWidget {
 
     return controllerAsync.whenUI(
       data: (state) {
-        final actions = propertyDescriptor.configSpecDescriptors
+        final actions = propertyDescriptor!.configSpecDescriptors
             .map((desc) => ref.read(specRendererProvider(desc.id)))
             .whereType<IconSpecRenderer>()
             .map(

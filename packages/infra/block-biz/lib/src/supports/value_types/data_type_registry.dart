@@ -3,12 +3,19 @@ import 'package:app_core/di.dart';
 import '../../domain/data_type.dart';
 import '../component_registry.dart';
 import 'icon_data_type.dart';
+import 'role_rule_data_type.dart';
+import 'role_rules_data_type.dart';
 import 'text_data_type.dart';
 
 part 'data_type_registry.g.dart';
 
 @Riverpod(keepAlive: true)
-List<DataTypeDefinition> dataTypeDefinitions(Ref ref) => [TextDataType(), IconDataType()];
+List<DataTypeDefinition> dataTypeDefinitions(Ref ref) => [
+  TextDataType(),
+  IconDataType(),
+  RoleRuleDataType(),
+  RoleRulesDataType(),
+];
 
 @Riverpod(keepAlive: true)
 List<DataType> dataTypes(Ref ref) {
@@ -23,7 +30,7 @@ List<DataType> dataTypes(Ref ref) {
           definition: def,
           processors: processors.where((p) => p.typeId == def.id).toSet(),
           transformers: transformers.where((p) => p.tTypeId == def.id).toSet(),
-          aggregators: aggregators.where((p) => p.typeId == def.id).toSet(),
+          aggregators: aggregators.where((p) => p.tTypeId == def.id).toSet(),
         ),
       )
       .toList();

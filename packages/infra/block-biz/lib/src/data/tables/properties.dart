@@ -21,6 +21,8 @@ class Properties extends Table {
 
   TextColumn get valText => text().nullable()();
 
+  TextColumn get valStr => text().nullable()();
+
   TextColumn get valJson => text().nullable()();
 
   IntColumn get valueStatus =>

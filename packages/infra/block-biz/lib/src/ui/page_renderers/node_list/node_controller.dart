@@ -33,8 +33,8 @@ class NodeController extends _$NodeController {
 @riverpod
 Stream<NodeState> nodeState(Ref ref, String nodeId) async* {
   final repo = await ref.watch(propertyRepositoryProvider.future);
-  final nameDescriptor = ref.read(propertyDescriptorProvider('_name'));
-  final iconDescriptor = ref.read(propertyDescriptorProvider('_icon'));
+  final nameDescriptor = ref.read(propertyDescriptorProvider('_name'))!;
+  final iconDescriptor = ref.read(propertyDescriptorProvider('_icon'))!;
   final map = {
     PropertyKey(nodeId: nodeId, defId: nameDescriptor.propertyId):
         nameDescriptor.dateType.definition.storageType,

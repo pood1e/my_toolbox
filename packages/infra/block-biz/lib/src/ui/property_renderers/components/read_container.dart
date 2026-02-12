@@ -24,7 +24,7 @@ class ReadContainer extends ConsumerWidget {
     final propertyAsync = ref.watch(watchPropertyProvider(propertyKey));
     return propertyAsync.whenUI(
       data: (property) {
-        final state = property.toState(descriptor.dateType.definition);
+        final state = property.toState(descriptor!.dateType.definition);
         return builder(state);
       },
     );

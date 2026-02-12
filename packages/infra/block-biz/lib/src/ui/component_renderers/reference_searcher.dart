@@ -104,7 +104,7 @@ class _NodeReferenceTile extends ConsumerWidget {
           size: 16,
           color: Theme.of(context).colorScheme.primary,
         ),
-        title: Text(descriptor.propertyId),
+        title: Text(descriptor!.propertyId),
         // 如果 descriptor 有友好 name 字段更好
         subtitle: Text(
           descriptor.dateType.id,

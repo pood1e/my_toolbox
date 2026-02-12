@@ -53,5 +53,5 @@ Map<String, PropertyDescriptor> propertyDescriptorRegistry(Ref ref) {
 }
 
 @riverpod
-PropertyDescriptor propertyDescriptor(Ref ref, String propertyId) =>
-    ref.read(propertyDescriptorRegistryProvider)[propertyId]!;
+PropertyDescriptor? propertyDescriptor(Ref ref, String propertyId) =>
+    ref.read(propertyDescriptorRegistryProvider)[propertyId];

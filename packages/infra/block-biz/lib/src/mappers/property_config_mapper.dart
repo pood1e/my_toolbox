@@ -243,12 +243,6 @@ extension PropertyConfigParser on PropertyConfig {
         // if (wrapper['componentId'] != (component as dynamic).id) return null;
 
         final rawData = wrapper['raw'];
-
-        // 注意：Configurable.fromDb 签名通常接收 Map<String, dynamic>
-        // 如果 rawData 是 Map，需要强转一下类型适配 dart 的类型系统
-        if (rawData is Map) {
-          return component.fromDb(Map<String, dynamic>.from(rawData));
-        }
         // 如果 raw 是基本类型 (int/bool等)，根据 Configurable 定义调整
         // 这里假设 fromDb 接受 dynamic 或 map
         return component.fromDb(rawData);

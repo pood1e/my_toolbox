@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../domain/config_spec.dart';
 import '../domain/property_config.dart';
 import 'component_registry.dart';
-import 'processor/simple_text_processor.dart';
 
 part 'config_spec_registry.g.dart';
 
@@ -12,19 +11,11 @@ part 'config_spec_registry.g.dart';
 List<ConfigSpecDefinition> configSpecDefinitions(Ref ref) => [
   ConfigSpecDefinition.singleStatic(
     id: 'simple_text_config',
-    processSpecs: {
-      'simple_text': ComponentSpec(
-        createDefault: () => const SimpleText(data: ''),
-      ),
-    },
+    processSpecs: {'simple_text': ComponentSpec(createDefault: () => '')},
   ),
   ConfigSpecDefinition.singleStatic(
     id: 'paragraph_text_config',
-    processSpecs: {
-      'simple_text': ComponentSpec(
-        createDefault: () => const SimpleText(data: ''),
-      ),
-    },
+    processSpecs: {'simple_text': ComponentSpec(createDefault: () => '')},
   ),
   ConfigSpecDefinition.singleStatic(
     id: 'icon_config',

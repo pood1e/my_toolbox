@@ -2,7 +2,7 @@ import 'package:app_core/object.dart';
 
 part 'stored_value.freezed.dart';
 
-enum StorageType { bool, int, real, text, json }
+enum StorageType { bool, int, real, text, json, str }
 
 enum ValueError {
   valueInvalid,

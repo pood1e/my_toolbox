@@ -2,15 +2,17 @@
 abstract class Configurable<C> {
   String get id;
 
-  C fromDb(Map<String, dynamic> value);
+  C fromDb(dynamic value);
 
-  Map<String, dynamic> toDb(C value);
+  dynamic toDb(C value);
 
   String? validate(C config);
 }
 
 abstract class Processor<C, T> extends Configurable<C> {
   String get typeId;
+
+  String? keyValidate(String key);
 
   Future<T> process(C config);
 }
@@ -20,13 +22,17 @@ abstract class Transformer<S, C, T> extends Configurable<C> {
 
   String get tTypeId;
 
+  String? keyValidate(String config);
+
   Future<T> transform(S source, C config);
 }
 
-abstract class Aggregator<C, T> extends Configurable<C> {
-  String get typeId;
+abstract class Aggregator<S, C, T> extends Configurable<C> {
+  String get sTypeId;
 
-  Future<T> aggregate(Map<String, T> tMap, C config);
+  String get tTypeId;
+
+  Future<T> aggregate(Map<String, S> sMap, C config);
 }
 
 sealed class ComputeException implements Exception {}

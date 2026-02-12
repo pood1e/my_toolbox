@@ -3,7 +3,6 @@ import 'package:app_core/di.dart';
 import '../../../domain/property.dart';
 import '../../../domain/property_config.dart';
 import '../../../repository/property_config_repository.dart';
-import '../../../repository/property_repository.dart';
 import '../../../supports/property_descriptor_registry.dart';
 
 part 'node_editor_controller.g.dart';
@@ -19,7 +18,7 @@ class NodeEditorController extends _$NodeEditorController {
 
   Future<void> createWithDefaultConfig(String defId) async {
     final descriptor = ref.read(propertyDescriptorProvider(defId));
-    final spec = descriptor.configSpecDescriptors.first;
+    final spec = descriptor!.configSpecDescriptors.first;
     final func = spec.createDefault;
     if (func == null) {
       return;
@@ -40,4 +39,3 @@ class NodeEditorController extends _$NodeEditorController {
     await configRepo.deleteConfig(PropertyKey(nodeId: nodeId, defId: defId));
   }
 }
-

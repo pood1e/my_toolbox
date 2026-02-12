@@ -37,9 +37,7 @@ class EditorContainer extends ConsumerWidget {
             style: const TextStyle(color: Colors.red),
           );
         }
-        final definition =
-            specRenderer.definition as ContentSpecRendererDefinition;
-        return definition.build(
+        return specRenderer.definition.build(
           specRenderer: specRenderer,
           draft: state.draft,
           onValueChanged: draftController.updateDraft,

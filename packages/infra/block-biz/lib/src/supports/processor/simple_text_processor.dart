@@ -1,34 +1,24 @@
-import 'package:app_core/object.dart';
-
 import '../../domain/compute_engine.dart';
 
-part 'simple_text_processor.freezed.dart';
-part 'simple_text_processor.g.dart';
-
-@freezed
-abstract class SimpleText with _$SimpleText {
-  const factory SimpleText({required String data}) = _SimpleText;
-
-  factory SimpleText.fromJson(Map<String, dynamic> json) =>
-      _$SimpleTextFromJson(json);
-}
-
-class SimpleTextProcessor implements Processor<SimpleText, String> {
+class SimpleTextProcessor implements Processor<String, String> {
   @override
-  SimpleText fromDb(Map<String, dynamic> value) => SimpleText.fromJson(value);
+  String fromDb(dynamic value) => value.toString();
 
   @override
   String get id => 'simple_text';
 
   @override
-  Future<String> process(SimpleText config) async => config.data;
+  Future<String> process(String config) async => config;
 
   @override
-  Map<String, dynamic> toDb(SimpleText value) => value.toJson();
+  dynamic toDb(String value) => value;
 
   @override
   String get typeId => 'text';
 
   @override
-  String? validate(SimpleText value) => null;
+  String? validate(String value) => null;
+
+  @override
+  String? keyValidate(String key) => null;
 }

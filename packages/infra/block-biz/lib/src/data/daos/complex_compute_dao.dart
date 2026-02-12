@@ -107,7 +107,8 @@ class ComplexComputeDao extends DatabaseAccessor<NodeDatabase>
           val_int = NULL,
           val_real = NULL,
           val_text = NULL,
-          val_json = NULL
+          val_json = NULL,
+          val_str = NULL
       FROM downstream d
       WHERE properties.node_id = d.node_id 
         AND properties.def_id = d.def_id
