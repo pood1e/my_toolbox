@@ -46,6 +46,7 @@ class _InlinePropertyCardState extends ConsumerState<InlinePropertyCard> {
     );
 
     await notifier.performSave();
+    _exitEditMode();
   }
 
   void _handleCancel() {

@@ -1,44 +1,16 @@
 import 'package:app_core/di.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_iconpicker/Models/configuration.dart';
-import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
 import 'component_renderer.dart';
-import 'reference_searcher.dart';
+import 'icon_ref_picker.dart';
+import 'simple_icon_picker.dart';
 import 'simple_text_editor.dart';
 
 part 'component_renderer_registry.g.dart';
 
 @Riverpod(keepAlive: true)
 List<ComponentRenderer> processorRenderers(Ref ref) => [
-  ProcessorWidget(
-    id: 'simple_text',
-    builder: (config, onValueChanged, onFocusChanged, onSubmit, onCancel) =>
-        SimpleTextEditor(
-          text: config,
-          onChanged: onValueChanged,
-          onFocusChanged: onFocusChanged,
-          onSumbit: onSubmit,
-          onCancel: onCancel,
-        ),
-  ),
-  ProcessorDialog(
-    id: 'simple_icon',
-    showDialog: (context, _) async {
-      final icon = await showIconPicker(
-        context,
-        configuration: const SinglePickerConfiguration(
-          iconPackModes: [
-            IconPack.material,
-            IconPack.fontAwesomeIcons,
-            IconPack.cupertino,
-            IconPack.lineAwesomeIcons,
-          ],
-        ),
-      );
-      return icon?.data;
-    },
-  ),
+  SimpleTextRenderer(),
+  SimpleIconPicker(),
 ];
 
 @Riverpod(keepAlive: true)
@@ -48,23 +20,7 @@ Map<String, ComponentRenderer> processorRendererRegistry(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-List<ComponentRenderer> transformerRenderers(Ref ref) => [
-  TransformerDialog(
-    id: 'icon_direct',
-    showRefPicker: (ctx, config, currentKey, currentSpec) => showDialog(
-      context: ctx,
-      builder: (context) => AlertDialog(
-        content: ReferenceSearcher(
-          specId: currentSpec,
-          propertyKey: currentKey,
-          onSelect: (propertyKey) {
-            Navigator.pop(context, propertyKey);
-          },
-        ),
-      ),
-    ),
-  ),
-];
+List<ComponentRenderer> transformerRenderers(Ref ref) => [IconRefPicker()];
 
 @Riverpod(keepAlive: true)
 Map<String, ComponentRenderer> transformerRendererRegistry(Ref ref) {

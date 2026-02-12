@@ -2,10 +2,11 @@ import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-import '../../domain/property_config.dart';
 import '../../supports/component_registry.dart';
 import '../component_renderers/component_renderer.dart';
 import '../component_renderers/component_renderer_registry.dart';
+import 'single_ref_spec_renderer.dart';
+import 'single_static_spec_renderer.dart';
 import 'spec_renderer.dart';
 
 part 'spec_renderer_registry.g.dart';
@@ -46,7 +47,8 @@ Map<String, SpecRenderer> specRendererRegistry(Ref ref) {
           proceesorRendererMap: {
             for (final entry in d.proceesorRendererMap.entries)
               if (processorRendererMap.containsKey(entry.value))
-                entry.key: processorRendererMap[entry.value]!,
+                entry.key:
+                    processorRendererMap[entry.value]! as ContentRenderer,
           },
           transformerRendererMap: {},
         ),
@@ -54,45 +56,16 @@ Map<String, SpecRenderer> specRendererRegistry(Ref ref) {
         // 2. 处理静态 Icon 点击操作 (Icon - Processor)
         SingleStaticSpecIcon d => SpecRenderer.icon(
           definition: d,
-          onTap: (param) async {
-            final dialog =
-                processorRendererMap[d.processorId]! as ProcessorDialog;
-            final result = await dialog.showDialog(param.context, param.config);
-            if (result != null) {
-              return PropertyConfigBody.singleStatic(
-                processor: ProcessorComponent(
-                  component: processorMap[d.processorId]!,
-                  raw: result,
-                ),
-              );
-            }
-          },
+          renderer: processorRendererMap[d.processorId]! as PickerRenderer,
+          component: processorMap[d.processorId]!,
         ),
 
         // 3. 处理引用 Icon 点击操作 (Icon - Ref)
         SingleRefSpecIcon d => SpecRenderer.icon(
           definition: d,
-          onTap: (param) async {
-            final dialog =
-                (transformerRendererMap[d.transformerId]! as TransformerDialog);
-            final result = await dialog.showRefPicker(
-              param.context,
-              param.config,
-              param.currentKey,
-              param.currentSpec,
-            );
-            if (result != null) {
-              return PropertyConfigBody.singleRef(
-                transformer: TransformerComponent(
-                  component: transformerMap[d.transformerId]!,
-                  target: result,
-                  raw: null,
-                ),
-              );
-            }
-          },
+          renderer: transformerRendererMap[d.transformerId]! as PickerRenderer,
+          component: transformerMap[d.transformerId]!,
         ),
-
         // 4. 处理未知的定义类型
         _ => throw UnimplementedError(
           'Unknown SpecRendererDefinition type: ${def.runtimeType}',

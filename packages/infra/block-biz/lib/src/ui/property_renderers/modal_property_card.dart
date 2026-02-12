@@ -1,4 +1,5 @@
 import 'package:app_core/di.dart';
+import 'package:common_ui/component.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/property.dart';
@@ -32,42 +33,37 @@ class ModalPropertyCard extends ConsumerWidget {
     final propertyDescriptor = ref.read(
       propertyDescriptorProvider(propertyKey.defId),
     );
-    final actions = propertyDescriptor.configSpecDescriptors
-        .map((desc) => ref.read(specRendererProvider(desc.id)))
-        .whereType<IconSpecRenderer>()
-        .map(
-          (iconSpec) => IconButton.filledTonal(
-            isSelected:
-                iconSpec.definition.specId ==
-                controllerAsync.value?.currentSpec,
-            onPressed: () async {
-              final result = await iconSpec.onTap(
-                SpecTapParam(
-                  specRenderer: iconSpec,
-                  context: context,
-                  currentKey: propertyKey,
-                  currentSpec: iconSpec.definition.specId,
-                ),
-              );
-              if (result != null) {
-                notifier.saveSpecAndValue(iconSpec.definition.specId, result);
-                notifier.performSave();
-              }
-            },
-            icon: Icon(iconSpec.definition.icon),
+
+    return controllerAsync.whenUI(
+      data: (state) {
+        final actions = propertyDescriptor.configSpecDescriptors
+            .map((desc) => ref.read(specRendererProvider(desc.id)))
+            .whereType<IconSpecRenderer>()
+            .map(
+              (iconSpec) => iconSpec.definition.build(
+                specRenderer: iconSpec,
+                currentKey: propertyKey,
+                currentSpec: state.currentSpec,
+                onValueChanged: (data) {
+                  notifier.saveSpecAndValue(iconSpec.definition.specId, data);
+                },
+                onSubmit: notifier.performSave,
+                onCancel: notifier.undo,
+              ),
+            )
+            .toList();
+        return PropertyCardShell(
+          layout: PropertyViewLayout.horizontal,
+          actions: actions,
+          propertyKey: propertyKey,
+          renderer: renderer,
+          // Modal 通常只显示 ReadValue，默认水平即可
+          child: ReadContainer(
+            propertyKey: propertyKey,
+            builder: renderer.readBuilder,
           ),
-        )
-        .toList();
-    return PropertyCardShell(
-      layout: PropertyViewLayout.horizontal,
-      actions: actions,
-      propertyKey: propertyKey,
-      renderer: renderer,
-      // Modal 通常只显示 ReadValue，默认水平即可
-      child: ReadContainer(
-        propertyKey: propertyKey,
-        builder: renderer.readBuilder,
-      ),
+        );
+      },
     );
   }
 }

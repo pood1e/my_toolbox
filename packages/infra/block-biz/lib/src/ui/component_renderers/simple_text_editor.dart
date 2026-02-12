@@ -2,6 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../supports/processor/simple_text_processor.dart';
+import 'component_renderer.dart';
+
+class SimpleTextRenderer implements ContentRenderer {
+  @override
+  Widget build(
+    config,
+    ValueChanged<dynamic> onValueChanged,
+    ValueChanged<bool> onFocusChanged,
+    VoidCallback onSubmit,
+    VoidCallback onCancel,
+  ) => SimpleTextEditor(
+    text: config,
+    onChanged: onValueChanged,
+    onFocusChanged: onFocusChanged,
+    onSumbit: onSubmit,
+    onCancel: onCancel,
+  );
+
+  @override
+  String get id => 'simple_text';
+}
 
 class SimpleTextEditor extends StatelessWidget {
   final SimpleText _text;

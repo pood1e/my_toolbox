@@ -1,46 +1,35 @@
 import 'package:app_core/object.dart';
 import 'package:flutter/material.dart';
 
+import '../../domain/compute_engine.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
 import '../component_renderers/component_renderer.dart';
 
 part 'spec_renderer.freezed.dart';
 
-@freezed
-abstract class SpecTapParam with _$SpecTapParam {
-  const factory SpecTapParam({
-    required IconSpecRenderer specRenderer,
-    required BuildContext context,
-    required PropertyKey currentKey,
-    required String currentSpec,
-    dynamic config,
-  }) = _SpecTapParam;
-}
-
-abstract class SpecRendererDefinition {
-  String get specId;
-
-  IconData get icon;
-}
-
-abstract class IconSpecRendererDefinition<T> extends SpecRendererDefinition {
-  @override
+sealed class SpecRendererDefinition {
   final String specId;
 
-  @override
   final IconData icon;
 
-  IconSpecRendererDefinition({required this.specId, required this.icon});
+  SpecRendererDefinition({required this.specId, required this.icon});
+}
+
+abstract class IconSpecRendererDefinition extends SpecRendererDefinition {
+  Widget build({
+    required IconSpecRenderer specRenderer,
+    required PropertyKey currentKey,
+    required String currentSpec,
+    required ValueChanged<PropertyConfigBody> onValueChanged,
+    required VoidCallback onSubmit,
+    required VoidCallback onCancel,
+  });
+
+  IconSpecRendererDefinition({required super.specId, required super.icon});
 }
 
 abstract class ContentSpecRendererDefinition extends SpecRendererDefinition {
-  @override
-  final String specId;
-
-  @override
-  final IconData icon;
-
   Widget build({
     required ContentSpecRenderer specRenderer,
     required PropertyKey currentKey,
@@ -49,10 +38,10 @@ abstract class ContentSpecRendererDefinition extends SpecRendererDefinition {
     required ValueChanged<PropertyConfigBody> onValueChanged,
     required ValueChanged<bool> onFocusChanged,
     required VoidCallback onSubmit,
-    required VoidCallback onCancel
+    required VoidCallback onCancel,
   });
 
-  ContentSpecRendererDefinition({required this.specId, required this.icon});
+  ContentSpecRendererDefinition({required super.specId, required super.icon});
 }
 
 @freezed
@@ -61,77 +50,47 @@ sealed class SpecRenderer with _$SpecRenderer {
   abstract final SpecRendererDefinition definition;
 
   const factory SpecRenderer.icon({
-    required SpecRendererDefinition definition,
-    required Future<dynamic> Function(SpecTapParam) onTap,
+    required IconSpecRendererDefinition definition,
+    required PickerRenderer renderer,
+    required Configurable component,
   }) = IconSpecRenderer;
 
   const factory SpecRenderer.content({
-    required SpecRendererDefinition definition,
-    @Default({}) Map<String, ComponentRenderer> proceesorRendererMap,
-    @Default({}) Map<String, ComponentRenderer> transformerRendererMap,
+    required ContentSpecRendererDefinition definition,
+    @Default({}) Map<String, ContentRenderer> proceesorRendererMap,
+    @Default({}) Map<String, ContentRenderer> transformerRendererMap,
   }) = ContentSpecRenderer;
 }
 
-class SingleStaticSpecContent extends ContentSpecRendererDefinition {
-  final Map<String, String> proceesorRendererMap;
+class SpecIconWidget extends StatelessWidget {
+  final Future<void> Function(BuildContext, String) _onPressed;
+  final IconData _icon;
+  final bool _selected;
+  final String _iconSpec;
 
-  SingleStaticSpecContent({
-    required super.specId,
-    required super.icon,
-    required this.proceesorRendererMap,
-  });
+  const SpecIconWidget({
+    super.key,
+    required Future<void> Function(BuildContext, String) onPressed,
+    required IconData icon,
+    bool selected = false,
+    required String iconSpec,
+  }) : _onPressed = onPressed,
+       _icon = icon,
+       _selected = selected,
+       _iconSpec = iconSpec;
 
   @override
-  Widget build({
-    required ContentSpecRenderer specRenderer,
-    required PropertyKey currentKey,
-    required String currentSpec,
-    required PropertyConfigBody draft,
-    required ValueChanged<PropertyConfigBody> onValueChanged,
-    required ValueChanged<bool> onFocusChanged,
-    required VoidCallback onSubmit,
-    required VoidCallback onCancel
-  }) {
-    final cfg = draft as SingleStaticPropertyConfig;
-    final renderer =
-        specRenderer.proceesorRendererMap[cfg.processor.component.id]!;
-    final processorWidget = renderer as ProcessorWidget;
-    return processorWidget.builder(
-      cfg.processor.raw,
-      (data) {
-        onValueChanged(
-          PropertyConfigBody.singleStatic(
-            processor: cfg.processor.copyWith(raw: data),
-          ),
+  Widget build(BuildContext context) => _selected
+      ? IconButton.filledTonal(
+          onPressed: () async {
+            await _onPressed(context, _iconSpec);
+          },
+          icon: Icon(_icon),
+        )
+      : IconButton(
+          onPressed: () async {
+            await _onPressed(context, _iconSpec);
+          },
+          icon: Icon(_icon),
         );
-      },
-      onFocusChanged,
-      onSubmit,
-      onCancel
-    );
-  }
-}
-
-class SingleStaticSpecIcon extends IconSpecRendererDefinition {
-  final String processorId;
-
-  SingleStaticSpecIcon({
-    required super.specId,
-    required super.icon,
-    required this.processorId,
-  });
-
-  Future<dynamic> onTap(SpecTapParam param) => param.specRenderer.onTap(param);
-}
-
-class SingleRefSpecIcon extends IconSpecRendererDefinition {
-  final String transformerId;
-
-  SingleRefSpecIcon({
-    required super.specId,
-    required super.icon,
-    required this.transformerId,
-  });
-
-  Future<dynamic> onTap(SpecTapParam param) => param.specRenderer.onTap(param);
 }
