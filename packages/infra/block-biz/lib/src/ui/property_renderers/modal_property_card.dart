@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../../domain/property.dart';
 import '../../supports/property_descriptor_registry.dart';
-import '../node_renderers/node_editor/components/read_container.dart';
 import '../property_draft/draft_controller.dart';
 import '../spec_renderers/spec_renderer.dart';
 import '../spec_renderers/spec_renderer_registry.dart';
+import 'components/read_container.dart';
 import 'property_card_shell.dart';
 import 'property_renderer.dart';
 

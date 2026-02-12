@@ -3,7 +3,9 @@ import 'package:app_core/di.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
 import '../../repository/property_config_repository.dart';
+import '../../repository/property_repository.dart';
 import '../../supports/config_spec_registry.dart';
+import '../../supports/property_descriptor_registry.dart';
 import 'draft_state.dart';
 
 part 'draft_controller.g.dart';
@@ -190,4 +192,11 @@ class PropertyDraftController extends _$PropertyDraftController {
       }
     }
   }
+}
+
+@riverpod
+Stream<Property?> watchProperty(Ref ref, PropertyKey key) async* {
+  final descriptor = ref.watch(propertyDescriptorProvider(key.defId));
+  final repo = await ref.watch(propertyRepositoryProvider.future);
+  yield* repo.watchSingle(key, descriptor.dateType.definition.storageType);
 }

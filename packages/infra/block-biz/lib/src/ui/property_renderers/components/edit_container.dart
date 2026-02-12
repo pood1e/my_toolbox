@@ -2,10 +2,10 @@ import 'package:app_core/di.dart';
 import 'package:common_ui/component.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../domain/property.dart';
-import '../../../property_draft/draft_controller.dart';
-import '../../../spec_renderers/spec_renderer.dart';
-import '../../../spec_renderers/spec_renderer_registry.dart';
+import '../../../domain/property.dart';
+import '../../property_draft/draft_controller.dart';
+import '../../spec_renderers/spec_renderer.dart';
+import '../../spec_renderers/spec_renderer_registry.dart';
 
 class EditorContainer extends ConsumerWidget {
   final PropertyKey propertyKey;

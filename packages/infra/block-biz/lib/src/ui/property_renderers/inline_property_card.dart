@@ -3,9 +3,9 @@ import 'package:common_ui/component.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/property.dart';
-import '../node_renderers/node_editor/components/edit_container.dart';
-import '../node_renderers/node_editor/components/read_container.dart';
 import '../property_draft/draft_controller.dart';
+import 'components/edit_container.dart';
+import 'components/read_container.dart';
 import 'property_card_shell.dart';
 import 'property_renderer.dart';
 

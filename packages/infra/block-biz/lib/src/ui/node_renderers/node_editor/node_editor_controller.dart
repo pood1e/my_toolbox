@@ -41,9 +41,3 @@ class NodeEditorController extends _$NodeEditorController {
   }
 }
 
-@riverpod
-Stream<Property?> watchProperty(Ref ref, PropertyKey key) async* {
-  final descriptor = ref.watch(propertyDescriptorProvider(key.defId));
-  final repo = await ref.watch(propertyRepositoryProvider.future);
-  yield* repo.watchSingle(key, descriptor.dateType.definition.storageType);
-}
