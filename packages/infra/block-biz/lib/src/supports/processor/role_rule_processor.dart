@@ -4,7 +4,7 @@ import '../../domain/compute_engine.dart';
 import '../property_descriptor_registry.dart';
 import '../value_types/role_rule_data_type.dart';
 
-class RoleRuleProcessor implements Processor<RoleRule, RoleRule> {
+class RoleRuleProcessor extends Processor<RoleRule, RoleRule> {
   final Ref _ref;
 
   RoleRuleProcessor({required Ref ref}) : _ref = ref;
@@ -31,7 +31,4 @@ class RoleRuleProcessor implements Processor<RoleRule, RoleRule> {
 
   @override
   String get typeId => 'role_rule';
-
-  @override
-  String? validate(RoleRule config) => null;
 }

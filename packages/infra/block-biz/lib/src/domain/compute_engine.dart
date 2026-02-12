@@ -6,13 +6,13 @@ abstract class Configurable<C> {
 
   dynamic toDb(C value);
 
-  String? validate(C config);
+  String? validate(C config) => null;
 }
 
 abstract class Processor<C, T> extends Configurable<C> {
   String get typeId;
 
-  String? keyValidate(String key);
+  String? keyValidate(String key) => null;
 
   Future<T> process(C config);
 }
@@ -22,7 +22,7 @@ abstract class Transformer<S, C, T> extends Configurable<C> {
 
   String get tTypeId;
 
-  String? keyValidate(String config);
+  String? keyValidate(String key) => null;
 
   Future<T> transform(S source, C config);
 }

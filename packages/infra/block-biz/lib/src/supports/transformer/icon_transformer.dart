@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/compute_engine.dart';
 
-class IconTransformer implements Transformer<IconData, void, IconData> {
+class IconTransformer extends Transformer<IconData, void, IconData> {
   @override
   void fromDb(value) {}
 
@@ -20,10 +20,4 @@ class IconTransformer implements Transformer<IconData, void, IconData> {
 
   @override
   Future<IconData> transform(IconData source, void config) async => source;
-
-  @override
-  String? validate(void config) => null;
-
-  @override
-  String? keyValidate(String config) => null;
 }

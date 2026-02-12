@@ -2,7 +2,7 @@ import '../../domain/compute_engine.dart';
 import '../value_types/role_rule_data_type.dart';
 import '../value_types/role_rules_data_type.dart';
 
-class RoleRuleAggregator implements Aggregator<RoleRule, void, RoleRules> {
+class RoleRuleAggregator extends Aggregator<RoleRule, void, RoleRules> {
   @override
   void fromDb(value) {}
 
@@ -17,9 +17,6 @@ class RoleRuleAggregator implements Aggregator<RoleRule, void, RoleRules> {
 
   @override
   toDb(void value) => null;
-
-  @override
-  String? validate(void config) => null;
 
   @override
   Future<RoleRules> aggregate(Map<String, RoleRule> sMap, void config) async =>

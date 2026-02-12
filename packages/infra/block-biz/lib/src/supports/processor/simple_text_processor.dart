@@ -1,6 +1,6 @@
 import '../../domain/compute_engine.dart';
 
-class SimpleTextProcessor implements Processor<String, String> {
+class SimpleTextProcessor extends Processor<String, String> {
   @override
   String fromDb(dynamic value) => value.toString();
 
@@ -15,10 +15,4 @@ class SimpleTextProcessor implements Processor<String, String> {
 
   @override
   String get typeId => 'text';
-
-  @override
-  String? validate(String value) => null;
-
-  @override
-  String? keyValidate(String key) => null;
 }
