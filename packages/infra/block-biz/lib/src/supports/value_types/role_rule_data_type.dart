@@ -10,7 +10,10 @@ enum RoleRuleType { mandatory, blueprint, sugguested }
 
 @freezed
 abstract class RoleRule with _$RoleRule {
-  const factory RoleRule({required RoleRuleType type}) = _RoleRule;
+  const factory RoleRule({
+    required String propertyId,
+    required RoleRuleType type,
+  }) = _RoleRule;
 
   factory RoleRule.fromJson(Map<String, dynamic> json) =>
       _$RoleRuleFromJson(json);

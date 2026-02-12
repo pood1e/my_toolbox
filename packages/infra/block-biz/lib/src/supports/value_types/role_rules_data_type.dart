@@ -11,7 +11,7 @@ part 'role_rules_data_type.g.dart';
 
 @freezed
 abstract class RoleRules with _$RoleRules {
-  const factory RoleRules({required Map<String, RoleRule> typeMap}) =
+  const factory RoleRules({required List<RoleRule> rules}) =
       _RoleRule;
 
   factory RoleRules.fromJson(Map<String, dynamic> json) =>

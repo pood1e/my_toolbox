@@ -20,5 +20,5 @@ class RoleRuleAggregator extends Aggregator<RoleRule, void, RoleRules> {
 
   @override
   Future<RoleRules> aggregate(Map<String, RoleRule> sMap, void config) async =>
-      RoleRules(typeMap: sMap);
+      RoleRules(rules: sMap.values.toList());
 }

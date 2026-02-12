@@ -12,8 +12,6 @@ abstract class Configurable<C> {
 abstract class Processor<C, T> extends Configurable<C> {
   String get typeId;
 
-  String? keyValidate(String key) => null;
-
   Future<T> process(C config);
 }
 
@@ -21,8 +19,6 @@ abstract class Transformer<S, C, T> extends Configurable<C> {
   String get sTypeId;
 
   String get tTypeId;
-
-  String? keyValidate(String key) => null;
 
   Future<T> transform(S source, C config);
 }

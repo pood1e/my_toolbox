@@ -10,8 +10,8 @@ class RoleRuleProcessor extends Processor<RoleRule, RoleRule> {
   RoleRuleProcessor({required Ref ref}) : _ref = ref;
 
   @override
-  String? keyValidate(String key) {
-    if (_ref.read(propertyDescriptorProvider(key)) == null) {
+  String? validate(RoleRule config) {
+    if (_ref.read(propertyDescriptorProvider(config.propertyId)) == null) {
       return 'property not found';
     }
     return null;
