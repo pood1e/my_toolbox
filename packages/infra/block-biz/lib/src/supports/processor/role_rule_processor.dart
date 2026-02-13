@@ -1,7 +1,7 @@
 import 'package:app_core/di.dart';
 
 import '../../domain/compute_engine.dart';
-import '../property_descriptor_registry.dart';
+import '../../registry/property_descriptor_registry.dart';
 import '../value_types/role_rule_data_type.dart';
 
 class RoleRuleProcessor extends Processor<RoleRule, RoleRule> {

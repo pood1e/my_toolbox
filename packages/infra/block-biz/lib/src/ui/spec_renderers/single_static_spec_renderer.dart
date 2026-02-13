@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../domain/compute_engine.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
-import 'spec_renderer.dart';
+import '../spec_renderer.dart';
 
 class SingleStaticSpecIcon extends IconSpecRendererDefinition {
   final String processorId;

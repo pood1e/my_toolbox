@@ -1,8 +1,8 @@
 import 'package:app_core/di.dart';
 
+import '../registry/component_registry.dart';
+import '../registry/property_descriptor_registry.dart';
 import '../repository/property_compute_repository.dart';
-import '../supports/component_registry.dart';
-import '../supports/property_descriptor_registry.dart';
 import 'compute_task_scheduler.dart';
 import 'impl/compute_task_impl.dart';
 import 'impl/compute_task_scheduler_impl.dart';

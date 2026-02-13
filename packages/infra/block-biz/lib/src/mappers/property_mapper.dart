@@ -4,7 +4,7 @@ import '../data/node_database.dart';
 import '../domain/data_type.dart';
 import '../domain/property.dart';
 import '../domain/stored_value.dart';
-import '../ui/state/property_state.dart';
+import '../ui/property_state.dart';
 
 extension PropertiesCompanions on PropertiesCompanion {
   static PropertiesCompanion errorCompanion(ValueError valueError) =>

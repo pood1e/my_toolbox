@@ -7,7 +7,7 @@ import '../data/daos/property_dao.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
 import '../domain/stored_config.dart';
-import '../supports/config_spec_registry.dart';
+import '../registry/config_spec_registry.dart';
 import 'impl/property_config_repo_impl.dart';
 
 part 'property_config_repository.freezed.dart';

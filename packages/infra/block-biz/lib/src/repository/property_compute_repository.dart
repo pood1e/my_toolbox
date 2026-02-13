@@ -7,7 +7,7 @@ import '../domain/data_type.dart';
 import '../domain/property.dart';
 import '../domain/property_config.dart';
 import '../domain/stored_value.dart';
-import '../supports/config_spec_registry.dart';
+import '../registry/config_spec_registry.dart';
 import 'impl/property_compute_repository_impl.dart';
 
 part 'property_compute_repository.g.dart';

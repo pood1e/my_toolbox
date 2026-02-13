@@ -6,8 +6,8 @@ import 'package:nanoid/nanoid.dart';
 import '../../domain/config_spec.dart';
 import '../../domain/property.dart';
 import '../../domain/property_config.dart';
-import '../../supports/config_spec_registry.dart';
-import 'spec_renderer.dart';
+import '../../registry/config_spec_registry.dart';
+import '../spec_renderer.dart';
 
 class MultiStaticSpecRenderer extends ContentSpecRendererDefinition {
   final Map<String, String> proceesorRendererMap;
