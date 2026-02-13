@@ -11,6 +11,7 @@ abstract class PropertyDefinition with _$PropertyDefinition {
     required String propertyId,
     required String dateTypeId,
     required List<String> conficSpecDefinitions,
+    @Default(true) bool canBeRule,
   }) = _PropertyDefinition;
 }
 

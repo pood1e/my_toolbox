@@ -31,6 +31,7 @@ List<PropertyDefinition> propertyDefinitions(Ref ref) => [
     propertyId: '_role_rule',
     dateTypeId: 'role_rules',
     conficSpecDefinitions: ['role_rule_config'],
+    canBeRule: false,
   ),
 ];
 

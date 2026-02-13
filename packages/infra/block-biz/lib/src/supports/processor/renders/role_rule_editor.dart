@@ -54,6 +54,7 @@ class RoleRuleEditor extends ConsumerWidget {
         initialSelection: _rule.propertyId,
         dropdownMenuEntries: ref
             .read(propertyDefinitionsProvider)
+            .where((def) => def.canBeRule)
             .map(
               (def) => DropdownMenuEntry(
                 value: def.propertyId,

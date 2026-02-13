@@ -11,8 +11,12 @@ class RoleRuleProcessor extends Processor<RoleRule, RoleRule> {
 
   @override
   String? validate(RoleRule config) {
-    if (_ref.read(propertyDescriptorProvider(config.propertyId)) == null) {
+    final definition = _ref.read(propertyDefinitionProvider(config.propertyId));
+    if (definition == null) {
       return 'property not found';
+    }
+    if (!definition.canBeRule) {
+      return 'property cannot be a rule';
     }
     return null;
   }

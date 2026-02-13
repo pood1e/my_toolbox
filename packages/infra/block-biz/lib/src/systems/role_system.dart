@@ -5,7 +5,7 @@ class RoleSystem {
   ///  - blueprint
   ///  - sugguested
   ///  _role
-  ///  
+  ///
 }
 
 enum RolePropertyLevel {

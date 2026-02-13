@@ -9,6 +9,16 @@ import 'data_type_registry.dart';
 part 'property_descriptor_registry.g.dart';
 
 @Riverpod(keepAlive: true)
+Map<String, PropertyDefinition> propertyDefinitionRegistry(Ref ref) {
+  final propertyDefs = ref.read(propertyDefinitionsProvider);
+  return {for (final p in propertyDefs) p.propertyId: p};
+}
+
+@riverpod
+PropertyDefinition? propertyDefinition(Ref ref, String propertyId) =>
+    ref.read(propertyDefinitionRegistryProvider)[propertyId];
+
+@Riverpod(keepAlive: true)
 List<PropertyDescriptor> propertyDescriptors(Ref ref) {
   final definitions = ref.read(propertyDefinitionsProvider);
   final dataTypes = ref.read(dataTypesProvider);
@@ -29,7 +39,7 @@ List<PropertyDescriptor> propertyDescriptors(Ref ref) {
       .toList();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Map<String, PropertyDescriptor> propertyDescriptorRegistry(Ref ref) {
   final propertyDefs = ref.read(propertyDescriptorsProvider);
   return {for (final p in propertyDefs) p.propertyId: p};
