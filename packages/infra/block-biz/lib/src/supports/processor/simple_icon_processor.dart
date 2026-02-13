@@ -5,7 +5,8 @@ import '../value_types/icon_data_type.dart';
 
 class SimpleIconProcessor extends Processor<IconData, IconData> {
   @override
-  IconData fromDb(dynamic value) => value.toIconData()!;
+  IconData fromDb(dynamic value) =>
+      (value as Map<String, dynamic>).toIconData()!;
 
   @override
   String get id => 'simple_icon';

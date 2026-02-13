@@ -2,9 +2,9 @@ import 'package:app_core/di.dart';
 import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
-import '../../domain/property.dart';
-import '../node_renderers/node_editor/node_editor_controller.dart';
-import 'property_renderer.dart';
+import '../../../domain/property.dart';
+import '../../node_renderers/node_editor/node_editor_controller.dart';
+import '../property_renderer.dart';
 
 class PropertyCardShell extends ConsumerWidget {
   final PropertyKey _propertyKey;
@@ -50,57 +50,41 @@ class PropertyCardShell extends ConsumerWidget {
       ];
     }
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacings.m),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpacings.s,
-          children: [
-            // Row 1: Header + (Optional Content) + Actions
-            Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppSpacings.s,
+        children: [
+          // Row 1: Header + (Optional Content) + Actions
+          ListTile(
+            // contentPadding: EdgeInsets.zero,
+            leading: Icon(_renderer.icon),
+            title: Row(
+              spacing: AppSpacings.xl,
               crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: AppSpacings.l,
               children: [
-                _PropertyBasicInfo(name: _renderer.name, icon: _renderer.icon),
-                Expanded(
-                  child: isHorizontal ? _child : const SizedBox.shrink(),
-                ),
-                _PropertyActions(actions: actions),
+                Text(_renderer.name),
+                isHorizontal
+                    ? Expanded(child: _child)
+                    : const SizedBox.shrink(),
               ],
             ),
-            if (!isHorizontal) _child,
-          ],
-        ),
+            trailing: _PropertyActions(actions: actions),
+          ),
+          if (!isHorizontal)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacings.l,
+                AppSpacings.s,
+                AppSpacings.l,
+                AppSpacings.l,
+              ),
+              child: _child,
+            ),
+        ],
       ),
     );
   }
-}
-
-class _PropertyBasicInfo extends StatelessWidget {
-  final String _name;
-  final IconData _icon;
-
-  const _PropertyBasicInfo({required String name, required IconData icon})
-    : _name = name,
-      _icon = icon;
-
-  @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: AppSpacings.s,
-    direction: Axis.horizontal,
-    crossAxisAlignment: WrapCrossAlignment.center,
-    children: [
-      Icon(_icon, color: Theme.of(context).colorScheme.primary),
-      Text(
-        _name,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-      ),
-    ],
-  );
 }
 
 class _PropertyActions extends StatelessWidget {

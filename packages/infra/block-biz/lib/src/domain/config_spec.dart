@@ -66,6 +66,8 @@ sealed class ConfigSpecDefinition with _$ConfigSpecDefinition {
     @Default(ConfigMode.multiStatic) ConfigMode mode,
     required Map<String, ComponentSpec> processorSpecs,
     required Map<String, ComponentSpec> aggregatorSpecs,
+    required String defaultProcessor,
+    required String defaultAggregator
   }) = MultiStaticConfigSpecDefinition;
 
   const factory ConfigSpecDefinition.multiRef({
@@ -126,7 +128,8 @@ sealed class ConfigSpecDescriptor with _$ConfigSpecDescriptor {
     required Map<String, ComponentSpec> processorSpecs,
     required Map<String, Aggregator> aggregatorMap,
     required Map<String, ComponentSpec> aggregatorSpecs,
-    PropertyConfigBody Function()? createDefault
+    PropertyConfigBody Function()? createDefault,
+    required String defaultProcessor
   }) = MultiStaticConfigSpecDescriptor;
 
   @Implements<HasAggs>()

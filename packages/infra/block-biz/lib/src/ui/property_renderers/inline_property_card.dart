@@ -6,7 +6,7 @@ import '../../domain/property.dart';
 import '../property_draft/draft_controller.dart';
 import 'components/edit_container.dart';
 import 'components/read_container.dart';
-import 'property_card_shell.dart';
+import 'components/property_card_shell.dart';
 import 'property_renderer.dart';
 
 class InlinePropertyCard extends ConsumerStatefulWidget {

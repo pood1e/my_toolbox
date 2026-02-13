@@ -23,6 +23,11 @@ List<PropertyDefinition> propertyDefinitions(Ref ref) => [
     dateTypeId: 'text',
     conficSpecDefinitions: ['paragraph_text_config'],
   ),
+  const PropertyDefinition(
+    propertyId: '_role_rule',
+    dateTypeId: 'role_rules',
+    conficSpecDefinitions: ['role_rule_config'],
+  ),
 ];
 
 @Riverpod(keepAlive: true)

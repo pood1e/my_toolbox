@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 import '../../supports/component_registry.dart';
 import '../component_renderers/component_renderer.dart';
 import '../component_renderers/component_renderer_registry.dart';
+import 'multi_static_spec_renderer.dart';
 import 'single_ref_spec_renderer.dart';
 import 'single_static_spec_renderer.dart';
 import 'spec_renderer.dart';
@@ -32,6 +33,12 @@ List<SpecRendererDefinition> specRendererDefinitions(Ref ref) => [
     icon: Icons.link,
     specId: 'icon_ref_config',
     transformerId: 'icon_direct',
+  ),
+  MultiStaticSpecRenderer(
+    specId: 'role_rule_config',
+    icon: Icons.rule_folder,
+    leadingIcon: Icons.rule,
+    proceesorRendererMap: {'role_rule': 'role_rule_editor'},
   ),
 ];
 
@@ -70,6 +77,17 @@ Map<String, SpecRenderer> specRendererRegistry(Ref ref) {
           definition: d,
           renderer: transformerRendererMap[d.transformerId]! as PickerRenderer,
           component: transformerMap[d.transformerId]!,
+        ),
+
+        MultiStaticSpecRenderer d => SpecRenderer.content(
+          definition: d,
+          proceesorRendererMap: {
+            for (final entry in d.proceesorRendererMap.entries)
+              if (processorRendererMap.containsKey(entry.value))
+                entry.key:
+                    processorRendererMap[entry.value]! as ContentRenderer,
+          },
+          transformerRendererMap: {},
         ),
         // 4. 处理未知的定义类型
         _ => throw UnimplementedError(

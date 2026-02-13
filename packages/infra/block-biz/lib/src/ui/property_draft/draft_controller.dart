@@ -123,8 +123,7 @@ class PropertyDraftController extends _$PropertyDraftController {
         }
         return transformer.component.validate(transformer.raw);
       case MultiStaticPropertyConfig():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return null;
       case MultiRefPropertyConfig():
         // TODO: Handle this case.
         throw UnimplementedError();

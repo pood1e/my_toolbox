@@ -27,7 +27,7 @@ class RoleRuleProcessor extends Processor<RoleRule, RoleRule> {
   Future<RoleRule> process(RoleRule config) async => config;
 
   @override
-  toDb(RoleRule value) => value;
+  toDb(RoleRule value) => value.toJson();
 
   @override
   String get typeId => 'role_rule';

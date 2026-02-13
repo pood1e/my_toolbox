@@ -7,30 +7,59 @@ import 'property.dart';
 
 part 'property_config.freezed.dart';
 
-@freezed
-abstract class ConfigurableComponent with _$ConfigurableComponent {
-  const ConfigurableComponent._();
+sealed class ConfigurableComponent<C, COMP extends Configurable<C>> {
+  // 必须提供 const 构造函数，否则 Freezed 无法生成 const 子类
+  const ConfigurableComponent();
 
-  const factory ConfigurableComponent.static({
-    required Processor component,
-    required dynamic raw,
-  }) = ProcessorComponent;
+  // 定义抽象 getter，强制子类实现
+  C get raw;
+  COMP get component;
 
-  const factory ConfigurableComponent.ref({
-    required Transformer component,
-    PropertyKey? target,
-    required dynamic raw,
-  }) = TransformerComponent;
-
-  const factory ConfigurableComponent.agg({
-    required Aggregator component,
-    required dynamic raw,
-  }) = AggregateComponent;
-
+  // 公共逻辑放在基类中
   String toJsonString() => jsonEncode({
     'componentId': component.id,
-    'raw': component.toDb(raw)
+    'raw': component.toDb(raw),
   });
+}
+
+// -----------------------------------------------------------------------------
+// 实现类
+// -----------------------------------------------------------------------------
+
+@Freezed(genericArgumentFactories: true)
+abstract class ProcessorComponent<C, T> extends ConfigurableComponent<C, Processor<C, T>>
+    with _$ProcessorComponent<C, T> {
+  const ProcessorComponent._(); // 必须有的私有构造函数
+
+  const factory ProcessorComponent({
+    required Processor<C, T> component,
+    required C raw,
+  }) = _ProcessorComponent<C, T>;
+}
+
+@Freezed(genericArgumentFactories: true)
+abstract class TransformerComponent<S, C, T>
+    extends ConfigurableComponent<C, Transformer<S, C, T>>
+    with _$TransformerComponent<S, C, T> {
+  const TransformerComponent._();
+
+  const factory TransformerComponent({
+    required Transformer<S, C, T> component,
+    PropertyKey? target,
+    required C raw,
+  }) = _TransformerComponent<S, C, T>;
+}
+
+@Freezed(genericArgumentFactories: true)
+abstract class AggregateComponent<S, C, T>
+    extends ConfigurableComponent<C, Aggregator<S, C, T>>
+    with _$AggregateComponent<S, C, T> {
+  const AggregateComponent._();
+
+  const factory AggregateComponent({
+    required Aggregator<S, C, T> component,
+    required C raw,
+  }) = _AggregateComponent<S, C, T>;
 }
 
 @freezed

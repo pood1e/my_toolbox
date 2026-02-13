@@ -71,3 +71,21 @@ class InlinePropertyRenderer extends PropertyRenderer
     required super.propertyId,
   });
 }
+
+/// 先只支持一种spec
+class ExpansionPropertyRenderer extends PropertyRenderer
+    implements PropertyViewerWidget {
+  @override
+  final Widget Function(PropertyState<dynamic> state) readBuilder;
+
+  PropertyViewLayout Function(String, bool)? whenSpecAndEdit = (_, _) =>
+  PropertyViewLayout.vertical;
+
+  ExpansionPropertyRenderer({
+    required super.name,
+    required super.icon,
+    required this.readBuilder,
+    this.whenSpecAndEdit,
+    required super.propertyId,
+  });
+}

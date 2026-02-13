@@ -41,6 +41,12 @@ abstract class ContentSpecRendererDefinition extends SpecRendererDefinition {
     required VoidCallback onCancel,
   });
 
+  List<Widget> extraActions({
+    required PropertyConfigBody draft,
+    required ValueChanged<PropertyConfigBody> onValueChanged,
+    required VoidCallback onSubmit,
+  }) => [];
+
   ContentSpecRendererDefinition({required super.specId, required super.icon});
 }
 

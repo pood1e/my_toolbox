@@ -1,9 +1,11 @@
 import 'package:app_core/di.dart';
 import 'package:flutter/material.dart';
+import 'package:nanoid/nanoid.dart';
 
 import '../domain/config_spec.dart';
 import '../domain/property_config.dart';
 import 'component_registry.dart';
+import 'value_types/role_rule_data_type.dart';
 
 part 'config_spec_registry.g.dart';
 
@@ -27,6 +29,20 @@ List<ConfigSpecDefinition> configSpecDefinitions(Ref ref) => [
     id: 'icon_ref_config',
     propertyIds: {'_icon'},
     transformerSpecs: {'icon_direct': ComponentSpec(createDefault: () => null)},
+  ),
+  ConfigSpecDefinition.multiStatic(
+    id: 'role_rule_config',
+    processorSpecs: {
+      'role_rule': ComponentSpec(
+        createDefault: () =>
+            const RoleRule(propertyId: '_name', type: RoleRuleType.blueprint),
+      ),
+    },
+    aggregatorSpecs: {
+      'agg_role_rules': ComponentSpec(createDefault: () => null),
+    },
+    defaultProcessor: 'role_rule',
+    defaultAggregator: 'agg_role_rules',
   ),
 ];
 
@@ -65,6 +81,8 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
       case MultiStaticConfigSpecDefinition(
         :final processorSpecs,
         :final aggregatorSpecs,
+        :final defaultProcessor,
+        :final defaultAggregator,
       ):
         return MultiStaticConfigSpecDescriptor(
           id: definition.id,
@@ -76,6 +94,19 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
           },
           processorSpecs: processorSpecs,
           aggregatorSpecs: aggregatorSpecs,
+          defaultProcessor: defaultProcessor,
+          createDefault: () => PropertyConfigBody.multiStatic(
+            aggregator: AggregateComponent(
+              component: aggregatorMap[defaultAggregator]!,
+              raw: aggregatorSpecs[defaultAggregator]!.createDefault(),
+            ),
+            processorMap: {
+              nanoid(10): ProcessorComponent(
+                component: processorMap[defaultProcessor]!,
+                raw: processorSpecs[defaultProcessor]!.createDefault(),
+              ),
+            },
+          ),
         );
       case MultiRefConfigSpecDefinition(
         :final transformerSpecs,

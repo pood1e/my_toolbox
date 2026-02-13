@@ -220,116 +220,209 @@ extension PropertyConfigParser on PropertyConfig {
   static PropertyConfigBody parseBody(
     List<StoredConfig> configs,
     ConfigSpecDescriptor descriptor,
+  ) => descriptor.map(
+    singleStatic: (desc) => _parseSingleStatic(configs, desc),
+    singleRef: (desc) => _parseSingleRef(configs, desc),
+    multiStatic: (desc) => _parseMultiStatic(configs, desc),
+    multiRef: (desc) => _parseMultiRef(configs, desc),
+    hybrid: (desc) => _parseHybrid(configs, desc),
+  );
+
+  // --- 1. Single Static (Processor) ---
+  static PropertyConfigBody _parseSingleStatic(
+    List<StoredConfig> configs,
+    SingleStaticConfigSpecDescriptor desc,
   ) {
-    // 1. 查找工具：根据类型和mapKey在数据库结果中查找
-    StoredConfig? find(ConfigType type, [String? key]) {
-      for (final c in configs) {
-        if (c.configType == type && c.mapKey == key) return c;
-      }
-      return null;
-    }
+    // 查找类型为 processor 的配置
+    final config = configs.firstWhere(
+      (c) => c.configType == ConfigType.processor,
+      orElse: () => throw Exception('Missing processor config for ${desc.id}'),
+    );
 
-    // 2. 核心解析工具：解包 JSON -> 提取 raw -> 恢复对象
-    // C 是配置对象的类型 (如 ProcessorConfig)
-    dynamic decodeRaw(Configurable component, StoredConfig? row) {
-      if (row?.config == null) return null;
-      try {
-        final wrapper = jsonDecode(row!.config);
+    return PropertyConfigBody.singleStatic(
+      processor: _parseProcessor(config, desc.processorMap),
+    );
+  }
 
-        // 校验数据格式是否为 Map (新的包装格式)
-        if (wrapper is! Map<String, dynamic>) return null;
+  // --- 2. Single Ref (Transformer) ---
+  static PropertyConfigBody _parseSingleRef(
+    List<StoredConfig> configs,
+    SingleRefConfigSpecDescriptor desc,
+  ) {
+    final config = configs.firstWhere(
+      (c) => c.configType == ConfigType.ref,
+      orElse: () => throw Exception('Missing ref config for ${desc.id}'),
+    );
 
-        // 可选：校验 componentId 是否匹配，防止配置错乱
-        // if (wrapper['componentId'] != (component as dynamic).id) return null;
+    return PropertyConfigBody.singleRef(
+      transformer: _parseTransformer(config, desc.transformerMap),
+    );
+  }
 
-        final rawData = wrapper['raw'];
-        // 如果 raw 是基本类型 (int/bool等)，根据 Configurable 定义调整
-        // 这里假设 fromDb 接受 dynamic 或 map
-        return component.fromDb(rawData);
-      } catch (e) {
-        // 解析失败或数据损坏，返回 null 此时界面通常显示默认值
-        return null;
-      }
-    }
+  // --- 3. Multi Static (Aggregator + Map<String, Processor>) ---
+  static PropertyConfigBody _parseMultiStatic(
+    List<StoredConfig> configs,
+    MultiStaticConfigSpecDescriptor desc,
+  ) {
+    // 1. 解析聚合器
+    final aggConfig = configs.firstWhere(
+      (c) => c.configType == ConfigType.aggregate,
+      orElse: () => throw Exception('Missing aggregator config for ${desc.id}'),
+    );
+    final aggregator = _parseAggregator(aggConfig, desc.aggregatorMap);
 
-    // 3. 引用目标工具
-    PropertyKey? target(StoredConfig? c) =>
-        (c?.targetNodeId != null && c?.targetDefId != null)
-        ? PropertyKey(nodeId: c!.targetNodeId!, defId: c.targetDefId!)
-        : null;
-
-    // 4. 批量构建工具 (Multi/Hybrid 模式用)
-    Map<String, ProcessorComponent> makeProcs(Map<String, Processor> map) =>
-        map.map(
-          (k, v) => MapEntry(
-            k,
-            ProcessorComponent(
-              component: v,
-              raw: decodeRaw(v, find(ConfigType.processor, k)),
-            ),
-          ),
+    // 2. 解析 Processor Map
+    final processorMap = <String, ProcessorComponent>{};
+    for (final config in configs.where(
+      (c) => c.configType == ConfigType.processor,
+    )) {
+      if (config.mapKey != null) {
+        processorMap[config.mapKey!] = _parseProcessor(
+          config,
+          desc.processorMap,
         );
+      }
+    }
 
-    Map<String, TransformerComponent> makeTrans(Map<String, Transformer> map) =>
-        map.map((k, v) {
-          final row = find(ConfigType.ref, k);
-          return MapEntry(
-            k,
-            TransformerComponent(
-              component: v,
-              target: target(row),
-              raw: decodeRaw(v, row),
-            ),
-          );
-        });
+    return PropertyConfigBody.multiStatic(
+      aggregator: aggregator,
+      processorMap: processorMap,
+    );
+  }
 
-    AggregateComponent makeAgg(Map<String, Aggregator> map) {
-      final agg = map.values.first; // 默认取第一个聚合器
-      return AggregateComponent(
-        component: agg,
-        raw: decodeRaw(agg, find(ConfigType.aggregate)),
+  // --- 4. Multi Ref (Aggregator + Map<String, Transformer>) ---
+  static PropertyConfigBody _parseMultiRef(
+    List<StoredConfig> configs,
+    MultiRefConfigSpecDescriptor desc,
+  ) {
+    final aggConfig = configs.firstWhere(
+      (c) => c.configType == ConfigType.aggregate,
+      orElse: () => throw Exception('Missing aggregator config for ${desc.id}'),
+    );
+    final aggregator = _parseAggregator(aggConfig, desc.aggregatorMap);
+
+    final transformerMap = <String, TransformerComponent>{};
+    for (final config in configs.where((c) => c.configType == ConfigType.ref)) {
+      if (config.mapKey != null) {
+        transformerMap[config.mapKey!] = _parseTransformer(
+          config,
+          desc.transformerMap,
+        );
+      }
+    }
+
+    return PropertyConfigBody.multiRef(
+      aggregator: aggregator,
+      transformerMap: transformerMap,
+    );
+  }
+
+  // --- 5. Hybrid (Aggregator + Processor Map + Transformer Map) ---
+  static PropertyConfigBody _parseHybrid(
+    List<StoredConfig> configs,
+    HybridConfigSpecDescriptor desc,
+  ) {
+    final aggConfig = configs.firstWhere(
+      (c) => c.configType == ConfigType.aggregate,
+      orElse: () => throw Exception('Missing aggregator config for ${desc.id}'),
+    );
+    final aggregator = _parseAggregator(aggConfig, desc.aggregatorMap);
+
+    final processorMap = <String, ProcessorComponent>{};
+    final transformerMap = <String, TransformerComponent>{};
+
+    for (final config in configs) {
+      if (config.mapKey == null) continue;
+
+      if (config.configType == ConfigType.processor) {
+        processorMap[config.mapKey!] = _parseProcessor(
+          config,
+          desc.processorMap,
+        );
+      } else if (config.configType == ConfigType.ref) {
+        transformerMap[config.mapKey!] = _parseTransformer(
+          config,
+          desc.transformerMap,
+        );
+      }
+    }
+
+    return PropertyConfigBody.hybrid(
+      aggregator: aggregator,
+      processorMap: processorMap,
+      transformerMap: transformerMap,
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Helpers: 解析具体组件
+  // -------------------------------------------------------------------------
+
+  static ProcessorComponent _parseProcessor(
+    StoredConfig config,
+    Map<String, Processor> lookupMap,
+  ) {
+    final json = jsonDecode(config.config) as Map<String, dynamic>;
+    final componentId = json['componentId'] as String;
+    final rawJson = json['raw'];
+
+    final component = lookupMap[componentId];
+    if (component == null) {
+      throw Exception('Processor "$componentId" not found in descriptor.');
+    }
+    // 假设 component.fromDb 存在，用于将 JSON 数据转回 Dart 对象
+    // 如果没有 fromDb，且 raw 就是需要的对象，则直接使用 rawJson
+    final rawData = component.fromDb(rawJson);
+
+    return ProcessorComponent(component: component, raw: rawData);
+  }
+
+  static TransformerComponent _parseTransformer(
+    StoredConfig config,
+    Map<String, Transformer> lookupMap,
+  ) {
+    final json = jsonDecode(config.config) as Map<String, dynamic>;
+    final componentId = json['componentId'] as String;
+    final rawJson = json['raw'];
+
+    final component = lookupMap[componentId];
+    if (component == null) {
+      throw Exception('Transformer "$componentId" not found in descriptor.');
+    }
+
+    final rawData = component.fromDb(rawJson);
+
+    // 构建引用目标 Key
+    PropertyKey? target;
+    if (config.targetNodeId != null && config.targetDefId != null) {
+      target = PropertyKey(
+        nodeId: config.targetNodeId!,
+        defId: config.targetDefId!, // 注意：PropertyKey 的参数名根据你的定义可能不同，这里假设是 id
       );
     }
 
-    // === 5. 模式匹配构建 ===
-    return switch (descriptor) {
-      SingleStaticConfigSpecDescriptor d => PropertyConfigBody.singleStatic(
-        processor: ProcessorComponent(
-          component: d.processorMap.values.first,
-          raw: decodeRaw(
-            d.processorMap.values.first,
-            find(ConfigType.processor),
-          ),
-        ),
-      ),
+    return TransformerComponent(
+      component: component,
+      target: target,
+      raw: rawData,
+    );
+  }
 
-      SingleRefConfigSpecDescriptor d => () {
-        final trans = d.transformerMap.values.first;
-        final row = find(ConfigType.ref);
-        return PropertyConfigBody.singleRef(
-          transformer: TransformerComponent(
-            component: trans,
-            target: target(row),
-            raw: decodeRaw(trans, row),
-          ),
-        );
-      }(),
+  static AggregateComponent _parseAggregator(
+    StoredConfig config,
+    Map<String, Aggregator> lookupMap,
+  ) {
+    final json = jsonDecode(config.config) as Map<String, dynamic>;
+    final componentId = json['componentId'] as String;
+    final rawJson = json['raw'];
 
-      MultiStaticConfigSpecDescriptor d => PropertyConfigBody.multiStatic(
-        aggregator: makeAgg(d.aggregatorMap),
-        processorMap: makeProcs(d.processorMap),
-      ),
+    final component = lookupMap[componentId];
+    if (component == null) {
+      throw Exception('Aggregator "$componentId" not found in descriptor.');
+    }
 
-      MultiRefConfigSpecDescriptor d => PropertyConfigBody.multiRef(
-        aggregator: makeAgg(d.aggregatorMap),
-        transformerMap: makeTrans(d.transformerMap),
-      ),
+    final rawData = component.fromDb(rawJson);
 
-      HybridConfigSpecDescriptor d => PropertyConfigBody.hybrid(
-        aggregator: makeAgg(d.aggregatorMap),
-        processorMap: makeProcs(d.processorMap),
-        transformerMap: makeTrans(d.transformerMap),
-      ),
-    };
+    return AggregateComponent(component: component, raw: rawData);
   }
 }

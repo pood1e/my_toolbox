@@ -1,4 +1,6 @@
 // 基础配置接口
+
+
 abstract class Configurable<C> {
   String get id;
 
@@ -29,6 +31,10 @@ abstract class Aggregator<S, C, T> extends Configurable<C> {
   String get tTypeId;
 
   Future<T> aggregate(Map<String, S> sMap, C config);
+
+  Future<T> aggregateDynamic(Map<String, dynamic> sMap, C config) => aggregate({
+    for (final entry in sMap.entries) entry.key: entry.value as S,
+  }, config);
 }
 
 sealed class ComputeException implements Exception {}
@@ -38,7 +44,7 @@ class ProcessorException extends ComputeException {}
 class TransformerException extends ComputeException {}
 
 class DependencyDirtyException extends TransformerException {}
-class DependencyErrorException extends TransformerException {}
 
+class DependencyErrorException extends TransformerException {}
 
 class AggregatorException extends ComputeException {}

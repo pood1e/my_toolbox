@@ -8,7 +8,7 @@ import '../property_draft/draft_controller.dart';
 import '../spec_renderers/spec_renderer.dart';
 import '../spec_renderers/spec_renderer_registry.dart';
 import 'components/read_container.dart';
-import 'property_card_shell.dart';
+import 'components/property_card_shell.dart';
 import 'property_renderer.dart';
 
 class ModalPropertyCard extends ConsumerWidget {
