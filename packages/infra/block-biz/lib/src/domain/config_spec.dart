@@ -8,8 +8,10 @@ part 'config_spec.freezed.dart';
 
 @freezed
 abstract class ComponentSpec with _$ComponentSpec {
-  const factory ComponentSpec({required dynamic Function() createDefault}) =
-      _ComponentSpec;
+  const factory ComponentSpec({
+    required dynamic Function() createDefault,
+    @Default(true) bool canBeSource,
+  }) = _ComponentSpec;
 }
 
 // --- 接口定义，方便在使用时统一调用 ---
@@ -88,6 +90,9 @@ sealed class ConfigSpecDefinition with _$ConfigSpecDefinition {
     required Set<String> propertyIds,
     required Map<String, ComponentSpec> transformerSpecs,
     required Map<String, ComponentSpec> aggregatorSpecs,
+    required String defaultProcessor,
+    required String defaultAggregator,
+    PropertyConfigBody Function()? createDefault,
   }) = HybridConfigSpecDefinition;
 }
 
@@ -106,7 +111,7 @@ sealed class ConfigSpecDescriptor with _$ConfigSpecDescriptor {
     required Map<String, Processor> processorMap,
     required Map<String, ComponentSpec> processorSpecs,
     @Default(ConfigMode.singleStatic) ConfigMode mode,
-    PropertyConfigBody Function()? createDefault
+    PropertyConfigBody Function()? createDefault,
   }) = SingleStaticConfigSpecDescriptor;
 
   @Implements<HasTransformers>()
@@ -116,7 +121,7 @@ sealed class ConfigSpecDescriptor with _$ConfigSpecDescriptor {
     required Set<String> propertyIds,
     required Map<String, Transformer> transformerMap,
     required Map<String, ComponentSpec> transformerSpecs,
-    PropertyConfigBody Function()? createDefault
+    PropertyConfigBody Function()? createDefault,
   }) = SingleRefConfigSpecDescriptor;
 
   @Implements<HasProcessors>()
@@ -129,7 +134,7 @@ sealed class ConfigSpecDescriptor with _$ConfigSpecDescriptor {
     required Map<String, Aggregator> aggregatorMap,
     required Map<String, ComponentSpec> aggregatorSpecs,
     PropertyConfigBody Function()? createDefault,
-    required String defaultProcessor
+    required String defaultProcessor,
   }) = MultiStaticConfigSpecDescriptor;
 
   @Implements<HasAggs>()
@@ -142,7 +147,7 @@ sealed class ConfigSpecDescriptor with _$ConfigSpecDescriptor {
     required Map<String, ComponentSpec> transformerSpecs,
     required Map<String, Aggregator> aggregatorMap,
     required Map<String, ComponentSpec> aggregatorSpecs,
-    PropertyConfigBody Function()? createDefault
+    PropertyConfigBody Function()? createDefault,
   }) = MultiRefConfigSpecDescriptor;
 
   @Implements<HasProcessors>()
@@ -158,6 +163,7 @@ sealed class ConfigSpecDescriptor with _$ConfigSpecDescriptor {
     required Map<String, ComponentSpec> transformerSpecs,
     required Map<String, Aggregator> aggregatorMap,
     required Map<String, ComponentSpec> aggregatorSpecs,
-    PropertyConfigBody Function()? createDefault
+    required String defaultProcessor,
+    PropertyConfigBody Function()? createDefault,
   }) = HybridConfigSpecDescriptor;
 }

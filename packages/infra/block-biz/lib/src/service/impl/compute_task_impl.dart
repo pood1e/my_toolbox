@@ -237,7 +237,7 @@ class ComputeTaskImpl implements ComputeTask {
     }
 
     try {
-      return await ac.component.aggregateDynamic(inputs, ac.raw);
+      return await ac.component.aggregate(inputs, ac.raw);
     } catch (e) {
       if (e is ComputeException) rethrow;
       throw AggregatorException();

@@ -19,7 +19,7 @@ class DeviceIdServiceImpl extends DeviceIdService {
     if (_deviceId != null) {
       return _deviceId!;
     }
-    _deviceId = Uuid().v4().replaceAll('-', '');
+    _deviceId = nanoid();
     await _installIdStorage.saveInstallId(_deviceId!);
     return _deviceId!;
   }

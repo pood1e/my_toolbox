@@ -32,6 +32,8 @@ dependencies:
     path: ../infra/ai-biz
   block_biz:
     path: ../infra/block-biz
+  ecs_biz:
+    path: ../infra/ecs-biz
 
 
 dev_dependencies:

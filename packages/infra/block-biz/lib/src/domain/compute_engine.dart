@@ -25,16 +25,11 @@ abstract class Transformer<S, C, T> extends Configurable<C> {
   Future<T> transform(S source, C config);
 }
 
-abstract class Aggregator<S, C, T> extends Configurable<C> {
-  String get sTypeId;
+abstract class Aggregator<C, T> extends Configurable<C> {
 
   String get tTypeId;
 
-  Future<T> aggregate(Map<String, S> sMap, C config);
-
-  Future<T> aggregateDynamic(Map<String, dynamic> sMap, C config) => aggregate({
-    for (final entry in sMap.entries) entry.key: entry.value as S,
-  }, config);
+  Future<T> aggregate(Map<String, dynamic> sMap, C config);
 }
 
 sealed class ComputeException implements Exception {}

@@ -13,13 +13,12 @@ sealed class ConfigurableComponent<C, COMP extends Configurable<C>> {
 
   // 定义抽象 getter，强制子类实现
   C get raw;
+
   COMP get component;
 
   // 公共逻辑放在基类中
-  String toJsonString() => jsonEncode({
-    'componentId': component.id,
-    'raw': component.toDb(raw),
-  });
+  String toJsonString() =>
+      jsonEncode({'componentId': component.id, 'raw': component.toDb(raw)});
 }
 
 // -----------------------------------------------------------------------------
@@ -27,7 +26,8 @@ sealed class ConfigurableComponent<C, COMP extends Configurable<C>> {
 // -----------------------------------------------------------------------------
 
 @Freezed(genericArgumentFactories: true)
-abstract class ProcessorComponent<C, T> extends ConfigurableComponent<C, Processor<C, T>>
+abstract class ProcessorComponent<C, T>
+    extends ConfigurableComponent<C, Processor<C, T>>
     with _$ProcessorComponent<C, T> {
   const ProcessorComponent._(); // 必须有的私有构造函数
 
@@ -51,15 +51,15 @@ abstract class TransformerComponent<S, C, T>
 }
 
 @Freezed(genericArgumentFactories: true)
-abstract class AggregateComponent<S, C, T>
-    extends ConfigurableComponent<C, Aggregator<S, C, T>>
-    with _$AggregateComponent<S, C, T> {
+abstract class AggregateComponent<C, T>
+    extends ConfigurableComponent<C, Aggregator<C, T>>
+    with _$AggregateComponent<C, T> {
   const AggregateComponent._();
 
   const factory AggregateComponent({
-    required Aggregator<S, C, T> component,
+    required Aggregator<C, T> component,
     required C raw,
-  }) = _AggregateComponent<S, C, T>;
+  }) = _AggregateComponent<C, T>;
 }
 
 @freezed

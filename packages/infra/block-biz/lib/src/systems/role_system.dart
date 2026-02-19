@@ -8,16 +8,6 @@ class RoleSystem {
   ///
 }
 
-enum RolePropertyLevel {
-  mandatory, blueprint, sugguested
-}
-
-
-
-abstract class RolePropertyDefinition {
-  String get propertyId;
-  RolePropertyLevel get level;
-}
 
 abstract class RoleDefinition {
 

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../domain/config_spec.dart';
+import '../ui/spec_renderer.dart';
 import '../ui/spec_renderers/multi_static_spec_renderer.dart';
 import '../ui/spec_renderers/single_ref_spec_renderer.dart';
 import '../ui/spec_renderers/single_static_spec_renderer.dart';
-import '../ui/spec_renderer.dart';
 import 'value_types/role_rule_data_type.dart';
 
 part 'support_config_specs.g.dart';
@@ -32,7 +32,7 @@ List<ConfigSpecDefinition> configSpecDefinitions(Ref ref) => [
     propertyIds: {'_icon'},
     transformerSpecs: {'icon_direct': ComponentSpec(createDefault: () => null)},
   ),
-  ConfigSpecDefinition.multiStatic(
+  ConfigSpecDefinition.hybrid(
     id: 'role_rule_config',
     processorSpecs: {
       'role_rule': ComponentSpec(
@@ -45,6 +45,9 @@ List<ConfigSpecDefinition> configSpecDefinitions(Ref ref) => [
     },
     defaultProcessor: 'role_rule',
     defaultAggregator: 'agg_role_rules',
+    propertyIds: {},
+    transformerSpecs: {},
+
   ),
 ];
 

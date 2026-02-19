@@ -6,12 +6,12 @@ import '../spec_renderer.dart';
 import 'components/add_source_button.dart';
 import 'components/static_sources_area.dart';
 
-class MultiStaticSpecRenderer extends ContentSpecRendererDefinition {
+class HybirdSpecRenderer extends ContentSpecRendererDefinition {
   final Map<String, String> proceesorRendererMap;
   final double maxHeight;
   final IconData? leadingIcon;
 
-  MultiStaticSpecRenderer({
+  HybirdSpecRenderer({
     required super.specId,
     required super.icon,
     required this.proceesorRendererMap,
@@ -28,7 +28,7 @@ class MultiStaticSpecRenderer extends ContentSpecRendererDefinition {
     StaticSourceAddIcon(
       specId: specId,
       createDefault: (key, component) {
-        draft as MultiStaticPropertyConfig;
+        draft as HybridPropertyConfig;
         onValueChanged(
           draft.copyWith(processorMap: {...draft.processorMap, key: component}),
         );
@@ -48,7 +48,7 @@ class MultiStaticSpecRenderer extends ContentSpecRendererDefinition {
     required VoidCallback onSubmit,
     required VoidCallback onCancel,
   }) {
-    draft as MultiStaticPropertyConfig;
+    draft as HybridPropertyConfig;
     return StaticSourcesArea(
       leadingIcon: leadingIcon,
       map: draft.processorMap,

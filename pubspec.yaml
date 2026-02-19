@@ -52,6 +52,8 @@ dependencies:
     path: packages/features/note-biz
   block_biz:
     path: packages/infra/block-biz
+  ecs_biz:
+    path: packages/infra/ecs-biz
 
   dynamic_color: ^1.8.1
   google_fonts: ^6.3.3
@@ -103,6 +105,7 @@ workspace:
   - packages/infra/shell-biz
   - packages/infra/ai-biz
   - packages/infra/block-biz
+  - packages/infra/ecs-biz
   - packages/framework-biz
   - packages/features/smart-lifeflow
   - packages/features/event-api

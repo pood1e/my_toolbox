@@ -3,8 +3,8 @@ import 'package:nanoid/nanoid.dart';
 
 import '../domain/config_spec.dart';
 import '../domain/property_config.dart';
-import 'component_registry.dart';
 import '../supports/support_config_specs.dart';
+import 'component_registry.dart';
 
 part 'config_spec_registry.g.dart';
 
@@ -90,6 +90,7 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
         :final transformerSpecs,
         :final aggregatorSpecs,
         :final processorSpecs,
+        :final defaultAggregator,
       ):
         return HybridConfigSpecDescriptor(
           id: definition.id,
@@ -106,6 +107,7 @@ List<ConfigSpecDescriptor> configSpecDescriptors(Ref ref) {
           processorSpecs: processorSpecs,
           transformerSpecs: transformerSpecs,
           aggregatorSpecs: aggregatorSpecs,
+          defaultProcessor: defaultAggregator,
         );
     }
   }).toList();
