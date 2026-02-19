@@ -1,5 +1,6 @@
 import 'package:app_core/object.dart';
 
+import '../compute/compute_service.dart';
 import '../meta/property_meta_service.dart';
 
 part 'value_service.freezed.dart';
@@ -41,4 +42,6 @@ abstract class ValueService {
   Future<void> delete(PropertyId propertyId);
 
   Future<void> markAsDirty(List<PropertyId> propertyIds);
+
+  Future<void> markAsError(Map<PropertyId, ComputeError> errorMap);
 }

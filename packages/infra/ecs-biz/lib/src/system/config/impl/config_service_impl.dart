@@ -156,8 +156,21 @@ class ConfigServiceImpl implements ConfigService {
         await _relationService.deleteById(id);
       }
       if (meta is PropertyValueMeta) {
-        await _valueService.markAsDirty([id]);
+        await _valueService.delete(id);
       }
     });
+  }
+
+  @override
+  Future<dynamic> get(PropertyId propertyId) async {
+    final meta = _metaService.getById(propertyId.metaId)!;
+    if (meta is! PropertyConfigMeta) {
+      return null;
+    }
+    final config = await _dao.findByNodeAndMeta(propertyId);
+    if (config == null) {
+      return null;
+    }
+    return meta.fromDb(config.config);
   }
 }

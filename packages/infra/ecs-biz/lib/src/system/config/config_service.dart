@@ -9,6 +9,8 @@ mixin PropertyConfigMeta on PropertyMeta {
 }
 
 abstract class ConfigService {
+  Future<dynamic> get(PropertyId propertyId);
+
   Future<void> create(PropertyId propertyId, dynamic config);
 
   Future<void> update(PropertyId propertyId, dynamic snapshot, dynamic config);

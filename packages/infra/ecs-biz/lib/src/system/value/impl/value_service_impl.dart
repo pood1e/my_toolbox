@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../compute/compute_service.dart';
 import '../../meta/property_meta_service.dart';
 import '../../storage/ecs_database.dart';
 import '../data/value_dao.dart';
@@ -137,12 +138,38 @@ class ValueServiceImpl implements ValueService {
     await _dao.batch((batch) {
       batch.insertAllOnConflictUpdate(
         _dao.propertyVals,
-        propertyIds.map((propertyId) => PropertyValsCompanion(
-          nodeId: Value(propertyId.nodeId),
-          metaId: Value(propertyId.metaId),
-          status: const Value(ValueStatus.dirty)
-        )).toList(),
+        propertyIds
+            .map(
+              (propertyId) => PropertyValsCompanion(
+                nodeId: Value(propertyId.nodeId),
+                metaId: Value(propertyId.metaId),
+                status: const Value(ValueStatus.dirty),
+              ),
+            )
+            .toList(),
       );
+    });
+  }
+
+  @override
+  Future<void> markAsError(Map<PropertyId, ComputeError> errorMap) async {
+    await _dao.batch((batch) {
+      errorMap.forEach((k, v) {
+        batch.update(
+          _dao.propertyVals,
+          PropertyValsCompanion(
+            valBool: const Value(null),
+            valStr: const Value(null),
+            valText: const Value(null),
+            valInt: const Value(null),
+            valReal: const Value(null),
+            valJson: const Value(null),
+            extra: Value(v.name),
+            status: const Value(ValueStatus.error),
+          ),
+          where: (t) => t.nodeId.equals(k.nodeId) & t.metaId.equals(k.metaId),
+        );
+      });
     });
   }
 }

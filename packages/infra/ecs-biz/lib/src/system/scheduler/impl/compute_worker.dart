@@ -1,7 +1,9 @@
 // event loop
 
+import '../../meta/property_meta_service.dart';
+
 abstract class ComputeWorker {
-  Future<void> work(
-    // property key
+  Future<bool> work(
+    PropertyId propertyId
   );
 }

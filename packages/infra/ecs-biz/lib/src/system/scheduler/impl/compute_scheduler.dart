@@ -7,7 +7,5 @@
 /// 分发 (Dispatching)： 将任务指派给特定的 Worker 或放入就绪队列等待 Worker 领取。
 /// 故障处理 (Failover)： 如果 Worker 挂了，Scheduler 负责将任务重新调度给其他 Worker。
 abstract class ComputeScheduler {
-  void start();
-
-  void stop();
+  Future<void> notifyDirty();
 }
