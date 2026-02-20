@@ -20,7 +20,7 @@ class NodeListComponent implements ComponentWidget {
 
   @override
   ComponentBuilder get builder =>
-      (_, _, _) => const NodeListWidget();
+      (_) => const NodeListWidget();
 }
 
 @riverpod

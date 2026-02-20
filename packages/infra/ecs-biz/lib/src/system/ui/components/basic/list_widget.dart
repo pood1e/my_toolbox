@@ -22,7 +22,7 @@ class ListComponent implements ComponentWidget {
 
   @override
   ComponentBuilder get builder =>
-      (_, _, config) => ListWidget(config: config);
+      (config) => ListWidget(config: config);
 }
 
 class ListWidget extends StatelessWidget {

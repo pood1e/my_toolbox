@@ -53,6 +53,7 @@ class ConfigServiceImpl implements ConfigService {
           metaId: propertyId.metaId,
           config: dbMap,
           updatedAt: now,
+          deletedAt: const Value(null),
           isDirty: const Value(true),
         ),
       );

@@ -18,11 +18,8 @@ class PropertyConfigsDao extends DatabaseAccessor<EcsDatabase>
       (t) => ids
           .map((id) => t.metaId.equals(id.metaId) & t.nodeId.equals(id.nodeId))
           .reduce((a, b) => a | b),
-    );
-
-  SimpleSelectStatement<$PropertyConfigsTable, PropertyConfigEntity>
-  _selectByNode(String nodeId) =>
-      select(propertyConfigs)..where((t) => t.nodeId.equals(nodeId));
+    )
+    ..where((t) => t.deletedAt.isNull());
 
   // 通过联合主键查找
   Future<PropertyConfigEntity?> findByNodeAndMeta(PropertyId propertyId) =>
@@ -34,7 +31,8 @@ class PropertyConfigsDao extends DatabaseAccessor<EcsDatabase>
   Stream<Set<String>> watchPropertiesByNode(String nodeId) {
     final query = selectOnly(propertyConfigs)
       ..addColumns([propertyConfigs.metaId])
-      ..where(propertyConfigs.nodeId.equals(nodeId));
+      ..where(propertyConfigs.nodeId.equals(nodeId))
+      ..where(propertyConfigs.deletedAt.isNull());
     return query.watch().map(
       (rows) =>
           rows.map((typed) => typed.read(propertyConfigs.metaId)!).toSet(),
@@ -42,7 +40,7 @@ class PropertyConfigsDao extends DatabaseAccessor<EcsDatabase>
   }
 
   Future<int> insertConfig(PropertyConfigsCompanion companion) =>
-      into(propertyConfigs).insert(companion);
+      into(propertyConfigs).insertOnConflictUpdate(companion);
 
   Future<bool> updateConfig(PropertyConfigsCompanion companion) =>
       update(propertyConfigs).replace(companion);
@@ -50,7 +48,7 @@ class PropertyConfigsDao extends DatabaseAccessor<EcsDatabase>
   Future<int> softDeleteById(PropertyId propertyId, int deletedAt) =>
       (update(propertyConfigs)..where(
             (t) =>
-                t.nodeId.equals(propertyId.metaId) &
+                t.nodeId.equals(propertyId.nodeId) &
                 t.metaId.equals(propertyId.metaId),
           ))
           .write(

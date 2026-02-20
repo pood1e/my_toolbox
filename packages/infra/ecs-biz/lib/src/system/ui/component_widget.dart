@@ -6,27 +6,38 @@ import 'components/basic/list_widget.dart';
 import 'components/basic/reuse_widget.dart';
 import 'components/basic/text_input.dart';
 import 'components/basic/text_view.dart';
+import 'components/node/node_editor.dart';
 import 'components/node/node_tile.dart';
-import 'components/page/node_editor.dart';
 import 'components/page/node_list.dart';
+import 'components/property/name_view.dart';
 import 'impl/component_service_impl.dart';
 
 part 'component_widget.g.dart';
 
-typedef ComponentBuilder =
-    Widget Function(BuildContext context, WidgetRef ref, dynamic config);
+typedef ComponentBuilder = Widget Function(dynamic config);
+
+typedef PropertyComponentBuilder =
+    Widget Function(String nodeId, dynamic config);
 
 typedef ComponentFunc<C, T> =
     Future<T> Function(BuildContext context, WidgetRef ref, C config);
 
-enum WidgetType { basic, property, node, page }
+enum WidgetType { basic, node, page, property }
 
-abstract class ComponentWidget<C> {
+abstract class ComponentWidget {
   String get id;
 
   WidgetType get type;
 
   ComponentBuilder get builder;
+}
+
+abstract class PropertyWidget {
+  String get id;
+
+  String get metaId;
+
+  PropertyComponentBuilder get builder;
 }
 
 abstract class ComponentAction<C, T> {
@@ -38,12 +49,14 @@ abstract class ComponentAction<C, T> {
 abstract class ComponentService {
   ComponentBuilder? getBuilder(WidgetType type, String id);
 
+  PropertyComponentBuilder? getPropertyBuilder(String metaId, String id);
+
   ComponentAction? getFunc(String id);
 }
 
 @Riverpod(keepAlive: true)
 ComponentService componentService(Ref ref) => ComponentServiceImpl(
-  widgets: [
+  components: [
     CardTileComponent(),
     ListComponent(),
     ReuseComponent(),
@@ -54,5 +67,8 @@ ComponentService componentService(Ref ref) => ComponentServiceImpl(
 
     NodeListComponent(),
     NodeEditorComponent(),
+  ],
+  propertyWidgets: [
+    NamePropertyComponent()
   ],
 );

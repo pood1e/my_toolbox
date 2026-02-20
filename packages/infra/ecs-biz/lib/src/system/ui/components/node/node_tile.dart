@@ -24,7 +24,7 @@ class NodeTileComponent implements ComponentWidget {
 
   @override
   ComponentBuilder get builder =>
-      (_, _, cfg) => NodeTileWidget(config: cfg);
+      (cfg) => NodeTileWidget(config: cfg);
 }
 
 class NodeTileWidget extends ConsumerWidget {

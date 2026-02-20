@@ -24,7 +24,7 @@ class CardTileComponent implements ComponentWidget {
 
   @override
   ComponentBuilder get builder =>
-      (_, _, config) => CardTileWidget(config: config);
+      (config) => CardTileWidget(config: config);
 }
 
 class CardTileWidget extends StatelessWidget {

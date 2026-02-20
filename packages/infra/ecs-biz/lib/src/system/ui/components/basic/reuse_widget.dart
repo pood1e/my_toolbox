@@ -18,7 +18,7 @@ abstract class ReuseComponentConfig with _$ReuseComponentConfig {
 class ReuseComponent implements ComponentWidget {
   @override
   ComponentBuilder get builder =>
-      (_, _, config) => ReuseWidget(config: config);
+      (config) => ReuseWidget(config: config);
 
   @override
   String get id => 'reuse_widget';
@@ -38,7 +38,7 @@ class ReuseWidget extends ConsumerWidget {
     final builder = ref
         .read(componentServiceProvider)
         .getBuilder(_config.type, _config.componentId)!;
-    return builder(context, ref, _config.config);
+    return builder(_config.config);
   }
 
   static Widget? orNull(ReuseComponentConfig? config) =>

@@ -19,7 +19,7 @@ class TextViewComponent implements ComponentWidget {
 
   @override
   ComponentBuilder get builder =>
-      (_, _, config) => TextViewWidget(config: config);
+      (config) => TextViewWidget(config: config);
 }
 
 class TextViewWidget extends StatelessWidget {

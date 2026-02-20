@@ -22,7 +22,7 @@ class TextInputComponent implements ComponentWidget {
 
   @override
   ComponentBuilder get builder =>
-      (_, _, config) => TextInputWidget(config: config);
+      (config) => TextInputWidget(config: config);
 }
 
 class TextInputWidget extends StatelessWidget {

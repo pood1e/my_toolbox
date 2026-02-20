@@ -3,7 +3,7 @@ import 'package:app_core/route.dart';
 
 import '../ui/component_widget.dart';
 import '../ui/components/basic/reuse_widget.dart';
-import '../ui/components/page/node_editor.dart';
+import '../ui/components/node/node_editor.dart';
 
 part 'test_routes.g.dart';
 
@@ -25,7 +25,7 @@ List<RouteBase> ecsRoutes(Ref ref) => [
     builder: (_, state) => ReuseWidget(
       config: ReuseComponentConfig(
         componentId: 'node_editor',
-        type: WidgetType.page,
+        type: WidgetType.node,
         config: NodeEditorConfig(nodeId: state.pathParameters['id']!),
       ),
     ),
