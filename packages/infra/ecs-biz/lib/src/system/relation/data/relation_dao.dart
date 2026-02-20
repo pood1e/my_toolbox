@@ -1,4 +1,5 @@
 // relation_dao.dart
+import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 
 import '../../meta/property_meta_service.dart';
@@ -69,4 +70,10 @@ class RelationDao extends DatabaseAccessor<EcsDatabase>
         ))
         .go();
   }
+}
+
+@riverpod
+Future<RelationDao> relationDao(Ref ref) async {
+  final db = await ref.watch(ecsDatabaseProvider.future);
+  return RelationDao(db);
 }

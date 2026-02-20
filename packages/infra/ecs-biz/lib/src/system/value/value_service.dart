@@ -1,9 +1,13 @@
+import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 
 import '../compute/compute_service.dart';
 import '../meta/property_meta_service.dart';
+import 'data/value_dao.dart';
+import 'impl/value_service_impl.dart';
 
 part 'value_service.freezed.dart';
+part 'value_service.g.dart';
 
 @freezed
 abstract class PropertyVal with _$PropertyVal {
@@ -35,6 +39,8 @@ mixin PropertyValueMeta on PropertyMeta {
 }
 
 abstract class ValueService {
+  Stream<List<PropertyVal>> watchValues(List<PropertyId> ids);
+
   Future<PropertyVal?> getValue(PropertyId propertyId);
 
   Future<void> update(PropertyId propertyId, PropertyVal val);
@@ -44,4 +50,11 @@ abstract class ValueService {
   Future<void> markAsDirty(List<PropertyId> propertyIds);
 
   Future<void> markAsError(Map<PropertyId, ComputeError> errorMap);
+}
+
+@riverpod
+Future<ValueService> valueService(Ref ref) async {
+  final dao = await ref.watch(valueDaoProvider.future);
+  final metaService = ref.watch(propertyMetaServiceProvider);
+  return ValueServiceImpl(dao: dao, metaService: metaService);
 }

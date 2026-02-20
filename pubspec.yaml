@@ -50,10 +50,6 @@ dependencies:
     path: packages/features/pomodoro-biz
   note_biz:
     path: packages/features/note-biz
-  block_biz:
-    path: packages/infra/block-biz
-  ecs_biz:
-    path: packages/infra/ecs-biz
 
   dynamic_color: ^1.8.1
   google_fonts: ^6.3.3

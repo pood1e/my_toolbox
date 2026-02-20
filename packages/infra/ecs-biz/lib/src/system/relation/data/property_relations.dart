@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../../storage/tables/nodes.dart';
+import '../../storage/data/nodes.dart';
 
 @DataClassName('PropertyRelationEntity')
 class PropertyRelations extends Table {

@@ -1,3 +1,4 @@
+import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 
 import '../../meta/property_meta_service.dart';
@@ -23,4 +24,10 @@ class CrdtDao extends DatabaseAccessor<EcsDatabase> with _$CrdtDaoMixin {
             (t) => t.metaId.equals(id.metaId) & t.nodeId.equals(id.nodeId),
           ))
           .write(PropertyConfigCrdtsCompanion(deletedAt: Value(deletedAt)));
+}
+
+@riverpod
+Future<CrdtDao> crdtDao(Ref ref) async {
+  final db = await ref.watch(ecsDatabaseProvider.future);
+  return CrdtDao(db);
 }

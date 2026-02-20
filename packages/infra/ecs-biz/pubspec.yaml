@@ -16,7 +16,6 @@ dependencies:
   common_ui:
     path: ../../infra/common-ui
   json_annotation: ^4.9.0
-  nanoid: any
   material_symbols_icons: any
   flutter_iconpicker: any
   font_awesome_flutter: any

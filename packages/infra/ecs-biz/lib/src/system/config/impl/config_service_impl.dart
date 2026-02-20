@@ -173,4 +173,23 @@ class ConfigServiceImpl implements ConfigService {
     }
     return meta.fromDb(config.config);
   }
+
+  @override
+  Stream<dynamic> watch(PropertyId propertyId) async* {
+    final meta = _metaService.getById(propertyId.metaId)!;
+    if (meta is! PropertyConfigMeta) {
+      yield null;
+    } else {
+      yield* _dao.watchByProperty(propertyId).map((config) {
+        if (config == null) {
+          return null;
+        }
+        return meta.fromDb(config.config);
+      });
+    }
+  }
+
+  @override
+  Stream<Set<String>> watchMetasByNode(String nodeId) =>
+      _dao.watchPropertiesByNode(nodeId);
 }

@@ -3,7 +3,7 @@ import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
-import 'tables/nodes.dart';
+import 'data/nodes.dart';
 import '../config/data/property_configs.dart';
 import '../sync/data/property_config_crdt.dart';
 import '../relation/data/property_relations.dart';

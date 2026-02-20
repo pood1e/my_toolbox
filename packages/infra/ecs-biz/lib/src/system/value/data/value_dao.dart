@@ -1,3 +1,4 @@
+import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 
 import '../../meta/property_meta_service.dart';
@@ -11,13 +12,30 @@ part 'value_dao.g.dart';
 class ValueDao extends DatabaseAccessor<EcsDatabase> with _$ValueDaoMixin {
   ValueDao(super.attachedDatabase);
 
+  SimpleSelectStatement<$PropertyValsTable, PropertyValEntity> _selectByIds(
+    List<PropertyId> ids,
+  ) => select(propertyVals)
+    ..where(
+      (t) => ids
+          .map((id) => t.metaId.equals(id.metaId) & t.nodeId.equals(id.nodeId))
+          .reduce((a, b) => a | b),
+    );
+
   Future<PropertyValEntity?> getValue(PropertyId propertyId) =>
-      (select(propertyVals)..where(
-            (t) =>
-                t.metaId.equals(propertyId.metaId) &
-                t.nodeId.equals(propertyId.nodeId),
-          ))
-          .getSingleOrNull();
+      _selectByIds([propertyId]).getSingleOrNull();
+
+  Future<List<PropertyValEntity>> getValuesList(List<PropertyId> ids) async {
+    if (ids.isEmpty) return [];
+    return _selectByIds(ids).get();
+  }
+
+  Stream<List<PropertyValEntity>> watchValuesList(List<PropertyId> ids) async* {
+    if (ids.isEmpty) {
+      yield <PropertyValEntity>[];
+    } else {
+      yield* _selectByIds(ids).watch();
+    }
+  }
 
   Future<void> setValue(PropertyValsCompanion companion) async {
     await into(propertyVals).insertOnConflictUpdate(companion);
@@ -46,4 +64,10 @@ class ValueDao extends DatabaseAccessor<EcsDatabase> with _$ValueDaoMixin {
       );
     await query.go();
   }
+}
+
+@riverpod
+Future<ValueDao> valueDao(Ref ref) async {
+  final db = await ref.watch(ecsDatabaseProvider.future);
+  return ValueDao(db);
 }

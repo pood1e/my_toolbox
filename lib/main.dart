@@ -1,7 +1,6 @@
 import 'package:app_core/core.dart';
 import 'package:app_core/di.dart';
 import 'package:app_core/route.dart';
-import 'package:block_biz/block_biz.dart';
 import 'package:event_api/event_api.dart';
 import 'package:event_biz/event_biz.dart';
 import 'package:framework_api/framework_api.dart';
@@ -22,7 +21,6 @@ class MyToolboxFeatureRegistry extends FeatureRegistry {
     ...ref.read(memoRoutesProvider),
     ...ref.read(pomodoroRoutesProvider),
     ...ref.read(noteRoutesProvider),
-    ...ref.read(blockRoutesProvider)
   ];
 
   @override

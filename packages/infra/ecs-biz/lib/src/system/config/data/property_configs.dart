@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:framework_api/framework_api.dart';
 
-import '../../storage/tables/nodes.dart';
+import '../../storage/data/nodes.dart';
 
 /// 节点属性配置
 @DataClassName('PropertyConfigEntity')

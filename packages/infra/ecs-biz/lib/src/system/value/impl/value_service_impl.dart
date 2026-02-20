@@ -29,45 +29,7 @@ class ValueServiceImpl implements ValueService {
 
     // 1. 从数据库获取原始实体
     final entity = await _dao.getValue(propertyId);
-    if (entity == null) return null;
-
-    // 2. 根据存储类型提取原始数据库值
-    dynamic rawDbValue;
-    switch (meta.storageType) {
-      case StorageType.bool:
-        rawDbValue = entity.valBool;
-        break;
-      case StorageType.int:
-        rawDbValue = entity.valInt;
-        break;
-      case StorageType.real:
-        rawDbValue = entity.valReal;
-        break;
-      case StorageType.text:
-        rawDbValue = entity.valText;
-        break;
-      case StorageType.str:
-        rawDbValue = entity.valStr;
-        break;
-      case StorageType.json:
-        rawDbValue = entity.valJson;
-        break;
-    }
-
-    // 3. 如果定义了 DataType，进行类型转换 (DB -> Runtime)
-    dynamic runtimeValue = rawDbValue;
-    if (rawDbValue != null && meta.dataTypeId != null) {
-      final dataType = _typeMap[meta.dataTypeId];
-      if (dataType != null) {
-        runtimeValue = dataType.fromDb(rawDbValue);
-      }
-    }
-
-    return PropertyVal(
-      value: runtimeValue,
-      status: entity.status,
-      extra: entity.extra,
-    );
+    return _convertToPropertyVal(entity);
   }
 
   @override
@@ -171,5 +133,56 @@ class ValueServiceImpl implements ValueService {
         );
       });
     });
+  }
+
+  @override
+  Stream<List<PropertyVal>> watchValues(List<PropertyId> ids) => _dao
+      .watchValuesList(ids)
+      .map(
+        (vals) =>
+            vals.map(_convertToPropertyVal).whereType<PropertyVal>().toList(),
+      );
+
+  /// 提取的私有方法：将数据库实体转为运行时 PropertyVal
+  PropertyVal? _convertToPropertyVal(PropertyValEntity? entity) {
+    if (entity == null) return null;
+    final meta = _metaService.getById(entity.metaId);
+    if (meta is! PropertyValueMeta) {
+      return null;
+    }
+    dynamic rawDbValue;
+    switch (meta.storageType) {
+      case StorageType.bool:
+        rawDbValue = entity.valBool;
+        break;
+      case StorageType.int:
+        rawDbValue = entity.valInt;
+        break;
+      case StorageType.real:
+        rawDbValue = entity.valReal;
+        break;
+      case StorageType.text:
+        rawDbValue = entity.valText;
+        break;
+      case StorageType.str:
+        rawDbValue = entity.valStr;
+        break;
+      case StorageType.json:
+        rawDbValue = entity.valJson;
+        break;
+    }
+
+    // 2. 如果定义了 DataType，进行类型转换 (DB -> Runtime)
+    dynamic runtimeValue = rawDbValue;
+    if (rawDbValue != null && meta.dataTypeId != null) {
+      final dataType = _typeMap[meta.dataTypeId]!;
+      runtimeValue = dataType.fromDb(rawDbValue);
+    }
+
+    return PropertyVal(
+      value: runtimeValue,
+      status: entity.status,
+      extra: entity.extra,
+    );
   }
 }
