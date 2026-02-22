@@ -13,8 +13,8 @@ class RelationServiceImpl implements RelationService {
   static const int _batchSize = 100;
 
   @override
-  Future<List<PropertyId>> findAffects(List<PropertyId> srcIds) async {
-    if (srcIds.isEmpty) return [];
+  Future<Set<PropertyId>> findAffects(List<PropertyId> srcIds) async {
+    if (srcIds.isEmpty) return {};
 
     final Set<PropertyId> allAffected = {};
     final Set<PropertyId> visited = srcIds.toSet(); // 初始包含起点，防止回环
@@ -56,7 +56,7 @@ class RelationServiceImpl implements RelationService {
       currentLayer = nextLayer;
     }
 
-    return allAffected.toList();
+    return allAffected.toSet();
   }
 
   @override

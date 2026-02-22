@@ -115,6 +115,7 @@ class ConfigServiceImpl implements ConfigService {
       );
 
       await _dao.updateConfig(
+        propertyId,
         PropertyConfigsCompanion(
           config: Value(mergedConfig),
           updatedAt: Value(now),
@@ -135,11 +136,15 @@ class ConfigServiceImpl implements ConfigService {
               .toList(),
         );
       }
+      Set<PropertyId> affects = {propertyId};
       if (meta is PropertyRelationMeta) {
         final relations = (meta as PropertyRelationMeta).buildRelations(config);
         await _relationService.replaceById(propertyId, relations);
         final downstream = await _relationService.findAffects([propertyId]);
-        await _valueService.markAsDirty(downstream);
+        affects.addAll(downstream);
+      }
+      if (meta is PropertyValueMeta) {
+        await _valueService.markAsDirty(affects);
       }
     });
   }

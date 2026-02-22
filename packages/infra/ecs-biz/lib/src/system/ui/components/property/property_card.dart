@@ -13,10 +13,10 @@ part 'property_card.freezed.dart';
 abstract class PropertyCardConfig with _$PropertyCardConfig {
   const factory PropertyCardConfig({
     required String metaId,
-    required Widget content,
+    Widget? content,
+    Widget? compactContent,
     Future<void> Function()? onDeleted,
     @Default([]) List<Widget> actions,
-    @Default(true) bool isDensy,
   }) = _PropertyCardConfig;
 }
 
@@ -49,8 +49,8 @@ class PropertyCardWidget extends ConsumerWidget {
     } else {
       tileContent.add(Text(_config.metaId));
     }
-    if (_config.isDensy) {
-      tileContent.add(_config.content);
+    if (_config.compactContent != null) {
+      tileContent.add(_config.compactContent!);
     }
 
     return Card(
@@ -76,7 +76,7 @@ class PropertyCardWidget extends ConsumerWidget {
               ],
             ),
           ),
-          if (!_config.isDensy)
+          if (_config.content != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacings.l,

@@ -34,9 +34,6 @@ class ComputeWorkerImpl implements ComputeWorker {
     if (meta is! PropertyComputeMeta) {
       return true;
     }
-    if (meta is! PropertyValueMeta) {
-      return true;
-    }
     return await _dao.transaction(() async {
       final config = await _configService.get(propertyId);
       try {

@@ -1,3 +1,4 @@
+import 'package:app_core/di.dart';
 import 'package:drift/drift.dart';
 
 import '../../meta/property_meta_service.dart';
@@ -88,4 +89,10 @@ class SchedulerDao extends DatabaseAccessor<EcsDatabase>
       return result;
     });
   }
+}
+
+@riverpod
+Future<SchedulerDao> schedulerDao(Ref ref) async {
+  final db = await ref.watch(ecsDatabaseProvider.future);
+  return SchedulerDao(db);
 }

@@ -40,6 +40,7 @@ class ComputeSchedulerImpl extends ComputeScheduler {
       _hasPending = false;
       await _schedule();
     }
+    _isRunning = false;
   }
 
   Future<void> _schedule() async {

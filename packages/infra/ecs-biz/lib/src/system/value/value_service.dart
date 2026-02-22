@@ -4,6 +4,7 @@ import 'package:app_core/object.dart';
 import '../compute/compute_service.dart';
 import '../meta/property_meta_service.dart';
 import 'data/value_dao.dart';
+import 'data_types/simple_text.dart';
 import 'impl/value_service_impl.dart';
 
 part 'value_service.freezed.dart';
@@ -33,7 +34,7 @@ abstract class DataType<T> {
 }
 
 mixin PropertyValueMeta on PropertyMeta {
-  String? get dataTypeId => null;
+  String get dataTypeId;
 
   StorageType get storageType;
 }
@@ -47,7 +48,7 @@ abstract class ValueService {
 
   Future<void> delete(PropertyId propertyId);
 
-  Future<void> markAsDirty(List<PropertyId> propertyIds);
+  Future<void> markAsDirty(Set<PropertyId> propertyIds);
 
   Future<void> markAsError(Map<PropertyId, ComputeError> errorMap);
 }
@@ -56,5 +57,9 @@ abstract class ValueService {
 Future<ValueService> valueService(Ref ref) async {
   final dao = await ref.watch(valueDaoProvider.future);
   final metaService = ref.watch(propertyMetaServiceProvider);
-  return ValueServiceImpl(dao: dao, metaService: metaService);
+  return ValueServiceImpl(
+    dataTypes: [SimpleText()],
+    dao: dao,
+    metaService: metaService,
+  );
 }

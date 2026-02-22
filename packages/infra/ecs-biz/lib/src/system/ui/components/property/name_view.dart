@@ -4,8 +4,9 @@ import 'package:flutter/cupertino.dart';
 
 import '../../../config/config_service.dart';
 import '../../../meta/property_meta_service.dart';
+import '../../../meta/registry/name_meta.dart';
 import '../../component_widget.dart';
-import '../basic/text_view.dart';
+import '../basic/text_input.dart';
 import 'property_card.dart';
 
 part 'name_view.g.dart';
@@ -15,14 +16,30 @@ Stream<String?> watchNodeNameVal(Ref ref, String nodeId) async* {
   final service = await ref.watch(configServiceProvider.future);
   yield* service
       .watch(PropertyId(nodeId: nodeId, metaId: '_name'))
-      .map((result) => result?.text);
+      .map((result){
+        if(result == null) {
+          return null;
+        }
+        return result.text;
+  });
 }
 
 @riverpod
 class NameViewController extends _$NameViewController {
   @override
-  Future<String?> build(String nodeId) async =>
-      await ref.watch(watchNodeNameValProvider(nodeId).future);
+  Future<String> build(String nodeId) async {
+    final result = await ref.watch(watchNodeNameValProvider(nodeId).future);
+    return result!;
+  }
+
+  Future<void> updateProperty(String text) async {
+    final service = await ref.read(configServiceProvider.future);
+    await service.update(
+      PropertyId(nodeId: nodeId, metaId: '_name'),
+      NameConfig(text: await future),
+      NameConfig(text: text),
+    );
+  }
 
   Future<void> deleteProperty() async {
     final service = await ref.read(configServiceProvider.future);
@@ -56,9 +73,13 @@ class NameViewWidget extends ConsumerWidget {
       config: PropertyCardConfig(
         metaId: '_name',
         onDeleted: notifier.deleteProperty,
-        content: valAsync.whenUI(
-          data: (config) =>
-              TextViewWidget(config: TextViewConfig(text: config!)),
+        compactContent: valAsync.whenUI(
+          data: (config) => TextInputWidget(
+            config: TextInputConfig(
+              initialText: config,
+              onChanged: notifier.updateProperty,
+            ),
+          ),
         ),
       ),
     );

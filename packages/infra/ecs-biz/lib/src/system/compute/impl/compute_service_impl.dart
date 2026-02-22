@@ -10,12 +10,16 @@ class ComputeServiceImpl implements ComputeService {
   final Map<String, Aggregator> _aggregatorMap;
 
   ComputeServiceImpl({
-    required Map<String, Source> sourceMap,
-    required Map<String, Processor> processorMap,
-    required Map<String, Aggregator> aggregatorMap,
-  }) : _sourceMap = sourceMap,
-       _processorMap = processorMap,
-       _aggregatorMap = aggregatorMap;
+    required List<Source> sources,
+    required List<Processor> processors,
+    required List<Aggregator> aggregators,
+  }) : _sourceMap = {for (final source in sources) source.computeId: source},
+       _processorMap = {
+         for (final processor in processors) processor.computeId: processor,
+       },
+       _aggregatorMap = {
+         for (final aggregator in aggregators) aggregator.computeId: aggregator,
+       };
 
   @override
   Future<dynamic> compute(List<ComputeMeta> metas) {

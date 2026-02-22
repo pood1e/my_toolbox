@@ -7,14 +7,16 @@ import '../data/value_dao.dart';
 import '../value_service.dart';
 
 class ValueServiceImpl implements ValueService {
-  final Map<String, DataType> _typeMap = {};
+  final Map<String, DataType> _typeMap;
   final PropertyMetaService _metaService;
   final ValueDao _dao;
 
   ValueServiceImpl({
+    required List<DataType> dataTypes,
     required PropertyMetaService metaService,
     required ValueDao dao,
-  }) : _metaService = metaService,
+  }) : _typeMap = {for (final dataType in dataTypes) dataType.id: dataType},
+       _metaService = metaService,
        _dao = dao;
 
   @override
@@ -43,6 +45,8 @@ class ValueServiceImpl implements ValueService {
     }
 
     var companion = PropertyValsCompanion(
+      metaId: Value(propertyId.metaId),
+      nodeId: Value(propertyId.nodeId),
       status: Value(val.status),
       extra: Value(val.extra),
       valBool: const Value(null),
@@ -56,11 +60,9 @@ class ValueServiceImpl implements ValueService {
     if (val.value != null) {
       dynamic dbValue = val.value;
 
-      if (meta.dataTypeId != null) {
-        final dataType = _typeMap[meta.dataTypeId];
-        if (dataType != null) {
-          dbValue = dataType.toDb(val.value);
-        }
+      final dataType = _typeMap[meta.dataTypeId];
+      if (dataType != null) {
+        dbValue = dataType.toDb(val.value);
       }
 
       switch (meta.storageType) {
@@ -96,7 +98,7 @@ class ValueServiceImpl implements ValueService {
   }
 
   @override
-  Future<void> markAsDirty(List<PropertyId> propertyIds) async {
+  Future<void> markAsDirty(Set<PropertyId> propertyIds) async {
     await _dao.batch((batch) {
       batch.insertAllOnConflictUpdate(
         _dao.propertyVals,
@@ -174,7 +176,7 @@ class ValueServiceImpl implements ValueService {
 
     // 2. 如果定义了 DataType，进行类型转换 (DB -> Runtime)
     dynamic runtimeValue = rawDbValue;
-    if (rawDbValue != null && meta.dataTypeId != null) {
+    if (rawDbValue != null) {
       final dataType = _typeMap[meta.dataTypeId]!;
       runtimeValue = dataType.fromDb(rawDbValue);
     }

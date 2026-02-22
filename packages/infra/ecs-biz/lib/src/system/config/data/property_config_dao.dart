@@ -26,7 +26,7 @@ class PropertyConfigsDao extends DatabaseAccessor<EcsDatabase>
       _selectByNodeAndMeta([propertyId]).getSingleOrNull();
 
   Stream<PropertyConfigEntity?> watchByProperty(PropertyId propertyId) =>
-      _selectByNodeAndMeta([propertyId]).watchSingle();
+      _selectByNodeAndMeta([propertyId]).watchSingleOrNull();
 
   Stream<Set<String>> watchPropertiesByNode(String nodeId) {
     final query = selectOnly(propertyConfigs)
@@ -42,8 +42,18 @@ class PropertyConfigsDao extends DatabaseAccessor<EcsDatabase>
   Future<int> insertConfig(PropertyConfigsCompanion companion) =>
       into(propertyConfigs).insertOnConflictUpdate(companion);
 
-  Future<bool> updateConfig(PropertyConfigsCompanion companion) =>
-      update(propertyConfigs).replace(companion);
+  Future<void> updateConfig(
+    PropertyId propertyId,
+    PropertyConfigsCompanion companion,
+  ) async {
+    final query = update(propertyConfigs)
+      ..where(
+        (t) =>
+            t.nodeId.equals(propertyId.nodeId) &
+            t.metaId.equals(propertyId.metaId),
+      );
+    await query.write(companion);
+  }
 
   Future<int> softDeleteById(PropertyId propertyId, int deletedAt) =>
       (update(propertyConfigs)..where(

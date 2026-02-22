@@ -1,4 +1,13 @@
+import 'package:app_core/di.dart';
+import 'package:app_core/object.dart';
+
 import '../meta/property_meta_service.dart';
+import '../meta/registry/name_meta.dart';
+import '../value/value_service.dart';
+import 'impl/compute_service_impl.dart';
+
+part 'compute_service.freezed.dart';
+part 'compute_service.g.dart';
 
 enum ComputeType { source, processor, aggregator }
 
@@ -9,20 +18,19 @@ enum ComputeError {
   cycleDependencies,
 }
 
-abstract class ComputeMeta {
-  String get computeId;
-
-  ComputeType get type;
-
-  dynamic get config;
-
-  String? get nextId;
-
-  ComputeType? get nextType;
+@freezed
+abstract class ComputeMeta with _$ComputeMeta {
+  const factory ComputeMeta({
+    required String computeId,
+    required ComputeType type,
+    dynamic config,
+    String? nextId,
+    ComputeType? nextType,
+  }) = _ComputeMeta;
 }
 
-mixin PropertyComputeMeta on PropertyMeta {
-  List<ComputeMeta> buildComputeGraph(dynamic cfg);
+mixin PropertyComputeMeta<C> on PropertyValueMeta {
+  List<ComputeMeta> buildComputeGraph(C cfg);
 }
 
 abstract class ComputeService {
@@ -35,4 +43,9 @@ class ComputeException implements Exception {
   ComputeException({required this.error});
 }
 
-// todo: inject
+@riverpod
+Future<ComputeService> computeService(Ref ref) async => ComputeServiceImpl(
+  sources: [NameConfigSource()],
+  processors: [],
+  aggregators: [],
+);

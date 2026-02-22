@@ -44,7 +44,7 @@ enum RelationType {
 }
 
 abstract class RelationService {
-  Future<List<PropertyId>> findAffects(List<PropertyId> srcIds);
+  Future<Set<PropertyId>> findAffects(List<PropertyId> srcIds);
 
   Future<void> create(List<PropertyRelation> relations);
 

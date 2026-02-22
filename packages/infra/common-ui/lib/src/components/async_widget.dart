@@ -37,7 +37,7 @@ class DefaultLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator.adaptive());
+      const CircularProgressIndicator.adaptive();
 }
 
 class DefaultErrorWidget extends StatelessWidget {
