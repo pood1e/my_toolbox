@@ -40,8 +40,11 @@ class ComputeWorkerImpl implements ComputeWorker {
         final computeGraph = meta.buildComputeGraph(config);
         final result = await _computeService.compute(computeGraph);
         await _valueService.update(
-          propertyId,
-          PropertyVal(value: result, status: ValueStatus.normal),
+          PropertyVal(
+            propertyId: propertyId,
+            value: result,
+            status: ValueStatus.normal,
+          ),
         );
         return true;
       } on ComputeException catch (e) {

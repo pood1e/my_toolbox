@@ -1,6 +1,7 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 
+import '../config/config_service.dart';
 import '../meta/property_meta_service.dart';
 import 'data/relation_dao.dart';
 import 'impl/relation_service_impl.dart';
@@ -11,8 +12,7 @@ part 'relation_service.g.dart';
 @freezed
 abstract class RelationData with _$RelationData {
   const factory RelationData({
-    required String dstNode,
-    required String dstMeta,
+    required PropertyId dst,
     required RelationType type,
   }) = _RelationData;
 
@@ -29,8 +29,8 @@ abstract class PropertyRelation with _$PropertyRelation {
   }) = _PropertyRelation;
 }
 
-mixin PropertyRelationMeta on PropertyMeta {
-  List<PropertyRelation> buildRelations(dynamic config);
+mixin PropertyRelationMeta<C> on PropertyConfigMeta<C> {
+  List<PropertyRelation> buildRelations(PropertyId self, C config);
 }
 
 enum RelationType {

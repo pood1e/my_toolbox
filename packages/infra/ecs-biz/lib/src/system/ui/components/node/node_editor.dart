@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 
 import '../../../config/config_service.dart';
 import '../../../meta/property_meta_service.dart';
+import '../../../meta/registry/icon_meta.dart';
 import '../../../meta/registry/name_meta.dart';
 import '../../component_widget.dart';
 import '../../property_common_ui.dart';
-import '../property/name_view.dart';
+import '../property/name_editor.dart';
 
 part 'node_editor.freezed.dart';
 part 'node_editor.g.dart';
@@ -63,8 +64,14 @@ abstract class PropertyEditorConfig with _$PropertyEditorConfig {
 final _supportMetas = [
   PropertyEditorConfig(
     metaId: '_name',
-    widgetId: 'name_view',
+    widgetId: 'name_editor',
     createDefault: (_) => const NameConfig(text: 'unnamed'),
+  ),
+  PropertyEditorConfig(
+    metaId: '_icon',
+    widgetId: 'icon_editor',
+    createDefault: (_) =>
+        const IconConfig(mode: IconMode.pick, picked: Icons.question_mark),
   ),
 ];
 

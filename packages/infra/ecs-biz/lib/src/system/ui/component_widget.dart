@@ -6,10 +6,13 @@ import 'components/basic/list_widget.dart';
 import 'components/basic/reuse_widget.dart';
 import 'components/basic/text_input.dart';
 import 'components/basic/text_view.dart';
+import 'components/data_type/icon_data_view.dart';
+import 'components/data_type/text_data_view.dart';
 import 'components/node/node_editor.dart';
 import 'components/node/node_tile.dart';
 import 'components/page/node_list.dart';
-import 'components/property/name_view.dart';
+import 'components/property/icon_editor.dart';
+import 'components/property/name_editor.dart';
 import 'impl/component_service_impl.dart';
 
 part 'component_widget.g.dart';
@@ -20,7 +23,7 @@ typedef PropertyComponentBuilder =
     Widget Function(String nodeId, dynamic config);
 
 typedef ComponentFunc<C, T> =
-    Future<T> Function(BuildContext context, WidgetRef ref, C config);
+    Future<T?> Function(BuildContext context, WidgetRef ref, C config);
 
 enum WidgetType { basic, node, page, property }
 
@@ -40,10 +43,19 @@ abstract class PropertyWidget {
   PropertyComponentBuilder get builder;
 }
 
-abstract class ComponentAction<C, T> {
+abstract class DataTypeWidget {
   String get id;
 
-  ComponentFunc<C, T> get func;
+  bool get isDefault;
+
+  String get dataTypeId;
+
+  ComponentBuilder get builder;
+}
+
+abstract class ComponentAction<C, T> {
+  // String get id;
+  Future<T?> func(BuildContext context, WidgetRef ref, C config);
 }
 
 abstract class ComponentService {
@@ -51,7 +63,9 @@ abstract class ComponentService {
 
   PropertyComponentBuilder? getPropertyBuilder(String metaId, String id);
 
-  ComponentAction? getFunc(String id);
+  ComponentBuilder? getDataTypeBuilder(String dataTypeId, [String? id]);
+
+  // ComponentAction? getFunc(String id);
 }
 
 @Riverpod(keepAlive: true)
@@ -68,7 +82,6 @@ ComponentService componentService(Ref ref) => ComponentServiceImpl(
     NodeListComponent(),
     NodeEditorComponent(),
   ],
-  propertyWidgets: [
-    NamePropertyComponent()
-  ],
+  propertyWidgets: [NamePropertyComponent(), IconPropertyComponent()],
+  dataTypeWidgets: [IconDataView(), TextDataView()],
 );

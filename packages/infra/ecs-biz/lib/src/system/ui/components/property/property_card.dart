@@ -41,16 +41,16 @@ class PropertyCardWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final meta = ref.read(propertyMetaServiceProvider).getById(_config.metaId);
-    List<Widget> tileContent = [];
+    List<Widget> titleContent = [];
     Widget? leading;
     if (meta is PropertyUiMeta) {
       leading = Icon(meta.icon);
-      tileContent.add(Text(meta.name));
+      titleContent.add(Text(meta.name));
     } else {
-      tileContent.add(Text(_config.metaId));
+      titleContent.add(Text(_config.metaId));
     }
     if (_config.compactContent != null) {
-      tileContent.add(_config.compactContent!);
+      titleContent.add(Expanded(child: _config.compactContent!));
     }
 
     return Card(
@@ -59,10 +59,11 @@ class PropertyCardWidget extends ConsumerWidget {
         children: [
           ListTile(
             leading: leading,
-            title: Wrap(
+            title: Row(
               spacing: AppSpacings.l,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: tileContent,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: titleContent,
             ),
             trailing: Wrap(
               spacing: AppSpacings.s,

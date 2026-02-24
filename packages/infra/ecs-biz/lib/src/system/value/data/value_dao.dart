@@ -13,7 +13,7 @@ class ValueDao extends DatabaseAccessor<EcsDatabase> with _$ValueDaoMixin {
   ValueDao(super.attachedDatabase);
 
   SimpleSelectStatement<$PropertyValsTable, PropertyValEntity> _selectByIds(
-    List<PropertyId> ids,
+    Set<PropertyId> ids,
   ) => select(propertyVals)
     ..where(
       (t) => ids
@@ -22,20 +22,23 @@ class ValueDao extends DatabaseAccessor<EcsDatabase> with _$ValueDaoMixin {
     );
 
   Future<PropertyValEntity?> getValue(PropertyId propertyId) =>
-      _selectByIds([propertyId]).getSingleOrNull();
+      _selectByIds({propertyId}).getSingleOrNull();
 
-  Future<List<PropertyValEntity>> getValuesList(List<PropertyId> ids) async {
+  Future<List<PropertyValEntity>> getValuesList(Set<PropertyId> ids) async {
     if (ids.isEmpty) return [];
     return _selectByIds(ids).get();
   }
 
-  Stream<List<PropertyValEntity>> watchValuesList(List<PropertyId> ids) async* {
+  Stream<List<PropertyValEntity>> watchValuesList(Set<PropertyId> ids) async* {
     if (ids.isEmpty) {
       yield <PropertyValEntity>[];
     } else {
       yield* _selectByIds(ids).watch();
     }
   }
+
+  Stream<PropertyValEntity?> watchValue(PropertyId propertyId) =>
+      _selectByIds({propertyId}).watchSingleOrNull();
 
   Future<void> setValue(PropertyValsCompanion companion) async {
     await into(propertyVals).insertOnConflictUpdate(companion);

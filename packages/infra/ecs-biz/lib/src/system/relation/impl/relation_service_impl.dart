@@ -38,7 +38,7 @@ class RelationServiceImpl implements RelationService {
         // 转换 Entity -> Domain 并收集
         for (final row in rows) {
           nextLayerCandidates.add(
-            PropertyId(nodeId: row.dstNode, metaId: row.dstMeta),
+            PropertyId(nodeId: row.srcNode, metaId: row.srcMeta),
           );
         }
       }

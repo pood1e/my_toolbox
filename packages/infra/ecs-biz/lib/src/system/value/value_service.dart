@@ -3,7 +3,9 @@ import 'package:app_core/object.dart';
 
 import '../compute/compute_service.dart';
 import '../meta/property_meta_service.dart';
+import '../storage/ecs_database.dart';
 import 'data/value_dao.dart';
+import 'data_types/icon_data_type.dart';
 import 'data_types/simple_text.dart';
 import 'impl/value_service_impl.dart';
 
@@ -13,6 +15,8 @@ part 'value_service.g.dart';
 @freezed
 abstract class PropertyVal with _$PropertyVal {
   const factory PropertyVal({
+    required PropertyId propertyId,
+
     dynamic value,
 
     required ValueStatus status,
@@ -20,6 +24,8 @@ abstract class PropertyVal with _$PropertyVal {
     String? extra,
   }) = _PropertyVal;
 }
+
+
 
 enum ValueStatus { normal, dirty, error }
 
@@ -40,11 +46,15 @@ mixin PropertyValueMeta on PropertyMeta {
 }
 
 abstract class ValueService {
-  Stream<List<PropertyVal>> watchValues(List<PropertyId> ids);
+  PropertyVal? valueEntityToVal(PropertyValEntity entity);
+
+  Stream<List<PropertyVal>> watchValues(Set<PropertyId> ids);
+
+  Stream<PropertyVal?> watchValue(PropertyId id);
 
   Future<PropertyVal?> getValue(PropertyId propertyId);
 
-  Future<void> update(PropertyId propertyId, PropertyVal val);
+  Future<void> update(PropertyVal val);
 
   Future<void> delete(PropertyId propertyId);
 
@@ -58,7 +68,7 @@ Future<ValueService> valueService(Ref ref) async {
   final dao = await ref.watch(valueDaoProvider.future);
   final metaService = ref.watch(propertyMetaServiceProvider);
   return ValueServiceImpl(
-    dataTypes: [SimpleText()],
+    dataTypes: [SimpleText(), IconDataType()],
     dao: dao,
     metaService: metaService,
   );

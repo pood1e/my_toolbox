@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../../component_widget.dart';
 import '../basic/card_tile.dart';
 import '../basic/text_view.dart';
-import '../property/name_view.dart';
+import '../property/name_editor.dart';
 
 part 'node_tile.freezed.dart';
 

@@ -71,13 +71,12 @@ class ConfigServiceImpl implements ConfigService {
       );
 
       if (meta is PropertyRelationMeta) {
-        final relations = (meta as PropertyRelationMeta).buildRelations(config);
+        final relations = meta.buildRelations(propertyId, config);
         await _relationService.create(relations);
       }
       if (meta is PropertyValueMeta) {
         await _valueService.update(
-          propertyId,
-          const PropertyVal(status: ValueStatus.dirty),
+          PropertyVal(propertyId: propertyId, status: ValueStatus.dirty),
         );
       }
     });
@@ -138,7 +137,7 @@ class ConfigServiceImpl implements ConfigService {
       }
       Set<PropertyId> affects = {propertyId};
       if (meta is PropertyRelationMeta) {
-        final relations = (meta as PropertyRelationMeta).buildRelations(config);
+        final relations = meta.buildRelations(propertyId, config);
         await _relationService.replaceById(propertyId, relations);
         final downstream = await _relationService.findAffects([propertyId]);
         affects.addAll(downstream);

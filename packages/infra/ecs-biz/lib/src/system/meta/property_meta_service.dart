@@ -2,6 +2,7 @@ import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 
 import 'impl/property_meta_service_impl.dart';
+import 'registry/icon_meta.dart';
 import 'registry/name_meta.dart';
 
 part 'property_meta_service.freezed.dart';
@@ -15,12 +16,16 @@ abstract class PropertyMeta {
 abstract class PropertyId with _$PropertyId {
   const factory PropertyId({required String nodeId, required String metaId}) =
       _PropertyId;
+
+  factory PropertyId.fromJson(Map<String, dynamic> json) =>
+      _$PropertyIdFromJson(json);
 }
 
 abstract class PropertyMetaService {
   PropertyMeta? getById(String metaId);
+
 }
 
 @Riverpod(keepAlive: true)
 PropertyMetaService propertyMetaService(Ref ref) =>
-    PropertyMetaServiceImpl(metas: [NameMeta()]);
+    PropertyMetaServiceImpl(metas: [NameMeta(), IconMeta()]);

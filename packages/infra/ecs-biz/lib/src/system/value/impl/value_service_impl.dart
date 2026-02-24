@@ -5,6 +5,7 @@ import '../../meta/property_meta_service.dart';
 import '../../storage/ecs_database.dart';
 import '../data/value_dao.dart';
 import '../value_service.dart';
+import 'value_mapper.dart';
 
 class ValueServiceImpl implements ValueService {
   final Map<String, DataType> _typeMap;
@@ -31,22 +32,22 @@ class ValueServiceImpl implements ValueService {
 
     // 1. 从数据库获取原始实体
     final entity = await _dao.getValue(propertyId);
-    return _convertToPropertyVal(entity);
+    return valueEntityToVal(entity);
   }
 
   @override
-  Future<void> update(PropertyId propertyId, PropertyVal val) async {
-    final meta = _metaService.getById(propertyId.metaId);
+  Future<void> update(PropertyVal val) async {
+    final meta = _metaService.getById(val.propertyId.metaId);
     if (meta == null) {
-      throw Exception('Meta not found for metaId: ${propertyId.metaId}');
+      throw Exception('Meta not found for metaId: ${val.propertyId.metaId}');
     }
     if (meta is! PropertyValueMeta) {
       return;
     }
 
     var companion = PropertyValsCompanion(
-      metaId: Value(propertyId.metaId),
-      nodeId: Value(propertyId.nodeId),
+      metaId: Value(val.propertyId.metaId),
+      nodeId: Value(val.propertyId.nodeId),
       status: Value(val.status),
       extra: Value(val.extra),
       valBool: const Value(null),
@@ -138,53 +139,25 @@ class ValueServiceImpl implements ValueService {
   }
 
   @override
-  Stream<List<PropertyVal>> watchValues(List<PropertyId> ids) => _dao
+  Stream<List<PropertyVal>> watchValues(Set<PropertyId> ids) => _dao
       .watchValuesList(ids)
       .map(
-        (vals) =>
-            vals.map(_convertToPropertyVal).whereType<PropertyVal>().toList(),
+        (vals) => vals.map(valueEntityToVal).whereType<PropertyVal>().toList(),
       );
 
   /// 提取的私有方法：将数据库实体转为运行时 PropertyVal
-  PropertyVal? _convertToPropertyVal(PropertyValEntity? entity) {
+  @override
+  PropertyVal? valueEntityToVal(PropertyValEntity? entity) {
     if (entity == null) return null;
     final meta = _metaService.getById(entity.metaId);
     if (meta is! PropertyValueMeta) {
       return null;
     }
-    dynamic rawDbValue;
-    switch (meta.storageType) {
-      case StorageType.bool:
-        rawDbValue = entity.valBool;
-        break;
-      case StorageType.int:
-        rawDbValue = entity.valInt;
-        break;
-      case StorageType.real:
-        rawDbValue = entity.valReal;
-        break;
-      case StorageType.text:
-        rawDbValue = entity.valText;
-        break;
-      case StorageType.str:
-        rawDbValue = entity.valStr;
-        break;
-      case StorageType.json:
-        rawDbValue = entity.valJson;
-        break;
-    }
-
-    // 2. 如果定义了 DataType，进行类型转换 (DB -> Runtime)
-    dynamic runtimeValue = rawDbValue;
-    if (rawDbValue != null) {
-      final dataType = _typeMap[meta.dataTypeId]!;
-      runtimeValue = dataType.fromDb(rawDbValue);
-    }
-
-    return PropertyVal(
-      value: runtimeValue,
-      status: entity.status,
-      extra: entity.extra,
-    );
+    final dataType = _typeMap[meta.dataTypeId]!;
+    return entity.toPropertyVal(meta.storageType, dataType);
   }
+
+  @override
+  Stream<PropertyVal?> watchValue(PropertyId id) =>
+      _dao.watchValue(id).map(valueEntityToVal);
 }

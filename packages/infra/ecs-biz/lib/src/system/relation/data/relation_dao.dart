@@ -24,8 +24,8 @@ class RelationDao extends DatabaseAccessor<EcsDatabase>
     final predicate = batchIds
         .map(
           (id) =>
-              propertyRelations.srcNode.equals(id.nodeId) &
-              propertyRelations.srcMeta.equals(id.metaId),
+              propertyRelations.dstNode.equals(id.nodeId) &
+              propertyRelations.dstMeta.equals(id.metaId),
         )
         .reduce((a, b) => a | b);
 

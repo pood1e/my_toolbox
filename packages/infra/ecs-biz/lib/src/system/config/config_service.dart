@@ -49,3 +49,9 @@ Future<ConfigService> configService(Ref ref) async {
     relationService: relationService,
   );
 }
+
+@riverpod
+Stream<dynamic> watchPropertyConfig(Ref ref, PropertyId propertyId) async* {
+  final service = await ref.watch(configServiceProvider.future);
+  yield* service.watch(propertyId);
+}

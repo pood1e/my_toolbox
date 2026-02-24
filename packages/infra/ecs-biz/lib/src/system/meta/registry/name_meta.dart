@@ -20,14 +20,6 @@ abstract class NameConfig with _$NameConfig {
       _$NameConfigFromJson(json);
 }
 
-class NameConfigSource implements Source<NameConfig, String> {
-  @override
-  String get computeId => 'name_config_source';
-
-  @override
-  Future<String> create(NameConfig config) async => config.text;
-}
-
 class NameMeta extends PropertyMeta
     with
         PropertyConfigMeta<NameConfig>,
@@ -52,9 +44,7 @@ class NameMeta extends PropertyMeta
   @override
   List<ComputeMeta> buildComputeGraph(NameConfig cfg) => [
     ComputeMeta(
-      computeId: 'name_config_source',
-      type: ComputeType.source,
-      config: cfg,
+      compute: InlineSourceNode<String>(create: () async => cfg.text),
     ),
   ];
 
