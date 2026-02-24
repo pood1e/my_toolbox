@@ -11,4 +11,5 @@ dependencies:
   app_core:
     path: ../../app-core
   flutter_expandable_fab: any
+  shimmer: any
 

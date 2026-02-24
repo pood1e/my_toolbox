@@ -67,6 +67,7 @@ dependencies:
   flutter_iconpicker: ^4.0.3
   font_awesome_flutter: ^10.12.0
   flutter_expandable_fab: ^2.5.2
+  shimmer: ^3.0.0
 
 
 dev_dependencies:

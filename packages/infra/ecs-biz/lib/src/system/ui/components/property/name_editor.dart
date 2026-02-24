@@ -76,9 +76,9 @@ class NameEditorWidget extends ConsumerWidget {
       config: PropertyCardConfig(
         metaId: '_name',
         onDeleted: notifier.deleteProperty,
-        compactContent: valAsync.whenUI(
-          data: (config) => Expanded(
-            child: TextInputWidget(
+        compactContent: Expanded(
+          child: valAsync.whenUI(
+            data: (config) => TextInputWidget(
               config: TextInputConfig(
                 initialText: config.text,
                 onChanged: notifier.updateProperty,

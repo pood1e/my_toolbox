@@ -2,6 +2,8 @@ import 'package:app_core/di.dart';
 import 'package:app_core/logger.dart';
 import 'package:flutter/material.dart';
 
+import 'skeleton_box.dart';
+
 extension AsyncValueUI<T> on AsyncValue<T> {
   /// 通用封装的 when
   Widget whenUI({
@@ -36,8 +38,7 @@ class DefaultLoadingWidget extends StatelessWidget {
   const DefaultLoadingWidget({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      const CircularProgressIndicator.adaptive();
+  Widget build(BuildContext context) => const SkeletonBox();
 }
 
 class DefaultErrorWidget extends StatelessWidget {

@@ -83,7 +83,7 @@ class IconEditorWidget extends ConsumerWidget {
       config: PropertyCardConfig(
         metaId: '_icon',
         onDeleted: notifier.deleteProperty,
-        compactContent: Wrap(children: [ValWidget(propertyId: _propertyId)]),
+        compactContent: ValWidget(propertyId: _propertyId),
         actions: [
           SelectIconButton(
             onPressed: () async {
