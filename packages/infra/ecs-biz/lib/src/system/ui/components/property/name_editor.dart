@@ -14,10 +14,10 @@ part 'name_editor.g.dart';
 @riverpod
 Stream<String?> watchNodeNameVal(Ref ref, String nodeId) async* {
   final service = await ref.watch(configServiceProvider.future);
-  yield* service
-      .watch(PropertyId(nodeId: nodeId, metaId: '_name'))
-      .map((result){
-    if(result == null) {
+  yield* service.watch(PropertyId(nodeId: nodeId, metaId: '_name')).map((
+    result,
+  ) {
+    if (result == null) {
       return null;
     }
     return result.text;
@@ -77,10 +77,12 @@ class NameEditorWidget extends ConsumerWidget {
         metaId: '_name',
         onDeleted: notifier.deleteProperty,
         compactContent: valAsync.whenUI(
-          data: (config) => TextInputWidget(
-            config: TextInputConfig(
-              initialText: config.text,
-              onChanged: notifier.updateProperty,
+          data: (config) => Expanded(
+            child: TextInputWidget(
+              config: TextInputConfig(
+                initialText: config.text,
+                onChanged: notifier.updateProperty,
+              ),
             ),
           ),
         ),

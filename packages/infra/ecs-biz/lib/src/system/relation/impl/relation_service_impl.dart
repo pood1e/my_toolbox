@@ -100,4 +100,13 @@ class RelationServiceImpl implements RelationService {
 
     await _dao.createRelations(companions);
   }
+
+  @override
+  Stream<Set<PropertyId>> watchAffects(PropertyId id) => _dao
+      .watchAffectsCTE(id)
+      .map((list) => list.toSet())
+      .distinct((prev, next) {
+        if (prev.length != next.length) return false;
+        return prev.containsAll(next);
+      });
 }

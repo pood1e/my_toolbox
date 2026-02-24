@@ -50,7 +50,7 @@ class PropertyCardWidget extends ConsumerWidget {
       titleContent.add(Text(_config.metaId));
     }
     if (_config.compactContent != null) {
-      titleContent.add(Expanded(child: _config.compactContent!));
+      titleContent.add(_config.compactContent!);
     }
 
     return Card(
@@ -66,7 +66,7 @@ class PropertyCardWidget extends ConsumerWidget {
               children: titleContent,
             ),
             trailing: Wrap(
-              spacing: AppSpacings.s,
+              spacing: AppSpacings.xs,
               children: [
                 ..._config.actions,
                 if (_config.onDeleted != null)

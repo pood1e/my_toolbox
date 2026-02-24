@@ -77,6 +77,7 @@ class IconEditorWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controllerAsync = ref.watch(iconEditorControllerProvider(_nodeId));
     final notifier = ref.read(iconEditorControllerProvider(_nodeId).notifier);
+    final affectsAsync = ref.watch(watchAffectsProvider(_propertyId));
 
     return PropertyCardWidget(
       config: PropertyCardConfig(
@@ -103,30 +104,35 @@ class IconEditorWidget extends ConsumerWidget {
                 ReferenceSearchConfig(
                   properties: {'_icon'},
                   excludes: {_propertyId},
-                  actionBuilder: (val, onExit) => [
-                    IconButton(
-                      onPressed: () async {
-                        await notifier.updatePicked(val.value);
-                        onExit();
-                      },
-                      icon: const Icon(Icons.copy),
-                    ),
-                    IconButton(
-                      onPressed:
-                          val.propertyId != controllerAsync.value?.ref?.dst
-                          ? () async {
-                              await notifier.updateRef(
-                                RelationData(
-                                  dst: val.propertyId,
-                                  type: RelationType.dependency,
-                                ),
-                              );
-                              onExit();
-                            }
-                          : null,
-                      icon: const Icon(Icons.add_link_outlined),
-                    ),
-                  ],
+                  actionBuilder: (val, onExit) {
+                    final actions = [
+                      IconButton(
+                        onPressed: () async {
+                          await notifier.updatePicked(val.value);
+                          onExit();
+                        },
+                        icon: const Icon(Icons.copy),
+                      ),
+                    ];
+                    if (!affectsAsync.requireValue.contains(val.propertyId) &&
+                        val.propertyId != controllerAsync.value?.ref?.dst) {
+                      actions.add(
+                        IconButton(
+                          onPressed: () async {
+                            await notifier.updateRef(
+                              RelationData(
+                                dst: val.propertyId,
+                                type: RelationType.dependency,
+                              ),
+                            );
+                            onExit();
+                          },
+                          icon: const Icon(Icons.add_link_outlined),
+                        ),
+                      );
+                    }
+                    return actions;
+                  },
                 ),
               );
             },

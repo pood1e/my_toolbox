@@ -1,5 +1,6 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
+import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../../meta/property_meta_service.dart';
@@ -31,6 +32,17 @@ class RefPicker implements ComponentAction<ReferenceSearchConfig, void> {
     ReferenceSearchConfig config,
   ) => showDialog(
     context: context,
-    builder: (context) => AlertDialog(content: ReferenceSearch(config: config)),
+    builder: (context) => Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacings.card),
+        child: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [ReferenceSearch(config: config)],
+          ),
+        ),
+      ),
+    ),
   );
 }

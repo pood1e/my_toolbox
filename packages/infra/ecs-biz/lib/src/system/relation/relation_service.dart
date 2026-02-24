@@ -46,6 +46,8 @@ enum RelationType {
 abstract class RelationService {
   Future<Set<PropertyId>> findAffects(List<PropertyId> srcIds);
 
+  Stream<Set<PropertyId>> watchAffects(PropertyId id);
+
   Future<void> create(List<PropertyRelation> relations);
 
   Future<void> replaceById(PropertyId id, List<PropertyRelation> relations);
@@ -57,4 +59,10 @@ abstract class RelationService {
 Future<RelationService> relationService(Ref ref) async {
   final dao = await ref.watch(relationDaoProvider.future);
   return RelationServiceImpl(dao);
+}
+
+@riverpod
+Stream<Set<PropertyId>> watchAffects(Ref ref, PropertyId propertyId) async* {
+  final srv = await ref.watch(relationServiceProvider.future);
+  yield* srv.watchAffects(propertyId);
 }
