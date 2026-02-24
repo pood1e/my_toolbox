@@ -1,12 +1,11 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/route.dart';
 import 'package:common_ui/component.dart';
+import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../../storage/node_service.dart';
 import '../../component_widget.dart';
-import '../basic/list_widget.dart';
-import '../basic/reuse_widget.dart';
 import '../node/node_tile.dart';
 
 part 'node_list.g.dart';
@@ -47,17 +46,12 @@ class NodeListWidget extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('node list')),
       body: nodesAsync.whenUI(
-        data: (nodes) => ListWidget(
-          config: ListComponentConfig(
-            configs: nodes
-                .map(
-                  (id) => ReuseComponentConfig(
-                    componentId: 'node_tile',
-                    type: WidgetType.node,
-                    config: NodeTileConfig(nodeId: id),
-                  ),
-                )
-                .toList(),
+        data: (nodes) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacings.l),
+          child: ListView.builder(
+            itemBuilder: (_, index) =>
+                NodeTileWidget(config: NodeTileConfig(nodeId: nodes[index])),
+            itemCount: nodes.length,
           ),
         ),
       ),

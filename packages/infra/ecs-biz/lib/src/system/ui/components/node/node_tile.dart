@@ -73,7 +73,7 @@ class NodeInfoChip extends ConsumerWidget {
         direction: Axis.horizontal,
         crossAxisAlignment: WrapCrossAlignment.center,
         runSpacing: AppSpacings.s,
-        spacing: AppSpacings.s,
+        spacing: AppSpacings.m,
         children: [Icon(info.icon), Text(info.name)],
       ),
     );
