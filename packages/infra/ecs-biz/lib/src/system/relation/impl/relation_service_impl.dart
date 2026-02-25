@@ -17,46 +17,23 @@ class RelationServiceImpl implements RelationService {
     if (srcIds.isEmpty) return {};
 
     final Set<PropertyId> allAffected = {};
-    final Set<PropertyId> visited = srcIds.toSet(); // 初始包含起点，防止回环
-    List<PropertyId> currentLayer = srcIds.toList();
 
-    // === 核心逻辑：BFS 算法 ===
-    while (currentLayer.isNotEmpty) {
-      final Set<PropertyId> nextLayerCandidates = {};
+    // === 核心逻辑优化 ===
+    // 依然保留分批，防止 SQLite 参数报错
+    for (var i = 0; i < srcIds.length; i += _batchSize) {
+      final end = (i + _batchSize < srcIds.length)
+          ? i + _batchSize
+          : srcIds.length;
+      final batch = srcIds.sublist(i, end);
 
-      // === 核心策略：分批处理 (Batching) ===
-      // Service 层负责将大任务拆解为小任务调用 DAO
-      for (var i = 0; i < currentLayer.length; i += _batchSize) {
-        final end = (i + _batchSize < currentLayer.length)
-            ? i + _batchSize
-            : currentLayer.length;
-        final batch = currentLayer.sublist(i, end);
+      // 调用支持批量起点的 CTE
+      // 这一步虽然只发了一次 SQL，但已经在数据库内部把这 100 个起点的所有下游全部找完了！
+      final batchResults = await _dao.getAffectsCTEBatch(batch);
 
-        // 调用 DAO 获取数据库原始行 (Row)
-        final rows = await _dao.findDirectOutgoingRelations(batch);
-
-        // 转换 Entity -> Domain 并收集
-        for (final row in rows) {
-          nextLayerCandidates.add(
-            PropertyId(nodeId: row.srcNode, metaId: row.srcMeta),
-          );
-        }
-      }
-
-      // === 核心逻辑：去重与准备下一层 ===
-      final List<PropertyId> nextLayer = [];
-      for (final candidate in nextLayerCandidates) {
-        if (!visited.contains(candidate)) {
-          visited.add(candidate);
-          allAffected.add(candidate);
-          nextLayer.add(candidate);
-        }
-      }
-
-      currentLayer = nextLayer;
+      allAffected.addAll(batchResults);
     }
 
-    return allAffected.toSet();
+    return allAffected;
   }
 
   @override
@@ -102,10 +79,8 @@ class RelationServiceImpl implements RelationService {
   }
 
   @override
-  Stream<Set<PropertyId>> watchAffects(PropertyId id) => _dao
-      .watchAffectsCTE(id)
-      .map((list) => list.toSet())
-      .distinct((prev, next) {
+  Stream<Set<PropertyId>> watchAffects(PropertyId id) =>
+      _dao.watchAffectsCTE(id).distinct((prev, next) {
         if (prev.length != next.length) return false;
         return prev.containsAll(next);
       });

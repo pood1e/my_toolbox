@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../config/config_service.dart';
 import '../meta/property_meta_service.dart';
 import '../meta/registry/roles_meta.dart';
-import 'impl/role_service_impl.dart';
+import 'impl/role_registry_impl.dart';
 import 'registry/graph_node_role.dart';
 
 /// 约束property
@@ -18,7 +18,7 @@ abstract class PropertyConstraint with _$PropertyConstraint {
   const factory PropertyConstraint({
     required String metaId,
     required bool isMandatory,
-    required dynamic config,
+    dynamic config,
   }) = _PropertyConstraint;
 }
 
@@ -36,7 +36,7 @@ abstract class Role {
   List<PropertyConstraint> get constraints;
 }
 
-abstract class RoleService {
+abstract class RoleRegistry {
   List<Role> getAllRoles();
 
   Role? getById(String id);
@@ -47,7 +47,8 @@ abstract class RoleService {
 }
 
 @Riverpod(keepAlive: true)
-RoleService roleService(Ref ref) => RoleServiceImpl(roles: [GraphNodeRole()]);
+RoleRegistry roleRegistry(Ref ref) =>
+    RoleRegistryImpl(roles: [GraphNodeRole()]);
 
 @riverpod
 Future<Set<String>> getNodeMandatories(Ref ref, String nodeId) async {
@@ -59,7 +60,7 @@ Future<Set<String>> getNodeMandatories(Ref ref, String nodeId) async {
   final roleIds = roleCfg != null
       ? (roleCfg as RolesConfig).roleMap.keys.toSet()
       : <String>{};
-  return ref.read(roleServiceProvider).analyzeRequiredMetas(roleIds);
+  return ref.read(roleRegistryProvider).analyzeRequiredMetas(roleIds);
 }
 
 @riverpod

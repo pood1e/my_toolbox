@@ -1,4 +1,5 @@
 import 'package:app_core/di.dart';
+import 'package:app_core/object.dart';
 import 'package:framework_api/framework_api.dart';
 
 import '../meta/property_meta_service.dart';
@@ -8,7 +9,28 @@ import '../value/value_service.dart';
 import 'data/property_config_dao.dart';
 import 'impl/config_service_impl.dart';
 
+part 'config_service.freezed.dart';
 part 'config_service.g.dart';
+
+@freezed
+sealed class ConfigBatchOp with _$ConfigBatchOp {
+  /// 创建操作
+  const factory ConfigBatchOp.create({
+    required PropertyId propertyId,
+    required dynamic config,
+  }) = ConfigBatchOpCreate;
+
+  /// 更新操作 (必须提供 snapshot 用于 Diff)
+  const factory ConfigBatchOp.update({
+    required PropertyId propertyId,
+    required dynamic snapshot, // 旧配置快照
+    required dynamic config, // 新配置
+  }) = ConfigBatchOpUpdate;
+
+  /// 删除操作
+  const factory ConfigBatchOp.delete({required PropertyId propertyId}) =
+      ConfigBatchOpDelete;
+}
 
 mixin PropertyConfigMeta<T> on PropertyMeta {
   T fromDb(Map<String, dynamic> cfg);
@@ -34,6 +56,8 @@ abstract class ConfigService {
   Future<void> delete(PropertyId propertyId);
 
   Future<Set<PropertyId>> checkExist(Set<PropertyId> propertyIds);
+
+  Future<void> batchApply(List<ConfigBatchOp> operations);
 }
 
 @riverpod
@@ -58,4 +82,10 @@ Future<ConfigService> configService(Ref ref) async {
 Stream<dynamic> watchPropertyConfig(Ref ref, PropertyId propertyId) async* {
   final service = await ref.watch(configServiceProvider.future);
   yield* service.watch(propertyId);
+}
+
+@riverpod
+Stream<Set<String>> watchMetasByNode(Ref ref, String nodeId) async* {
+  final service = await ref.watch(configServiceProvider.future);
+  yield* service.watchMetasByNode(nodeId);
 }

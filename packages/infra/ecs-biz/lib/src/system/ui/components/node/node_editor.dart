@@ -39,11 +39,9 @@ abstract class NodeEditorState with _$NodeEditorState {
 @riverpod
 class NodeEditorController extends _$NodeEditorController {
   @override
-  Stream<NodeEditorState> build(String nodeId) async* {
-    final service = await ref.watch(configServiceProvider.future);
-    yield* service
-        .watchMetasByNode(nodeId)
-        .map((metas) => NodeEditorState(metas: metas));
+  Future<NodeEditorState> build(String nodeId) async {
+    final metas = await ref.watch(watchMetasByNodeProvider(nodeId).future);
+    return NodeEditorState(metas: metas);
   }
 
   Future<void> addDefaultConfig(String metaId) async {
@@ -67,9 +65,9 @@ abstract class PropertyEditorConfig with _$PropertyEditorConfig {
 }
 
 final _supportMetas = [
+  const PropertyEditorConfig(metaId: '_roles', widgetId: 'roles_editor'),
   const PropertyEditorConfig(metaId: '_name', widgetId: 'name_editor'),
   const PropertyEditorConfig(metaId: '_icon', widgetId: 'icon_editor'),
-  const PropertyEditorConfig(metaId: '_roles', widgetId: 'roles_editor'),
 ];
 
 class NodeEditorWidget extends ConsumerWidget {
@@ -142,9 +140,6 @@ class NodeEditorWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final nameAsync = ref.watch(watchNodeNameValProvider(_config.nodeId));
     final stateAsync = ref.watch(nodeEditorControllerProvider(_config.nodeId));
-    final notifier = ref.read(
-      nodeEditorControllerProvider(_config.nodeId).notifier,
-    );
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),

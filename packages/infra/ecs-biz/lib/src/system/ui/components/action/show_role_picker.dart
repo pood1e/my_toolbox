@@ -14,7 +14,7 @@ class ShowRolePicker implements ComponentAction<Set<String>, String> {
     WidgetRef ref,
     Set<String> config,
   ) async {
-    final srv = ref.read(roleServiceProvider);
+    final srv = ref.read(roleRegistryProvider);
     final availableRoles = srv
         .getAllRoles()
         .where((role) => !config.contains(role.id))

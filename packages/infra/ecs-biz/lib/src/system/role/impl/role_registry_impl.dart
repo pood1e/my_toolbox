@@ -1,9 +1,9 @@
 import '../role_service.dart';
 
-class RoleServiceImpl implements RoleService {
+class RoleRegistryImpl implements RoleRegistry {
   final Map<String, Role> _roleMap;
 
-  RoleServiceImpl({required List<Role> roles})
+  RoleRegistryImpl({required List<Role> roles})
     : _roleMap = {for (final role in roles) role.id: role};
 
   @override
@@ -17,10 +17,13 @@ class RoleServiceImpl implements RoleService {
   List<Role> getAllRoles() => _roleMap.values.toList();
 
   @override
-  List<Role> getSugguestedRoles(Set<String> metas) {
-    // TODO: implement getSugguestedRoles
-    throw UnimplementedError();
-  }
+  List<Role> getSugguestedRoles(Set<String> metas) => _roleMap.values
+      .where(
+        (roles) => metas.containsAll(
+          roles.constraints.map((constraint) => constraint.metaId).toSet(),
+        ),
+      )
+      .toList();
 
   @override
   Role? getById(String id) => _roleMap[id];

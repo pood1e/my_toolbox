@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../compute/compute_service.dart';
 import '../../compute/impl/compute_node.dart';
 import '../../config/config_service.dart';
+import '../../relation/relation_service.dart';
+import '../../role/role_service.dart';
 import '../../ui/property_common_ui.dart';
 import '../../value/value_service.dart';
 import '../property_meta_service.dart';
@@ -25,7 +27,12 @@ class RoleMeta extends PropertyMeta
         PropertyConfigMeta<RolesConfig>,
         PropertyUiMeta,
         PropertyValueMeta,
+        PropertyRelationMeta<RolesConfig>,
         PropertyComputeMeta<RolesConfig> {
+  final RoleRegistry _roleRegistry;
+
+  RoleMeta({required RoleRegistry roleRegistry}) : _roleRegistry = roleRegistry;
+
   @override
   String get metaId => '_roles';
 
@@ -60,4 +67,24 @@ class RoleMeta extends PropertyMeta
       ),
     ),
   ];
+
+  @override
+  List<PropertyRelation> buildRelations(PropertyId self, RolesConfig config) {
+    final requiredMetas = config.roleMap.keys
+        .map((roleId) => _roleRegistry.getById(roleId)!)
+        .expand((role) => role.constraints)
+        .where((constraint) => constraint.isMandatory)
+        .map((constraint) => constraint.metaId)
+        .toSet();
+    return requiredMetas
+        .map(
+          (meta) => PropertyRelation(
+            src: self,
+            dst: PropertyId(nodeId: self.nodeId, metaId: meta),
+            type: RelationType.dependency,
+          ),
+        )
+        .toList();
+  }
 }
+

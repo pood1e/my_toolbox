@@ -3,12 +3,13 @@ import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../../role/role_service.dart';
+import '../../../value/data_types/roles_data_type.dart';
 import '../../component_widget.dart';
 
 class RolesDataView extends DataTypeWidget {
   @override
   ComponentBuilder get builder =>
-      (roles) => RolesDataWidget(roleMap: roles);
+      (status) => RolesDataWidget(status: status);
 
   @override
   String get dataTypeId => 'roles';
@@ -21,20 +22,36 @@ class RolesDataView extends DataTypeWidget {
 }
 
 class RolesDataWidget extends ConsumerWidget {
-  final Map<String, bool> _roleMap;
+  final RolesStatus _status;
 
-  const RolesDataWidget({super.key, required Map<String, bool> roleMap})
-    : _roleMap = roleMap;
+  const RolesDataWidget({super.key, required RolesStatus status})
+    : _status = status;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final srv = ref.read(roleServiceProvider);
-    return Wrap(
-      spacing: AppSpacings.s,
-      children: _roleMap.entries.map((entry) {
-        final role = srv.getById(entry.key)!;
-        return Chip(label: Text(role.name));
-      }).toList(),
+    final srv = ref.read(roleRegistryProvider);
+    final success = _status.status.where((status) => status.success).toList();
+    final errors = _status.status.where((status) => !status.success).toList();
+    return Column(
+      children: [
+        Wrap(
+          spacing: AppSpacings.s,
+          children: success.map((status) {
+            final role = srv.getById(status.roleId)!;
+            return Chip(label: Text(role.name));
+          }).toList(),
+        ),
+        ...errors.map(
+          (status) => Wrap(
+            spacing: AppSpacings.s,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Chip(label: Text(srv.getById(status.roleId)!.name)),
+              Text(status.reasons.first),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -27,42 +27,66 @@ abstract class RolesEditorState with _$RolesEditorState {
 @riverpod
 class RolesEditorController extends _$RolesEditorController {
   @override
-  Stream<RolesEditorState> build(String nodeId) async* {
-    final srv = await ref.watch(configServiceProvider.future);
+  Future<RolesEditorState> build(String nodeId) async {
+    final cfg = await ref.watch(
+      watchPropertyConfigProvider(
+        PropertyId(nodeId: nodeId, metaId: '_roles'),
+      ).future,
+    );
+    cfg as RolesConfig;
+    final registry = ref.watch(roleRegistryProvider);
 
-    final roleService = ref.watch(roleServiceProvider);
-
-    yield* srv.watch(PropertyId(nodeId: nodeId, metaId: '_roles')).map((cfg) {
-      cfg as RolesConfig;
-      return RolesEditorState(
-        configuredRoles: cfg.roleMap.keys
-            .map((roleId) => roleService.getById(roleId)!)
-            .toList(),
-        config: cfg,
-      );
-    });
+    return RolesEditorState(
+      configuredRoles: cfg.roleMap.keys
+          .map((roleId) => registry.getById(roleId)!)
+          .toList(),
+      config: cfg,
+    );
   }
 
   Future<void> addRole(String roleId) async {
     final snapshot = await future;
     final roleMap = {...snapshot.config.roleMap, roleId: true};
-    await _updateRoleConfig(snapshot.config, roleMap);
+
+    final service = await ref.read(configServiceProvider.future);
+    await service.update(
+      PropertyId(nodeId: nodeId, metaId: '_roles'),
+      snapshot.config,
+      RolesConfig(roleMap: roleMap),
+    );
+
+    // final role = ref.read(roleRegistryProvider).getById(roleId)!;
+    //
+    // final metas = await ref.read(watchMetasByNodeProvider(nodeId).future);
+    // final ops = role.constraints
+    //     .where(
+    //       (constraint) =>
+    //           constraint.isMandatory && !metas.contains(constraint.metaId),
+    //     )
+    //     .map((constraint) {
+    //       final val =
+    //           constraint.config ??
+    //           (ref.read(propertyMetaServiceProvider).getById(constraint.metaId)!
+    //                   as PropertyConfigMeta)
+    //               .defaultConfig;
+    //       if (val == null) throw UnimplementedError();
+    //       return ConfigBatchOp.create(
+    //         propertyId: PropertyId(nodeId: nodeId, metaId: constraint.metaId),
+    //         config: val,
+    //       );
+    //     })
+    //     .toList();
+    // await service.batchApply(ops);
   }
 
   Future<void> rmRole(String roleId) async {
     final snapshot = await future;
     final roleMap = {...snapshot.config.roleMap}..remove(roleId);
-    await _updateRoleConfig(snapshot.config, roleMap);
-  }
 
-  Future<void> _updateRoleConfig(
-    RolesConfig snapshot,
-    Map<String, bool> roleMap,
-  ) async {
     final service = await ref.read(configServiceProvider.future);
     await service.update(
       PropertyId(nodeId: nodeId, metaId: '_roles'),
-      snapshot,
+      snapshot.config,
       RolesConfig(roleMap: roleMap),
     );
   }
@@ -111,34 +135,40 @@ class RolesEditorWidget extends ConsumerWidget {
                 icon: const Icon(Icons.delete),
               ),
           ],
-          compactContent: ValWidget(propertyId: _propertyId),
-          content: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+          content: Column(
+            spacing: AppSpacings.m,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: AppSpacings.s,
+              ValWidget(propertyId: _propertyId),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  ...state.configuredRoles.map(
-                    (role) => InputChip(
-                      label: Text(role.name),
-                      onDeleted: () async {
-                        await notifier.rmRole(role.id);
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () async {
-                      final add = await _picker.func(
-                        context,
-                        ref,
-                        state.config.roleMap.keys.toSet(),
-                      );
-                      if (add != null) {
-                        notifier.addRole(add);
-                      }
-                    },
-                    icon: const Icon(Icons.add),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: AppSpacings.s,
+                    children: [
+                      ...state.configuredRoles.map(
+                        (role) => InputChip(
+                          label: Text(role.name),
+                          onDeleted: () async {
+                            await notifier.rmRole(role.id);
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          final add = await _picker.func(
+                            context,
+                            ref,
+                            state.config.roleMap.keys.toSet(),
+                          );
+                          if (add != null) {
+                            notifier.addRole(add);
+                          }
+                        },
+                        icon: const Icon(Icons.add),
+                      ),
+                    ],
                   ),
                 ],
               ),

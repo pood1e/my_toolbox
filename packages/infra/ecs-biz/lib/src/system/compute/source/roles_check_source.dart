@@ -4,23 +4,24 @@ import '../../config/config_service.dart';
 import '../../meta/property_meta_service.dart';
 import '../../meta/registry/roles_meta.dart';
 import '../../role/role_service.dart';
+import '../../value/data_types/roles_data_type.dart';
 import '../../value/value_service.dart';
 import '../impl/compute_node.dart';
 
 part 'roles_check_source.g.dart';
 
-class RolesCheckSource extends Source<RolesConfig, Map<String, bool>> {
-  final RoleService _roleService;
+class RolesCheckSource extends Source<RolesConfig, RolesStatus> {
+  final RoleRegistry _roleRegistry;
   final PropertyMetaService _metaService;
   final ConfigService _configService;
   final ValueService _valueService;
 
   RolesCheckSource({
-    required RoleService roleService,
+    required RoleRegistry roleRegistry,
     required PropertyMetaService metaService,
     required ConfigService configService,
     required ValueService valueService,
-  }) : _roleService = roleService,
+  }) : _roleRegistry = roleRegistry,
        _metaService = metaService,
        _configService = configService,
        _valueService = valueService;
@@ -29,9 +30,9 @@ class RolesCheckSource extends Source<RolesConfig, Map<String, bool>> {
   String get computeId => 'roles_check_source';
 
   @override
-  Future<Map<String, bool>> create(PropertyId self, RolesConfig config) async {
+  Future<RolesStatus> create(PropertyId self, RolesConfig config) async {
     final roles = config.roleMap.keys
-        .map((id) => _roleService.getById(id)!)
+        .map((id) => _roleRegistry.getById(id)!)
         .toList();
 
     final metaIds = roles
@@ -63,19 +64,27 @@ class RolesCheckSource extends Source<RolesConfig, Map<String, bool>> {
         .map((propertyIds) => propertyIds.metaId)
         .toSet();
 
-    return {
-      for (var role in roles)
-        role.id: role.constraints
-            .where((constraint) => constraint.isMandatory)
-            .every((constraint) {
-              final meta = metaMap[constraint.metaId]!;
-              if (meta is PropertyValueMeta &&
-                  !valueValids.contains(meta.metaId)) {
-                return false;
-              }
-              return metaExists.contains(meta.metaId);
-            }),
-    };
+    return RolesStatus(
+      status: roles.map((role) {
+        final errors = <String>[];
+        role.constraints.where((constraint) => constraint.isMandatory).forEach((
+          constraint,
+        ) {
+          final meta = metaMap[constraint.metaId]!;
+          if (meta is PropertyValueMeta && !valueValids.contains(meta.metaId)) {
+            errors.add('${meta.metaId} value invalid');
+          }
+          if (!metaExists.contains(meta.metaId)) {
+            errors.add('${meta.metaId} config invalid');
+          }
+        });
+        return RoleStatus(
+          roleId: role.id,
+          success: errors.isEmpty,
+          reasons: errors,
+        );
+      }).toList(),
+    );
   }
 }
 
@@ -84,9 +93,9 @@ Future<RolesCheckSource> rolesCheckSource(Ref ref) async {
   final valueService = await ref.watch(valueServiceProvider.future);
   final metaService = ref.watch(propertyMetaServiceProvider);
   final configService = await ref.watch(configServiceProvider.future);
-  final roleService = ref.watch(roleServiceProvider);
+  final roleRegistry = ref.watch(roleRegistryProvider);
   return RolesCheckSource(
-    roleService: roleService,
+    roleRegistry: roleRegistry,
     metaService: metaService,
     configService: configService,
     valueService: valueService,

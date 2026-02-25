@@ -38,15 +38,20 @@ class PropertyConfigsDao extends DatabaseAccessor<EcsDatabase>
   Stream<PropertyConfigEntity?> watchByProperty(PropertyId propertyId) =>
       _selectByNodeAndMeta([propertyId]).watchSingleOrNull();
 
-  Stream<Set<String>> watchPropertiesByNode(String nodeId) {
+  Selectable<String> _selectMateByNode(String nodeId) {
     final query = selectOnly(propertyConfigs)
       ..addColumns([propertyConfigs.metaId])
       ..where(propertyConfigs.nodeId.equals(nodeId))
       ..where(propertyConfigs.deletedAt.isNull());
-    return query.watch().map(
-      (rows) =>
-          rows.map((typed) => typed.read(propertyConfigs.metaId)!).toSet(),
-    );
+    return query.map((typed) => typed.read(propertyConfigs.metaId)!);
+  }
+
+  Stream<Set<String>> watchPropertiesByNode(String nodeId) =>
+      _selectMateByNode(nodeId).watch().map((rows) => rows.toSet());
+
+  Future<Set<String>> getPropertiesByNode(String nodeId) async {
+    final result = await _selectMateByNode(nodeId).get();
+    return result.toSet();
   }
 
   Future<int> insertConfig(PropertyConfigsCompanion companion) =>

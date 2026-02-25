@@ -1,6 +1,7 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 
+import '../role/role_service.dart';
 import 'impl/property_meta_service_impl.dart';
 import 'registry/icon_meta.dart';
 import 'registry/name_meta.dart';
@@ -27,5 +28,10 @@ abstract class PropertyMetaService {
 }
 
 @Riverpod(keepAlive: true)
-PropertyMetaService propertyMetaService(Ref ref) =>
-    PropertyMetaServiceImpl(metas: [NameMeta(), IconMeta(), RoleMeta()]);
+PropertyMetaService propertyMetaService(Ref ref) => PropertyMetaServiceImpl(
+  metas: [
+    NameMeta(),
+    IconMeta(),
+    RoleMeta(roleRegistry: ref.read(roleRegistryProvider)),
+  ],
+);

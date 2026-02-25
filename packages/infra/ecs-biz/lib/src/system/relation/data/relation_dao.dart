@@ -64,22 +64,38 @@ class RelationDao extends DatabaseAccessor<EcsDatabase>
   /// 基础删除
   Future<void> deleteRelationsById(PropertyId id) async {
     await (delete(propertyRelations)..where(
-          (t) =>
-              (t.srcNode.equals(id.nodeId) & t.srcMeta.equals(id.metaId)) |
-              (t.dstNode.equals(id.nodeId) & t.dstMeta.equals(id.metaId)),
+          (t) => t.srcNode.equals(id.nodeId) & t.srcMeta.equals(id.metaId),
         ))
         .go();
   }
 
-  Selectable<PropertyId> _selectAffectsCTE(PropertyId id) {
+  Selectable<PropertyId> _selectAffectsCTE(List<PropertyId> batchIds) {
+    // 1. 动态构建起点的 WHERE 子句
+    // 目标 SQL 片段: (src_node = ? AND src_meta = ?) OR (src_node = ? AND src_meta = ?) ...
+    final whereClauses = List.filled(
+      batchIds.length,
+      '(dst_node = ? AND dst_meta = ? AND affect_value = 1)',
+    ).join(' OR ');
+
+    // 2. 准备参数列表 (扁平化: [id1.node, id1.meta, id2.node, id2.meta, ...])
+    final variables = batchIds
+        .expand(
+          (id) => [
+            Variable.withString(id.nodeId),
+            Variable.withString(id.metaId),
+          ],
+        )
+        .toList();
+
     // SQLite 的递归 CTE 语法
     // 注意：Drift 默认会将驼峰字段名转换为下划线，例如 srcNode -> src_node
-    const sql = '''
+    final sql =
+        '''
       WITH RECURSIVE traverse(node_id, meta_id) AS (
         -- 1. Base Case (起点): 查找当前节点的直接下游 (只找 affect_value = 1 的)
         SELECT src_node, src_meta
         FROM property_relations
-        WHERE dst_node = ? AND dst_meta = ? AND affect_value = 1
+        WHERE $whereClauses
         
         UNION 
         -- 注意这里用 UNION 而不是 UNION ALL，SQLite 会自动去重，防止循环图死循环 (A->B->A)
@@ -97,10 +113,7 @@ class RelationDao extends DatabaseAccessor<EcsDatabase>
     // customSelect 允许执行原生 SQL
     return customSelect(
       sql,
-      variables: [
-        Variable.withString(id.nodeId),
-        Variable.withString(id.metaId),
-      ],
+      variables: variables,
       // 【关键】：告诉 Drift 监听 property_relations 表。
       // 一旦该表有增删改，Drift 自动重新执行上述 CTE 并推流！
       readsFrom: {propertyRelations},
@@ -112,10 +125,16 @@ class RelationDao extends DatabaseAccessor<EcsDatabase>
     );
   }
 
+  Future<Set<PropertyId>> getAffectsCTEBatch(List<PropertyId> batchIds) async {
+    if (batchIds.isEmpty) return {};
+    final result = await _selectAffectsCTE(batchIds).get();
+    return result.toSet();
+  }
+
   /// 核心：使用 WITH RECURSIVE 在 SQLite 内部完成图的深度遍历
   /// 返回一个可以被 watch 的 Stream！
-  Stream<List<PropertyId>> watchAffectsCTE(PropertyId id) =>
-      _selectAffectsCTE(id).watch();
+  Stream<Set<PropertyId>> watchAffectsCTE(PropertyId id) =>
+      _selectAffectsCTE([id]).watch().map((rows) => rows.toSet());
 }
 
 @riverpod
