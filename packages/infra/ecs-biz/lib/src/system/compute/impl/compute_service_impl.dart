@@ -1,3 +1,4 @@
+import '../../meta/property_meta_service.dart';
 import '../compute_service.dart';
 import 'compute_node.dart';
 import 'compute_task.dart';
@@ -24,7 +25,7 @@ class ComputeServiceImpl implements ComputeService {
        };
 
   @override
-  Future<dynamic> compute(List<ComputeMeta> metas) {
+  Future<dynamic> compute(PropertyId self, List<ComputeMeta> metas) {
     if (metas.isEmpty) return Future.value(null);
 
     // 每次调用 compute 都实例化一个新的独立任务，确保多线程并发调用时状态不污染
@@ -33,6 +34,7 @@ class ComputeServiceImpl implements ComputeService {
       sourceMap: _sourceMap,
       processorMap: _processorMap,
       aggregatorMap: _aggregatorMap,
+      self: self,
     );
 
     return task.run();

@@ -3,11 +3,13 @@ import 'package:app_core/object.dart';
 import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
+import '../../../config/config_service.dart';
 import '../../../meta/property_meta_service.dart';
 import '../../component_widget.dart';
 import '../../property_common_ui.dart';
 
 part 'property_card.freezed.dart';
+part 'property_card.g.dart';
 
 @freezed
 abstract class PropertyCardConfig with _$PropertyCardConfig {
@@ -15,7 +17,6 @@ abstract class PropertyCardConfig with _$PropertyCardConfig {
     required String metaId,
     Widget? content,
     Widget? compactContent,
-    Future<void> Function()? onDeleted,
     @Default([]) List<Widget> actions,
   }) = _PropertyCardConfig;
 }
@@ -65,17 +66,7 @@ class PropertyCardWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: titleContent,
             ),
-            trailing: Wrap(
-              spacing: AppSpacings.xs,
-              children: [
-                ..._config.actions,
-                if (_config.onDeleted != null)
-                  IconButton(
-                    onPressed: _config.onDeleted,
-                    icon: const Icon(Icons.delete),
-                  ),
-              ],
-            ),
+            trailing: Wrap(spacing: AppSpacings.xs, children: _config.actions),
           ),
           if (_config.content != null)
             Padding(
@@ -90,5 +81,18 @@ class PropertyCardWidget extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+@riverpod
+class PropertyDeleteController extends _$PropertyDeleteController {
+  @override
+  Future<void> build() async {
+    await ref.watch(configServiceProvider.future);
+  }
+
+  Future<void> deleteProperty(PropertyId propertyId) async {
+    final service = await ref.read(configServiceProvider.future);
+    await service.delete(propertyId);
   }
 }

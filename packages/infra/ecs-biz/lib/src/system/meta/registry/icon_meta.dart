@@ -19,7 +19,7 @@ abstract class IconConfig with _$IconConfig {
   const factory IconConfig({
     required IconMode mode,
     @IconDataConverter() IconData? picked,
-    RelationData? ref,
+    PropertyId? ref,
   }) = _IconConfig;
 
   factory IconConfig.fromJson(Map<String, dynamic> json) =>
@@ -55,7 +55,7 @@ class IconMeta extends PropertyMeta
   Map<String, dynamic> toDb(IconConfig cfg) => cfg.toJson();
 
   @override
-  List<ComputeMeta> buildComputeGraph(IconConfig cfg) {
+  List<ComputeMeta> buildComputeGraph(PropertyId self,IconConfig cfg) {
     if (cfg.mode == IconMode.pick) {
       return [
         ComputeMeta(compute: InlineSourceNode(create: () async => cfg.picked!)),
@@ -79,11 +79,15 @@ class IconMeta extends PropertyMeta
       return [
         PropertyRelation(
           src: self,
-          dst: config.ref!.dst,
-          type: config.ref!.type,
+          dst: config.ref!,
+          type: RelationType.dependency,
         ),
       ];
     }
     return [];
   }
+
+  @override
+  IconConfig? get defaultConfig =>
+      const IconConfig(mode: IconMode.pick, picked: Icons.question_mark);
 }

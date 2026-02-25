@@ -1,4 +1,5 @@
 import 'package:app_core/di.dart';
+import 'package:app_core/object.dart';
 import 'package:flutter/material.dart';
 
 import 'components/basic/card_tile.dart';
@@ -7,12 +8,14 @@ import 'components/basic/reuse_widget.dart';
 import 'components/basic/text_input.dart';
 import 'components/basic/text_view.dart';
 import 'components/data_type/icon_data_view.dart';
+import 'components/data_type/roles_data_view.dart';
 import 'components/data_type/text_data_view.dart';
 import 'components/node/node_editor.dart';
 import 'components/node/node_tile.dart';
 import 'components/page/node_list.dart';
 import 'components/property/icon_editor.dart';
 import 'components/property/name_editor.dart';
+import 'components/property/roles_editor.dart';
 import 'impl/component_service_impl.dart';
 
 part 'component_widget.g.dart';
@@ -82,6 +85,10 @@ ComponentService componentService(Ref ref) => ComponentServiceImpl(
     NodeListComponent(),
     NodeEditorComponent(),
   ],
-  propertyWidgets: [NamePropertyComponent(), IconPropertyComponent()],
-  dataTypeWidgets: [IconDataView(), TextDataView()],
+  propertyWidgets: [
+    NamePropertyComponent(),
+    IconPropertyComponent(),
+    RolesPropertyComponent(),
+  ],
+  dataTypeWidgets: [IconDataView(), TextDataView(), RolesDataView()],
 );

@@ -37,8 +37,8 @@ class ComputeWorkerImpl implements ComputeWorker {
     return await _dao.transaction(() async {
       final config = await _configService.get(propertyId);
       try {
-        final computeGraph = meta.buildComputeGraph(config);
-        final result = await _computeService.compute(computeGraph);
+        final computeGraph = meta.buildComputeGraph(propertyId, config);
+        final result = await _computeService.compute(propertyId, computeGraph);
         await _valueService.update(
           PropertyVal(
             propertyId: propertyId,

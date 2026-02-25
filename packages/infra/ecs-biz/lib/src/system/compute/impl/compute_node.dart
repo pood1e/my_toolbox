@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../meta/property_meta_service.dart';
+
 part 'compute_node.freezed.dart';
 
 enum ComputeType { source, processor, aggregator }
@@ -12,6 +14,7 @@ abstract class ReuseCompute {
 abstract class ComputeNode {
   /// 【优化】改为可选的 id。只有在作为 Aggregator 的前置节点时，才需要为了方便取值而传入
   String? get id;
+
   ComputeType get type;
 }
 
@@ -82,7 +85,7 @@ abstract class InlineAggregatorNode<T>
 /// 全局注册逻辑 Handlers
 /// =========================================
 abstract class Source<C, T> implements ReuseCompute {
-  Future<T> create(C config);
+  Future<T> create(PropertyId self, C config);
 }
 
 @Freezed(genericArgumentFactories: true)

@@ -34,17 +34,21 @@ class ValWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final objAsync = ref.watch(watchPropertyValProvider(_propertyId));
-    return objAsync.whenUI(data: (data) => PropertyValWidget(val: data!));
+    return objAsync.whenUI(data: (data) => PropertyValWidget(val: data));
   }
 }
 
 class PropertyValWidget extends ConsumerWidget {
-  final PropertyVal _val;
+  final PropertyVal? _val;
 
-  const PropertyValWidget({super.key, required PropertyVal val}) : _val = val;
+  const PropertyValWidget({super.key, required PropertyVal? val}) : _val = val;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (_val == null || _val.value == null) {
+      return const DefaultErrorWidget(error: 'val error');
+    }
+
     final meta = ref
         .read(propertyMetaServiceProvider)
         .getById(_val.propertyId.metaId);

@@ -3,10 +3,12 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 
+import '../meta/property_meta_service.dart';
 import '../value/value_service.dart';
 import 'impl/compute_node.dart';
 import 'impl/compute_service_impl.dart';
 import 'source/ref_source.dart';
+import 'source/roles_check_source.dart';
 
 part 'compute_service.freezed.dart';
 part 'compute_service.g.dart';
@@ -47,36 +49,35 @@ abstract class ComputeMeta with _$ComputeMeta {
 /// 业务属性配置可混入的协议，要求提供基于配置生成计算图的能力
 mixin PropertyComputeMeta<C> on PropertyValueMeta {
   /// 传入总配置，构建并返回计算图的边定义，引擎会自动推导执行链路
-  List<ComputeMeta> buildComputeGraph(C cfg);
+  List<ComputeMeta> buildComputeGraph(PropertyId self, C cfg);
 }
 
 /// 计算服务对外暴露的底层接口
 abstract class ComputeService {
   /// 传入拓扑描述列表，内部执行解析并返回图的最终计算结果
-  Future<dynamic> compute(List<ComputeMeta> metas);
+  Future<dynamic> compute(PropertyId self, List<ComputeMeta> metas);
 }
 
 /// 全局计算服务的 Riverpod Provider
 /// 在这里注册你所有的可复用 (Reuse) 计算逻辑单元
 @riverpod
-Future<ComputeService> computeService(Ref ref) async {
-  final valueService = await ref.watch(valueServiceProvider.future);
-
-  return ComputeServiceImpl(
-    sources: [RefSource(valueService: valueService)],
-    processors: [
-      // 示例:
-      // Processor(
-      //   computeId: 'format_user_data',
-      //   process: (source, config) async => format(source, config),
-      // ),
-    ],
-    aggregators: [
-      // 示例:
-      // Aggregator(
-      //   computeId: 'merge_user_and_permissions',
-      //   aggregate: (sMap, config) async => merge(sMap, config),
-      // ),
-    ],
-  );
-}
+Future<ComputeService> computeService(Ref ref) async => ComputeServiceImpl(
+  sources: [
+    await ref.watch(refSourceProvider.future),
+    await ref.watch(rolesCheckSourceProvider.future),
+  ],
+  processors: [
+    // 示例:
+    // Processor(
+    //   computeId: 'format_user_data',
+    //   process: (source, config) async => format(source, config),
+    // ),
+  ],
+  aggregators: [
+    // 示例:
+    // Aggregator(
+    //   computeId: 'merge_user_and_permissions',
+    //   aggregate: (sMap, config) async => merge(sMap, config),
+    // ),
+  ],
+);

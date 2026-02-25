@@ -16,6 +16,8 @@ mixin PropertyConfigMeta<T> on PropertyMeta {
   Map<String, dynamic> toDb(T cfg);
 
   Map<String, bool> buildUpdateMap(T cfg, T? snapshot) => {};
+
+  T? get defaultConfig => null;
 }
 
 abstract class ConfigService {
@@ -30,6 +32,8 @@ abstract class ConfigService {
   Future<void> update(PropertyId propertyId, dynamic snapshot, dynamic config);
 
   Future<void> delete(PropertyId propertyId);
+
+  Future<Set<PropertyId>> checkExist(Set<PropertyId> propertyIds);
 }
 
 @riverpod

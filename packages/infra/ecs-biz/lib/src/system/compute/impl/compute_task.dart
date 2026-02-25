@@ -1,5 +1,6 @@
 // (ComputeServiceImpl 的声明部分不变)
 
+import '../../meta/property_meta_service.dart';
 import '../compute_service.dart';
 import 'compute_node.dart';
 
@@ -8,6 +9,7 @@ class ComputeTask {
   final Map<String, Source> sourceMap;
   final Map<String, Processor> processorMap;
   final Map<String, Aggregator> aggregatorMap;
+  final PropertyId self;
 
   // 记录所有涉及的节点 (用于寻找 Sink)
   final Set<ComputeNode> _allNodes = {};
@@ -22,6 +24,7 @@ class ComputeTask {
     required this.sourceMap,
     required this.processorMap,
     required this.aggregatorMap,
+    required this.self,
   }) {
     _buildGraph(metas);
   }
@@ -93,7 +96,7 @@ class ComputeTask {
       if (source == null) {
         throw ComputeException(error: ComputeError.referenceInvalid);
       }
-      return source.create(node.config);
+      return source.create(self, node.config);
     }
     throw UnimplementedError();
   }

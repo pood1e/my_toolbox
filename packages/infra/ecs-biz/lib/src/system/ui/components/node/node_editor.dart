@@ -1,12 +1,11 @@
 import 'package:app_core/di.dart';
 import 'package:app_core/object.dart';
 import 'package:common_ui/component.dart';
+import 'package:common_ui/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../../config/config_service.dart';
 import '../../../meta/property_meta_service.dart';
-import '../../../meta/registry/icon_meta.dart';
-import '../../../meta/registry/name_meta.dart';
 import '../../component_widget.dart';
 import '../../property_common_ui.dart';
 import '../property/name_editor.dart';
@@ -31,22 +30,29 @@ class NodeEditorComponent implements ComponentWidget {
       (cfg) => NodeEditorWidget(config: cfg);
 }
 
+@freezed
+abstract class NodeEditorState with _$NodeEditorState {
+  const factory NodeEditorState({required Set<String> metas}) =
+      _NodeEditorState;
+}
+
 @riverpod
 class NodeEditorController extends _$NodeEditorController {
   @override
-  Stream<Set<String>> build(String nodeId) async* {
+  Stream<NodeEditorState> build(String nodeId) async* {
     final service = await ref.watch(configServiceProvider.future);
-    yield* service.watchMetasByNode(nodeId);
+    yield* service
+        .watchMetasByNode(nodeId)
+        .map((metas) => NodeEditorState(metas: metas));
   }
 
-  Future<void> addDefaultConfig(
-    String metaId,
-    dynamic Function(String) createFunc,
-  ) async {
+  Future<void> addDefaultConfig(String metaId) async {
     final service = await ref.read(configServiceProvider.future);
+    final meta = ref.read(propertyMetaServiceProvider).getById(metaId);
+
     await service.create(
       PropertyId(nodeId: nodeId, metaId: metaId),
-      createFunc(nodeId),
+      (meta as PropertyConfigMeta).defaultConfig,
     );
   }
 }
@@ -57,22 +63,13 @@ abstract class PropertyEditorConfig with _$PropertyEditorConfig {
     required String metaId,
     required String widgetId,
     dynamic config,
-    required dynamic Function(String) createDefault,
   }) = _PropertyEditorConfig;
 }
 
 final _supportMetas = [
-  PropertyEditorConfig(
-    metaId: '_name',
-    widgetId: 'name_editor',
-    createDefault: (_) => const NameConfig(text: 'unnamed'),
-  ),
-  PropertyEditorConfig(
-    metaId: '_icon',
-    widgetId: 'icon_editor',
-    createDefault: (_) =>
-        const IconConfig(mode: IconMode.pick, picked: Icons.question_mark),
-  ),
+  const PropertyEditorConfig(metaId: '_name', widgetId: 'name_editor'),
+  const PropertyEditorConfig(metaId: '_icon', widgetId: 'icon_editor'),
+  const PropertyEditorConfig(metaId: '_roles', widgetId: 'roles_editor'),
 ];
 
 class NodeEditorWidget extends ConsumerWidget {
@@ -114,7 +111,7 @@ class NodeEditorWidget extends ConsumerWidget {
         heroTag: null, // 子按钮不需要 Hero
         label: label,
         onPressed: () {
-          notifier.addDefaultConfig(property.metaId, property.createDefault);
+          notifier.addDefaultConfig(property.metaId);
         },
       );
     }).toList();
@@ -144,7 +141,10 @@ class NodeEditorWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nameAsync = ref.watch(watchNodeNameValProvider(_config.nodeId));
-    final metasAsync = ref.watch(nodeEditorControllerProvider(_config.nodeId));
+    final stateAsync = ref.watch(nodeEditorControllerProvider(_config.nodeId));
+    final notifier = ref.read(
+      nodeEditorControllerProvider(_config.nodeId).notifier,
+    );
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
@@ -153,13 +153,13 @@ class NodeEditorWidget extends ConsumerWidget {
       floatingActionButton: _buildFab(
         context,
         ref,
-        metasAsync.value ?? <String>{},
+        stateAsync.value?.metas ?? <String>{},
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      body: metasAsync.whenUI(
-        data: (metas) {
+      body: stateAsync.whenUI(
+        data: (state) {
           final supportMetas = _supportMetas
-              .where((meta) => metas.contains(meta.metaId))
+              .where((meta) => state.metas.contains(meta.metaId))
               .toList();
           return ListView.builder(
             itemBuilder: (_, index) {
@@ -167,7 +167,10 @@ class NodeEditorWidget extends ConsumerWidget {
               final builder = ref
                   .read(componentServiceProvider)
                   .getPropertyBuilder(meta.metaId, meta.widgetId)!;
-              return builder(_config.nodeId, meta.config);
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacings.l),
+                child: builder(_config.nodeId, null),
+              );
             },
             itemCount: supportMetas.length,
           );

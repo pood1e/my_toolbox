@@ -1,10 +1,11 @@
 import 'package:app_core/di.dart';
 import 'package:common_ui/component.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../../../config/config_service.dart';
 import '../../../meta/property_meta_service.dart';
-import '../../../meta/registry/name_meta.dart';
+import '../../../meta/registry/text_meta.dart';
+import '../../../role/role_service.dart';
 import '../../component_widget.dart';
 import '../basic/text_input.dart';
 import 'property_card.dart';
@@ -27,11 +28,11 @@ Stream<String?> watchNodeNameVal(Ref ref, String nodeId) async* {
 @riverpod
 class NameEditorController extends _$NameEditorController {
   @override
-  Stream<NameConfig> build(String nodeId) async* {
+  Stream<TextConfig> build(String nodeId) async* {
     final srv = await ref.watch(configServiceProvider.future);
     yield* srv
         .watch(PropertyId(nodeId: nodeId, metaId: '_name'))
-        .map((cfg) => cfg as NameConfig);
+        .map((cfg) => cfg as TextConfig);
   }
 
   Future<void> updateProperty(String text) async {
@@ -39,7 +40,7 @@ class NameEditorController extends _$NameEditorController {
     await service.update(
       PropertyId(nodeId: nodeId, metaId: '_name'),
       await future,
-      NameConfig(text: text),
+      TextConfig(text: text),
     );
   }
 
@@ -63,19 +64,28 @@ class NamePropertyComponent implements PropertyWidget {
 
 class NameEditorWidget extends ConsumerWidget {
   final String _nodeId;
+  final PropertyId _propertyId;
 
-  const NameEditorWidget({super.key, required String nodeId})
-    : _nodeId = nodeId;
+  NameEditorWidget({super.key, required String nodeId})
+    : _nodeId = nodeId,
+      _propertyId = PropertyId(nodeId: nodeId, metaId: '_name');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final valAsync = ref.watch(nameEditorControllerProvider(_nodeId));
     final notifier = ref.read(nameEditorControllerProvider(_nodeId).notifier);
+    final mandatoryAsync = ref.watch(checkMetaIsMandatoryProvider(_propertyId));
 
     return PropertyCardWidget(
       config: PropertyCardConfig(
         metaId: '_name',
-        onDeleted: notifier.deleteProperty,
+        actions: [
+          if (!(mandatoryAsync.value ?? true))
+            IconButton(
+              onPressed: notifier.deleteProperty,
+              icon: const Icon(Icons.delete),
+            ),
+        ],
         compactContent: Expanded(
           child: valAsync.whenUI(
             data: (config) => TextInputWidget(

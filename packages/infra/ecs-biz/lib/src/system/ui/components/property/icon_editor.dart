@@ -6,6 +6,7 @@ import '../../../config/config_service.dart';
 import '../../../meta/property_meta_service.dart';
 import '../../../meta/registry/icon_meta.dart';
 import '../../../relation/relation_service.dart';
+import '../../../role/role_service.dart';
 import '../../component_widget.dart';
 import '../action/show_icon_picker.dart';
 import '../action/show_ref_picker.dart';
@@ -34,13 +35,13 @@ class IconEditorController extends _$IconEditorController {
     );
   }
 
-  Future<void> updateRef(RelationData data) async {
+  Future<void> updateRef(PropertyId propertyId) async {
     final service = await ref.read(configServiceProvider.future);
     final snapshot = await future;
     await service.update(
       PropertyId(nodeId: nodeId, metaId: '_icon'),
       snapshot,
-      IconConfig(mode: IconMode.ref, ref: data),
+      IconConfig(mode: IconMode.ref, ref: propertyId),
     );
   }
 
@@ -78,11 +79,11 @@ class IconEditorWidget extends ConsumerWidget {
     final controllerAsync = ref.watch(iconEditorControllerProvider(_nodeId));
     final notifier = ref.read(iconEditorControllerProvider(_nodeId).notifier);
     final affectsAsync = ref.watch(watchAffectsProvider(_propertyId));
+    final mandatoryAsync = ref.watch(checkMetaIsMandatoryProvider(_propertyId));
 
     return PropertyCardWidget(
       config: PropertyCardConfig(
         metaId: '_icon',
-        onDeleted: notifier.deleteProperty,
         compactContent: ValWidget(propertyId: _propertyId),
         actions: [
           SelectIconButton(
@@ -115,16 +116,11 @@ class IconEditorWidget extends ConsumerWidget {
                       ),
                     ];
                     if (!affectsAsync.requireValue.contains(val.propertyId) &&
-                        val.propertyId != controllerAsync.value?.ref?.dst) {
+                        val.propertyId != controllerAsync.value?.ref) {
                       actions.add(
                         IconButton(
                           onPressed: () async {
-                            await notifier.updateRef(
-                              RelationData(
-                                dst: val.propertyId,
-                                type: RelationType.dependency,
-                              ),
-                            );
+                            await notifier.updateRef(val.propertyId);
                             onExit();
                           },
                           icon: const Icon(Icons.add_link_outlined),
@@ -139,6 +135,11 @@ class IconEditorWidget extends ConsumerWidget {
             icon: Icons.link,
             selected: controllerAsync.value?.mode == IconMode.ref,
           ),
+          if (!(mandatoryAsync.value ?? true))
+            IconButton(
+              onPressed: notifier.deleteProperty,
+              icon: const Icon(Icons.delete),
+            ),
         ],
       ),
     );

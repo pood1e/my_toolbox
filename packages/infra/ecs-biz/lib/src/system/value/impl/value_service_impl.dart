@@ -160,4 +160,8 @@ class ValueServiceImpl implements ValueService {
   @override
   Stream<PropertyVal?> watchValue(PropertyId id) =>
       _dao.watchValue(id).map(valueEntityToVal);
+
+  @override
+  Future<Set<PropertyId>> filterValueValid(Set<PropertyId> propertyIds) =>
+      _dao.filterValueValid(propertyIds);
 }

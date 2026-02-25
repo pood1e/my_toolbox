@@ -6,6 +6,7 @@ import '../meta/property_meta_service.dart';
 import '../storage/ecs_database.dart';
 import 'data/value_dao.dart';
 import 'data_types/icon_data_type.dart';
+import 'data_types/roles_data_type.dart';
 import 'data_types/simple_text.dart';
 import 'impl/value_service_impl.dart';
 
@@ -24,8 +25,6 @@ abstract class PropertyVal with _$PropertyVal {
     String? extra,
   }) = _PropertyVal;
 }
-
-
 
 enum ValueStatus { normal, dirty, error }
 
@@ -61,6 +60,8 @@ abstract class ValueService {
   Future<void> markAsDirty(Set<PropertyId> propertyIds);
 
   Future<void> markAsError(Map<PropertyId, ComputeError> errorMap);
+
+  Future<Set<PropertyId>> filterValueValid(Set<PropertyId> propertyIds);
 }
 
 @riverpod
@@ -68,7 +69,7 @@ Future<ValueService> valueService(Ref ref) async {
   final dao = await ref.watch(valueDaoProvider.future);
   final metaService = ref.watch(propertyMetaServiceProvider);
   return ValueServiceImpl(
-    dataTypes: [SimpleText(), IconDataType()],
+    dataTypes: [SimpleText(), IconDataType(), RolesDataType()],
     dao: dao,
     metaService: metaService,
   );

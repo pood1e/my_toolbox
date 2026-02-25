@@ -197,4 +197,8 @@ class ConfigServiceImpl implements ConfigService {
   @override
   Stream<Set<String>> watchMetasByNode(String nodeId) =>
       _dao.watchPropertiesByNode(nodeId);
+
+  @override
+  Future<Set<PropertyId>> checkExist(Set<PropertyId> propertyIds) =>
+      _dao.checkExist(propertyIds);
 }

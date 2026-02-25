@@ -71,9 +71,7 @@ class RelationDao extends DatabaseAccessor<EcsDatabase>
         .go();
   }
 
-  /// 核心：使用 WITH RECURSIVE 在 SQLite 内部完成图的深度遍历
-  /// 返回一个可以被 watch 的 Stream！
-  Stream<List<PropertyId>> watchAffectsCTE(PropertyId id) {
+  Selectable<PropertyId> _selectAffectsCTE(PropertyId id) {
     // SQLite 的递归 CTE 语法
     // 注意：Drift 默认会将驼峰字段名转换为下划线，例如 srcNode -> src_node
     const sql = '''
@@ -106,17 +104,18 @@ class RelationDao extends DatabaseAccessor<EcsDatabase>
       // 【关键】：告诉 Drift 监听 property_relations 表。
       // 一旦该表有增删改，Drift 自动重新执行上述 CTE 并推流！
       readsFrom: {propertyRelations},
-    ).watch().map(
-      (rows) => rows
-          .map(
-            (row) => PropertyId(
-              nodeId: row.read<String>('node_id'),
-              metaId: row.read<String>('meta_id'),
-            ),
-          )
-          .toList(),
+    ).map(
+      (row) => PropertyId(
+        nodeId: row.read<String>('node_id'),
+        metaId: row.read<String>('meta_id'),
+      ),
     );
   }
+
+  /// 核心：使用 WITH RECURSIVE 在 SQLite 内部完成图的深度遍历
+  /// 返回一个可以被 watch 的 Stream！
+  Stream<List<PropertyId>> watchAffectsCTE(PropertyId id) =>
+      _selectAffectsCTE(id).watch();
 }
 
 @riverpod

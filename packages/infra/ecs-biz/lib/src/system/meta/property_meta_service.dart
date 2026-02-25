@@ -4,6 +4,7 @@ import 'package:app_core/object.dart';
 import 'impl/property_meta_service_impl.dart';
 import 'registry/icon_meta.dart';
 import 'registry/name_meta.dart';
+import 'registry/roles_meta.dart';
 
 part 'property_meta_service.freezed.dart';
 part 'property_meta_service.g.dart';
@@ -23,9 +24,8 @@ abstract class PropertyId with _$PropertyId {
 
 abstract class PropertyMetaService {
   PropertyMeta? getById(String metaId);
-
 }
 
 @Riverpod(keepAlive: true)
 PropertyMetaService propertyMetaService(Ref ref) =>
-    PropertyMetaServiceImpl(metas: [NameMeta(), IconMeta()]);
+    PropertyMetaServiceImpl(metas: [NameMeta(), IconMeta(), RoleMeta()]);
