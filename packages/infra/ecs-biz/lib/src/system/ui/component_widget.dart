@@ -1,5 +1,4 @@
 import 'package:app_core/di.dart';
-import 'package:app_core/object.dart';
 import 'package:flutter/material.dart';
 
 import 'components/basic/card_tile.dart';
@@ -13,6 +12,7 @@ import 'components/data_type/text_data_view.dart';
 import 'components/node/node_editor.dart';
 import 'components/node/node_tile.dart';
 import 'components/page/node_list.dart';
+import 'components/property/description_editor.dart';
 import 'components/property/icon_editor.dart';
 import 'components/property/name_editor.dart';
 import 'components/property/roles_editor.dart';
@@ -89,6 +89,7 @@ ComponentService componentService(Ref ref) => ComponentServiceImpl(
     NamePropertyComponent(),
     IconPropertyComponent(),
     RolesPropertyComponent(),
+    DescriptionPropertyComponent(),
   ],
   dataTypeWidgets: [IconDataView(), TextDataView(), RolesDataView()],
 );

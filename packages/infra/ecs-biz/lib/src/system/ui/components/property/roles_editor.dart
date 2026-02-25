@@ -55,28 +55,27 @@ class RolesEditorController extends _$RolesEditorController {
       RolesConfig(roleMap: roleMap),
     );
 
-    // final role = ref.read(roleRegistryProvider).getById(roleId)!;
-    //
-    // final metas = await ref.read(watchMetasByNodeProvider(nodeId).future);
-    // final ops = role.constraints
-    //     .where(
-    //       (constraint) =>
-    //           constraint.isMandatory && !metas.contains(constraint.metaId),
-    //     )
-    //     .map((constraint) {
-    //       final val =
-    //           constraint.config ??
-    //           (ref.read(propertyMetaServiceProvider).getById(constraint.metaId)!
-    //                   as PropertyConfigMeta)
-    //               .defaultConfig;
-    //       if (val == null) throw UnimplementedError();
-    //       return ConfigBatchOp.create(
-    //         propertyId: PropertyId(nodeId: nodeId, metaId: constraint.metaId),
-    //         config: val,
-    //       );
-    //     })
-    //     .toList();
-    // await service.batchApply(ops);
+    final role = ref.read(roleRegistryProvider).getById(roleId)!;
+
+    final metas = await ref.read(watchMetasByNodeProvider(nodeId).future);
+    final ops = role.constraints
+        .where(
+          (constraint) =>
+              constraint.isMandatory && !metas.contains(constraint.metaId),
+        )
+        .map((constraint) {
+          final val =
+              (ref.read(propertyMetaServiceProvider).getById(constraint.metaId)!
+                      as PropertyConfigMeta)
+                  .defaultConfig;
+          if (val == null) throw UnimplementedError();
+          return ConfigBatchOp.create(
+            propertyId: PropertyId(nodeId: nodeId, metaId: constraint.metaId),
+            config: val,
+          );
+        })
+        .toList();
+    await service.batchApply(ops);
   }
 
   Future<void> rmRole(String roleId) async {

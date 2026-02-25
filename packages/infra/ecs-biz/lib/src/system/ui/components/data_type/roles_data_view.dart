@@ -38,7 +38,13 @@ class RolesDataWidget extends ConsumerWidget {
           spacing: AppSpacings.s,
           children: success.map((status) {
             final role = srv.getById(status.roleId)!;
-            return Chip(label: Text(role.name));
+            return Chip(
+              label: Wrap(
+                spacing: AppSpacings.s,
+                runSpacing: AppSpacings.s,
+                children: [Icon(role.icon), Text(role.name)],
+              ),
+            );
           }).toList(),
         ),
         ...errors.map(

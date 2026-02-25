@@ -74,3 +74,9 @@ Future<ValueService> valueService(Ref ref) async {
     metaService: metaService,
   );
 }
+
+@riverpod
+Stream<PropertyVal?> watchValue(Ref ref, PropertyId id) async* {
+  final srv = await ref.watch(valueServiceProvider.future);
+  yield* srv.watchValue(id);
+}

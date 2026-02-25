@@ -6,6 +6,7 @@ import '../config/config_service.dart';
 import '../meta/property_meta_service.dart';
 import '../meta/registry/roles_meta.dart';
 import 'impl/role_registry_impl.dart';
+import 'registry/concept_role.dart';
 import 'registry/graph_node_role.dart';
 
 /// 约束property
@@ -18,7 +19,6 @@ abstract class PropertyConstraint with _$PropertyConstraint {
   const factory PropertyConstraint({
     required String metaId,
     required bool isMandatory,
-    dynamic config,
   }) = _PropertyConstraint;
 }
 
@@ -48,7 +48,7 @@ abstract class RoleRegistry {
 
 @Riverpod(keepAlive: true)
 RoleRegistry roleRegistry(Ref ref) =>
-    RoleRegistryImpl(roles: [GraphNodeRole()]);
+    RoleRegistryImpl(roles: [GraphNodeRole(), ConceptRole()]);
 
 @riverpod
 Future<Set<String>> getNodeMandatories(Ref ref, String nodeId) async {

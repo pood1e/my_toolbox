@@ -3,6 +3,7 @@ import 'package:app_core/object.dart';
 
 import '../role/role_service.dart';
 import 'impl/property_meta_service_impl.dart';
+import 'registry/description_meta.dart';
 import 'registry/icon_meta.dart';
 import 'registry/name_meta.dart';
 import 'registry/roles_meta.dart';
@@ -33,5 +34,6 @@ PropertyMetaService propertyMetaService(Ref ref) => PropertyMetaServiceImpl(
     NameMeta(),
     IconMeta(),
     RoleMeta(roleRegistry: ref.read(roleRegistryProvider)),
+    DescriptionMeta()
   ],
 );

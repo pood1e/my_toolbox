@@ -4,6 +4,7 @@ import '../../config/config_service.dart';
 import '../../meta/property_meta_service.dart';
 import '../../meta/registry/roles_meta.dart';
 import '../../role/role_service.dart';
+import '../../ui/property_common_ui.dart';
 import '../../value/data_types/roles_data_type.dart';
 import '../../value/value_service.dart';
 import '../impl/compute_node.dart';
@@ -71,11 +72,12 @@ class RolesCheckSource extends Source<RolesConfig, RolesStatus> {
           constraint,
         ) {
           final meta = metaMap[constraint.metaId]!;
-          if (meta is PropertyValueMeta && !valueValids.contains(meta.metaId)) {
-            errors.add('${meta.metaId} value invalid');
-          }
+          final metaName = meta is PropertyUiMeta ? meta.name : meta.metaId;
           if (!metaExists.contains(meta.metaId)) {
-            errors.add('${meta.metaId} config invalid');
+            errors.add('缺少 $metaName');
+          }
+          if (meta is PropertyValueMeta && !valueValids.contains(meta.metaId)) {
+            errors.add('$metaName 值异常');
           }
         });
         return RoleStatus(

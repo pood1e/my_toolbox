@@ -5,27 +5,26 @@ import 'package:flutter/material.dart';
 import '../../../meta/property_meta_service.dart';
 import '../../../role/role_service.dart';
 import '../../component_widget.dart';
-import '../basic/text_input.dart';
 import 'property_card.dart';
 import 'text_editor.dart';
 
-class NamePropertyComponent implements PropertyWidget {
+class DescriptionPropertyComponent implements PropertyWidget {
   @override
   PropertyComponentBuilder get builder =>
-      (nodeId, _) => NameEditorWidget(nodeId: nodeId);
+      (nodeId, _) => DescriptionEditorWidget(nodeId: nodeId);
 
   @override
-  String get id => 'name_editor';
+  String get id => 'description_editor';
 
   @override
-  String get metaId => '_name';
+  String get metaId => '_description';
 }
 
-class NameEditorWidget extends ConsumerWidget {
+class DescriptionEditorWidget extends ConsumerWidget {
   final PropertyId _propertyId;
 
-  NameEditorWidget({super.key, required String nodeId})
-    :_propertyId = PropertyId(nodeId: nodeId, metaId: '_name');
+  DescriptionEditorWidget({super.key, required String nodeId})
+    : _propertyId = PropertyId(nodeId: nodeId, metaId: '_description');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +36,7 @@ class NameEditorWidget extends ConsumerWidget {
 
     return PropertyCardWidget(
       config: PropertyCardConfig(
-        metaId: '_name',
+        metaId: '_description',
         actions: [
           if (!(mandatoryAsync.value ?? true))
             IconButton(
@@ -45,13 +44,16 @@ class NameEditorWidget extends ConsumerWidget {
               icon: const Icon(Icons.delete),
             ),
         ],
-        compactContent: Expanded(
-          child: valAsync.whenUI(
-            data: (config) => TextInputWidget(
-              config: TextInputConfig(
-                initialText: config.text,
-                onChanged: notifier.updateText,
-              ),
+        content: valAsync.whenUI(
+          data: (config) => TextFormField(
+            initialValue: config.text,
+            onChanged: notifier.updateText,
+            maxLines: null,
+            minLines: 3,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
             ),
           ),
         ),

@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 
 import '../../../config/config_service.dart';
 import '../../../meta/property_meta_service.dart';
+import '../../../value/value_service.dart';
 import '../../component_widget.dart';
 import '../../property_common_ui.dart';
-import '../property/name_editor.dart';
 
 part 'node_editor.freezed.dart';
 part 'node_editor.g.dart';
@@ -32,8 +32,16 @@ class NodeEditorComponent implements ComponentWidget {
 
 @freezed
 abstract class NodeEditorState with _$NodeEditorState {
-  const factory NodeEditorState({required Set<String> metas}) =
+  const factory NodeEditorState({String? name, required Set<String> metas}) =
       _NodeEditorState;
+}
+
+@riverpod
+Future<String?> watchNodeNameVal(Ref ref, String nodeId) async {
+  final val = await ref.watch(
+    watchValueProvider(PropertyId(nodeId: nodeId, metaId: '_name')).future,
+  );
+  return val?.value;
 }
 
 @riverpod
@@ -41,7 +49,8 @@ class NodeEditorController extends _$NodeEditorController {
   @override
   Future<NodeEditorState> build(String nodeId) async {
     final metas = await ref.watch(watchMetasByNodeProvider(nodeId).future);
-    return NodeEditorState(metas: metas);
+    final name = await ref.watch(watchNodeNameValProvider(nodeId).future);
+    return NodeEditorState(name: name, metas: metas);
   }
 
   Future<void> addDefaultConfig(String metaId) async {
@@ -68,6 +77,8 @@ final _supportMetas = [
   const PropertyEditorConfig(metaId: '_roles', widgetId: 'roles_editor'),
   const PropertyEditorConfig(metaId: '_name', widgetId: 'name_editor'),
   const PropertyEditorConfig(metaId: '_icon', widgetId: 'icon_editor'),
+  const PropertyEditorConfig(metaId: '_description', widgetId: 'description_editor'),
+
 ];
 
 class NodeEditorWidget extends ConsumerWidget {
@@ -138,12 +149,11 @@ class NodeEditorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final nameAsync = ref.watch(watchNodeNameValProvider(_config.nodeId));
     final stateAsync = ref.watch(nodeEditorControllerProvider(_config.nodeId));
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
-        title: Text(nameAsync.value ?? 'unnamed'),
+        title: Text(stateAsync.value?.name ?? 'unnamed'),
       ),
       floatingActionButton: _buildFab(
         context,
